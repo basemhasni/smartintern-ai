@@ -4,6 +4,7 @@ const helmet = require('helmet');
 
 const authRoutes = require('./routes/auth.routes');
 const healthRoutes = require('./routes/health.routes');
+const testProtectedRoutes = require('./routes/test-protected.routes');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/test', testProtectedRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

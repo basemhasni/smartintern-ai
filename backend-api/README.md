@@ -198,3 +198,78 @@ Avec Postman :
 - Choisir la methode HTTP.
 - Ajouter `Content-Type: application/json` pour `register` et `login`.
 - Pour `/me`, ajouter le header `Authorization` avec la valeur `Bearer <token>`.
+
+## Middleware de roles
+
+Le middleware `authorizeRoles(...allowedRoles)` permet de limiter l'acces a une route selon le role contenu dans le token JWT.
+
+Il doit etre utilise apres le middleware `protect`, car `protect` verifie le token et ajoute l'utilisateur decode dans `req.user`.
+
+Exemple :
+
+```js
+router.get('/admin', protect, authorizeRoles('ADMIN'), controller);
+```
+
+Comportement :
+
+- `401` si l'utilisateur n'est pas authentifie.
+- `401` si le role de l'utilisateur est absent.
+- `403` si le role n'est pas autorise.
+- `next()` si le role est autorise.
+
+## Routes temporaires de test protegees
+
+Ces routes servent a verifier rapidement la securite pendant le developpement. Elles seront supprimees ou desactivees plus tard si necessaire.
+
+Base URL :
+
+```text
+http://localhost:5000/api/test
+```
+
+Routes disponibles :
+
+```http
+GET /api/test/student
+GET /api/test/company
+GET /api/test/admin
+GET /api/test/all
+```
+
+Roles autorises :
+
+```text
+/api/test/student : STUDENT
+/api/test/company : COMPANY
+/api/test/admin   : ADMIN
+/api/test/all     : STUDENT, COMPANY, ADMIN
+```
+
+Format du header obligatoire :
+
+```http
+Authorization: Bearer <token>
+```
+
+### Tester avec Postman
+
+1. Creer ou connecter un utilisateur avec `/api/auth/register` ou `/api/auth/login`.
+2. Copier le `token` retourne par l'API.
+3. Creer une requete `GET` vers une route de test, par exemple `http://localhost:5000/api/test/student`.
+4. Dans l'onglet `Headers`, ajouter :
+
+```text
+Key: Authorization
+Value: Bearer <token>
+```
+
+5. Verifier le resultat selon le role du token :
+
+```json
+{
+  "message": "Student access granted"
+}
+```
+
+Pour tester le refus d'acces, utiliser un token d'un autre role sur la route. Par exemple, un token `STUDENT` sur `/api/test/admin` doit retourner `403`.
