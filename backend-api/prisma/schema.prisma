@@ -20,6 +20,13 @@ enum CompanyStatus {
   SUSPENDED
 }
 
+enum OfferStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  CLOSED
+}
+
 model User {
   id           String   @id @default(uuid())
   firstName    String
@@ -62,6 +69,24 @@ model Company {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  offers InternshipOffer[]
+}
+
+model InternshipOffer {
+  id                 String      @id @default(uuid())
+  companyId          String
+  title              String
+  description        String
+  location           String?
+  duration           String?
+  startDate          DateTime?
+  requiredSkillsJson Json?
+  optionalSkillsJson Json?
+  status             OfferStatus @default(DRAFT)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
