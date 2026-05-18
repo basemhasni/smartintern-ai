@@ -2,13 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 
+const authRoutes = require('./routes/auth.routes');
+const companyRoutes = require('./routes/company.routes');
 const healthRoutes = require('./routes/health.routes');
+const studentRoutes = require('./routes/student.routes');
+const testProtectedRoutes = require('./routes/test-protected.routes');
 const {
   offerApplicationRouter,
   studentApplicationRouter,
   companyOfferApplicationRouter,
   applicationStatusRouter,
 } = require('./routes/application.routes');
+const { companyOfferRouter, publicOfferRouter } = require('./routes/offer.routes');
 
 const app = express();
 
@@ -17,9 +22,15 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/health', healthRoutes);
-app.use('/api/offers', offerApplicationRouter);
+app.use('/api/auth', authRoutes);
+app.use('/api/test', testProtectedRoutes);
 app.use('/api/students/applications', studentApplicationRouter);
+app.use('/api/students', studentRoutes);
 app.use('/api/companies/offers', companyOfferApplicationRouter);
+app.use('/api/companies/offers', companyOfferRouter);
+app.use('/api/companies', companyRoutes);
+app.use('/api/offers', offerApplicationRouter);
+app.use('/api/offers', publicOfferRouter);
 app.use('/api/applications', applicationStatusRouter);
 
 app.use((req, res) => {

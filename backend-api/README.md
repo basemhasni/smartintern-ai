@@ -1,6 +1,6 @@
 # Backend API - SmartIntern AI
 
-Backend Express de SmartIntern AI avec Prisma ORM, PostgreSQL, JWT et module Applications.
+Backend Express de SmartIntern AI avec Prisma ORM, PostgreSQL, JWT, roles, profils, offres et candidatures.
 
 ## Installation
 
@@ -20,6 +20,21 @@ JWT_SECRET="change_me_later"
 
 Le fichier `.env` ne doit pas etre committe.
 
+## Prisma
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+npm run db:check
+npx prisma studio
+```
+
+Les migrations presentes couvrent :
+
+- utilisateurs, profils Student et Company ;
+- offres de stage ;
+- candidatures.
+
 ## Lancer le backend
 
 ```bash
@@ -28,41 +43,151 @@ npm run dev
 
 ## Route de sante
 
-```bash
-curl http://localhost:5000/health
+```http
+GET /health
 ```
 
-## Endpoints Applications
+## Authentification
 
-Le module Applications permet aux etudiants de postuler aux offres publiees et aux entreprises de consulter et traiter les candidatures recues.
-
-Une migration Prisma est necessaire car le schema ajoute :
-
-- `ApplicationStatus`
-- `Application`
-- les relations `Student.applications` et `InternshipOffer.applications`
-- la contrainte unique `studentId + offerId`
-
-Commandes a executer apres cette modification :
-
-```bash
-npx prisma generate
-npx prisma migrate dev --name add_applications
+```http
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
 ```
 
-### Routes STUDENT
+Payload register :
 
-Ces routes sont accessibles uniquement avec un token JWT de role `STUDENT`.
+```json
+{
+  "firstName": "Hasni",
+  "lastName": "Badis",
+  "email": "hasni@example.com",
+  "password": "password123",
+  "role": "STUDENT"
+}
+```
+
+Payload login :
+
+```json
+{
+  "email": "hasni@example.com",
+  "password": "password123"
+}
+```
+
+Header pour les routes protegees :
+
+```http
+Authorization: Bearer <token>
+```
+
+## Routes de test protegees
+
+```http
+GET /api/test/student
+GET /api/test/company
+GET /api/test/admin
+GET /api/test/all
+```
+
+Ces routes servent a verifier rapidement `protect` et `authorizeRoles`.
+
+## Profil Student
+
+Routes accessibles uniquement au role `STUDENT`.
+
+```http
+GET /api/students/profile
+PUT /api/students/profile
+```
+
+Payload PUT :
+
+```json
+{
+  "phone": "+216 12 345 678",
+  "location": "Tunis",
+  "educationLevel": "Licence Informatique",
+  "targetJob": "Developpeur Fullstack",
+  "bio": "Etudiant passionne par le developpement web et l'IA.",
+  "availabilityDate": "2026-06-01"
+}
+```
+
+## Profil Company
+
+Routes accessibles uniquement au role `COMPANY`.
+
+```http
+GET /api/companies/profile
+PUT /api/companies/profile
+```
+
+Payload PUT :
+
+```json
+{
+  "companyName": "SmartTech",
+  "sector": "Informatique",
+  "description": "Entreprise specialisee dans le developpement web, mobile et IA.",
+  "website": "https://smarttech.com",
+  "address": "Tunis, Tunisie"
+}
+```
+
+L'entreprise ne peut pas modifier directement `status`, `userId` ou `role`.
+
+## Offres de stage
+
+Routes entreprise, accessibles uniquement au role `COMPANY` :
+
+```http
+POST /api/companies/offers
+GET /api/companies/offers
+GET /api/companies/offers/:id
+PUT /api/companies/offers/:id
+DELETE /api/companies/offers/:id
+```
+
+Routes publiques :
+
+```http
+GET /api/offers
+GET /api/offers/:id
+```
+
+Payload creation :
+
+```json
+{
+  "title": "Stage Developpeur Fullstack React Node.js",
+  "description": "Nous recherchons un stagiaire pour participer au developpement d'une plateforme web.",
+  "location": "Paris",
+  "duration": "6 mois",
+  "startDate": "2026-06-01",
+  "requiredSkills": ["React", "Node.js", "PostgreSQL"],
+  "optionalSkills": ["Docker", "AWS"],
+  "status": "PUBLISHED"
+}
+```
+
+`DELETE /api/companies/offers/:id` archive l'offre avec `status = ARCHIVED`.
+
+## Candidatures
+
+Routes etudiant, accessibles uniquement au role `STUDENT` :
 
 ```http
 POST /api/offers/:offerId/apply
 GET /api/students/applications
 ```
 
-Header obligatoire :
+Routes entreprise, accessibles uniquement au role `COMPANY` :
 
 ```http
-Authorization: Bearer <student_token>
+GET /api/companies/offers/:offerId/applications
+PUT /api/applications/:id/status
 ```
 
 Payload pour postuler :
@@ -73,37 +198,7 @@ Payload pour postuler :
 }
 ```
 
-Exemple curl :
-
-```bash
-curl -X POST http://localhost:5000/api/offers/<offerId>/apply \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <student_token>" \
-  -d "{\"message\":\"Je suis interesse par cette offre de stage.\"}"
-```
-
-Regles principales :
-
-- L'offre doit exister.
-- L'offre doit etre `PUBLISHED`.
-- Un etudiant ne peut pas postuler deux fois a la meme offre.
-
-### Routes COMPANY
-
-Ces routes sont accessibles uniquement avec un token JWT de role `COMPANY`.
-
-```http
-GET /api/companies/offers/:offerId/applications
-PUT /api/applications/:id/status
-```
-
-Header obligatoire :
-
-```http
-Authorization: Bearer <company_token>
-```
-
-Payload pour changer le statut :
+Payload changement de statut :
 
 ```json
 {
@@ -121,25 +216,20 @@ REJECTED
 CANCELLED
 ```
 
-Exemple curl :
+Regles principales :
 
-```bash
-curl -X PUT http://localhost:5000/api/applications/<applicationId>/status \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <company_token>" \
-  -d "{\"status\":\"ACCEPTED\"}"
-```
+- un etudiant peut postuler uniquement aux offres `PUBLISHED` ;
+- un etudiant ne peut pas postuler deux fois a la meme offre ;
+- une entreprise consulte et modifie uniquement les candidatures de ses propres offres ;
+- `passwordHash` n'est jamais retourne par les reponses API.
 
-Une entreprise peut consulter et modifier uniquement les candidatures liees a ses propres offres.
+## Test avec Postman
 
-## Tester avec Postman
-
-1. Creer ou connecter un utilisateur `STUDENT`.
-2. Creer ou connecter un utilisateur `COMPANY`.
-3. Creer une offre `PUBLISHED` avec le token `COMPANY`.
-4. Avec le token `STUDENT`, appeler `POST /api/offers/:offerId/apply`.
-5. Avec le token `STUDENT`, appeler `GET /api/students/applications`.
-6. Avec le token `COMPANY`, appeler `GET /api/companies/offers/:offerId/applications`.
-7. Avec le token `COMPANY`, appeler `PUT /api/applications/:id/status`.
-
-Un token `STUDENT` doit recevoir `403` sur les routes entreprise. Un token `COMPANY` doit recevoir `403` sur les routes etudiant.
+1. Lancer PostgreSQL et le backend.
+2. Creer un utilisateur `STUDENT` et un utilisateur `COMPANY`.
+3. Utiliser les tokens JWT retournes par `/api/auth/login`.
+4. Mettre a jour le profil Company si necessaire.
+5. Creer une offre `PUBLISHED` avec le token `COMPANY`.
+6. Postuler a l'offre avec le token `STUDENT`.
+7. Consulter les candidatures de l'offre avec le token `COMPANY`.
+8. Changer le statut de la candidature avec `PUT /api/applications/:id/status`.
