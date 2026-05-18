@@ -3,6 +3,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 const healthRoutes = require('./routes/health.routes');
+const {
+  offerApplicationRouter,
+  studentApplicationRouter,
+  companyOfferApplicationRouter,
+  applicationStatusRouter,
+} = require('./routes/application.routes');
 
 const app = express();
 
@@ -11,6 +17,10 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/health', healthRoutes);
+app.use('/api/offers', offerApplicationRouter);
+app.use('/api/students/applications', studentApplicationRouter);
+app.use('/api/companies/offers', companyOfferApplicationRouter);
+app.use('/api/applications', applicationStatusRouter);
 
 app.use((req, res) => {
   res.status(404).json({
