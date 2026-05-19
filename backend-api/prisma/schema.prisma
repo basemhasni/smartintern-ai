@@ -64,6 +64,7 @@ model Student {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications Application[]
+  cvs          CV[]
 }
 
 model Company {
@@ -114,5 +115,19 @@ model Application {
   offer   InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, offerId])
+}
+
+model CV {
+  id           String   @id @default(uuid())
+  studentId    String
+  fileName     String
+  fileUrl      String
+  fileType     String
+  fileSize     Int?
+  parsedText   String?
+  analysisJson Json?
+  uploadedAt   DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 

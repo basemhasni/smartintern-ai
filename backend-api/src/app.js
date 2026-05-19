@@ -1,9 +1,11 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 
 const authRoutes = require('./routes/auth.routes');
 const companyRoutes = require('./routes/company.routes');
+const cvRoutes = require('./routes/cv.routes');
 const healthRoutes = require('./routes/health.routes');
 const studentRoutes = require('./routes/student.routes');
 const testProtectedRoutes = require('./routes/test-protected.routes');
@@ -21,9 +23,11 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/test', testProtectedRoutes);
+app.use('/api/students/cv', cvRoutes);
 app.use('/api/students/applications', studentApplicationRouter);
 app.use('/api/students', studentRoutes);
 app.use('/api/companies/offers', companyOfferApplicationRouter);

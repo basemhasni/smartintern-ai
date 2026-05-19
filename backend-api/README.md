@@ -223,6 +223,64 @@ Regles principales :
 - une entreprise consulte et modifie uniquement les candidatures de ses propres offres ;
 - `passwordHash` n'est jamais retourne par les reponses API.
 
+## Upload CV
+
+Routes accessibles uniquement au role `STUDENT`.
+
+```http
+POST /api/students/cv/upload
+GET /api/students/cv
+GET /api/students/cv/:id
+DELETE /api/students/cv/:id
+```
+
+Le fichier doit etre envoye en `multipart/form-data` avec le champ :
+
+```text
+cv
+```
+
+Formats acceptes :
+
+```text
+PDF  : application/pdf, extension .pdf
+DOCX : application/vnd.openxmlformats-officedocument.wordprocessingml.document, extension .docx
+```
+
+Limite de taille :
+
+```text
+5 MB
+```
+
+Les fichiers sont stockes localement pour le MVP dans :
+
+```text
+backend-api/uploads/cvs
+```
+
+Les fichiers uploades sont servis via :
+
+```text
+/uploads/cvs/<fileName>
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "CV uploaded successfully",
+  "cv": {
+    "id": "cv_id",
+    "fileName": "timestamp-cv.pdf",
+    "fileUrl": "/uploads/cvs/timestamp-cv.pdf",
+    "fileType": "application/pdf",
+    "fileSize": 123456,
+    "uploadedAt": "2026-05-19T00:00:00.000Z"
+  }
+}
+```
+
 ## Test avec Postman
 
 1. Lancer PostgreSQL et le backend.
@@ -233,3 +291,6 @@ Regles principales :
 6. Postuler a l'offre avec le token `STUDENT`.
 7. Consulter les candidatures de l'offre avec le token `COMPANY`.
 8. Changer le statut de la candidature avec `PUT /api/applications/:id/status`.
+9. Pour tester l'upload CV, creer une requete `POST` vers `http://localhost:5000/api/students/cv/upload`.
+10. Ajouter `Authorization: Bearer <student_token>`.
+11. Dans `Body`, choisir `form-data`, ajouter la cle `cv`, choisir le type `File`, puis selectionner un fichier `.pdf` ou `.docx` de 5 MB maximum.
