@@ -16,6 +16,7 @@ Creer un fichier `.env` dans `backend-api/` a partir de `.env.example`.
 PORT=5000
 DATABASE_URL="postgresql://postgres:postgres@localhost:5433/smartintern_ai?schema=public"
 JWT_SECRET="change_me_later"
+AI_SERVICE_URL="http://localhost:8000"
 ```
 
 Le fichier `.env` ne doit pas etre committe.
@@ -276,10 +277,26 @@ Reponse attendue :
     "fileUrl": "/uploads/cvs/timestamp-cv.pdf",
     "fileType": "application/pdf",
     "fileSize": 123456,
+    "parsedText": "Temporary CV text extraction from timestamp-cv.pdf...",
+    "analysisJson": {
+      "skills": ["React", "Node.js"],
+      "experienceLevel": "junior",
+      "summary": "Profil oriente developpement web."
+    },
     "uploadedAt": "2026-05-19T00:00:00.000Z"
   }
 }
 ```
+
+Pour obtenir `analysisJson`, lancer aussi le microservice IA avant le test :
+
+```bash
+cd ../ai-service
+venv\Scripts\Activate.ps1
+python -m uvicorn app.main:app --port 8000
+```
+
+Si le service IA n'est pas disponible, l'upload du fichier reste valide et la reponse contient le message `CV uploaded successfully, but AI analysis failed`.
 
 ## Test avec Postman
 
@@ -294,3 +311,4 @@ Reponse attendue :
 9. Pour tester l'upload CV, creer une requete `POST` vers `http://localhost:5000/api/students/cv/upload`.
 10. Ajouter `Authorization: Bearer <student_token>`.
 11. Dans `Body`, choisir `form-data`, ajouter la cle `cv`, choisir le type `File`, puis selectionner un fichier `.pdf` ou `.docx` de 5 MB maximum.
+12. Pour tester l'analyse IA automatique, verifier que `ai-service` tourne sur `http://localhost:8000` avant l'upload.

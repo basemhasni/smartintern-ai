@@ -2,10 +2,12 @@ const cvService = require('../services/cv.service');
 
 const uploadCV = async (req, res, next) => {
   try {
-    const cv = await cvService.createCV(req.user.id, req.file);
+    const { cv, analysisFailed } = await cvService.createCV(req.user.id, req.file);
 
     res.status(201).json({
-      message: 'CV uploaded successfully',
+      message: analysisFailed
+        ? 'CV uploaded successfully, but AI analysis failed'
+        : 'CV uploaded successfully',
       cv,
     });
   } catch (error) {

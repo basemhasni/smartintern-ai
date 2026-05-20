@@ -2,6 +2,8 @@ const fs = require('fs/promises');
 const path = require('path');
 
 const prisma = require('../config/prisma');
+const { analyzeCV } = require('./ai.service');
+const { extractTextFromCV } = require('./cv-text.service');
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -27,16 +29,48 @@ const createCV = async (userId, file) => {
   }
 
   const student = await getStudentByUserId(userId);
+  const filePath = file.path || path.join(__dirname, '../../uploads/cvs', file.filename);
+  let parsedText = null;
+  let analysisJson = null;
+  let analysisFailed = false;
 
-  return prisma.cV.create({
+  try {
+    parsedText = await extractTextFromCV(filePath, file.mimetype);
+    const analysisResult = await analyzeCV(parsedText);
+
+    if (analysisResult.success) {
+      analysisJson = analysisResult.data;
+    } else {
+      analysisFailed = true;
+      analysisJson = {
+        error: analysisResult.error,
+        details: analysisResult.details || null,
+      };
+    }
+  } catch (error) {
+    analysisFailed = true;
+    analysisJson = {
+      error: 'AI analysis failed',
+      details: error.message,
+    };
+  }
+
+  const cv = await prisma.cV.create({
     data: {
       studentId: student.id,
       fileName: file.filename,
       fileUrl: `/uploads/cvs/${file.filename}`,
       fileType: file.mimetype,
       fileSize: file.size,
+      parsedText,
+      analysisJson,
     },
   });
+
+  return {
+    cv,
+    analysisFailed,
+  };
 };
 
 const getStudentCVs = async (userId) => {
