@@ -212,6 +212,68 @@ Reponse attendue :
 }
 ```
 
+## Recommandations d'offres
+
+Route accessible uniquement au role `STUDENT` :
+
+```http
+GET /api/students/recommendations
+```
+
+Prerequis :
+
+- l'etudiant doit etre connecte avec un token `STUDENT` ;
+- l'etudiant doit avoir uploade au moins un CV analyse ;
+- des offres doivent exister avec `status = PUBLISHED` ;
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+
+Parametres optionnels :
+
+```http
+GET /api/students/recommendations?limit=5&minScore=50
+```
+
+- `limit` : nombre maximum de recommandations, par defaut `10` ;
+- `minScore` : score minimum a retourner, par defaut `0`.
+
+Exemple Postman :
+
+```http
+GET http://localhost:5000/api/students/recommendations?limit=5&minScore=50
+Authorization: Bearer <student_token>
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "Recommendations generated successfully",
+  "count": 1,
+  "recommendations": [
+    {
+      "offer": {
+        "id": "offer_id",
+        "title": "Stage Developpeur Fullstack React Node.js",
+        "location": "Paris",
+        "duration": "6 mois",
+        "company": {
+          "id": "company_id",
+          "companyName": "SmartTech",
+          "sector": "Informatique"
+        }
+      },
+      "matching": {
+        "score": 87,
+        "matchedSkills": ["React", "Node.js", "PostgreSQL"],
+        "missingSkills": ["Docker"],
+        "optionalMatchedSkills": ["AWS"],
+        "explanation": "Le candidat possede 3 competence(s) requise(s) sur 4."
+      }
+    }
+  ]
+}
+```
+
 ## Candidatures
 
 Routes etudiant, accessibles uniquement au role `STUDENT` :
