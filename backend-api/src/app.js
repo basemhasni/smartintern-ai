@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth.routes');
 const companyRoutes = require('./routes/company.routes');
 const cvRoutes = require('./routes/cv.routes');
 const healthRoutes = require('./routes/health.routes');
+const matchingRoutes = require('./routes/matching.routes');
 const studentRoutes = require('./routes/student.routes');
 const testProtectedRoutes = require('./routes/test-protected.routes');
 const {
@@ -34,6 +35,7 @@ app.use('/api/companies/offers', companyOfferApplicationRouter);
 app.use('/api/companies/offers', companyOfferRouter);
 app.use('/api/companies', companyRoutes);
 app.use('/api/offers', offerApplicationRouter);
+app.use('/api/offers', matchingRoutes);
 app.use('/api/offers', publicOfferRouter);
 app.use('/api/applications', applicationStatusRouter);
 

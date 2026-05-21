@@ -62,9 +62,10 @@ model Student {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applications Application[]
-  cvs          CV[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications    Application[]
+  cvs             CV[]
+  matchingResults MatchingResult[]
 }
 
 model Company {
@@ -97,8 +98,9 @@ model InternshipOffer {
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
 
-  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  applications Application[]
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications    Application[]
+  matchingResults MatchingResult[]
 }
 
 model Application {
@@ -131,3 +133,19 @@ model CV {
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
+model MatchingResult {
+  id                        String   @id @default(uuid())
+  studentId                 String
+  offerId                   String
+  score                     Int
+  matchedSkillsJson         Json?
+  missingSkillsJson         Json?
+  optionalMatchedSkillsJson Json?
+  explanation               String?
+  createdAt                 DateTime @default(now())
+
+  student Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offer   InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, offerId])
+}

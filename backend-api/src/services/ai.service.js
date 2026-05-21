@@ -30,6 +30,28 @@ const analyzeCV = async (text) => {
   }
 };
 
+const matchCandidateWithOffer = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/match`,
+      payload,
+      { timeout: 5000 }
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'AI matching failed',
+      details: error.response?.data?.detail || error.message,
+    };
+  }
+};
+
 module.exports = {
   analyzeCV,
+  matchCandidateWithOffer,
 };

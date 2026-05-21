@@ -158,6 +158,12 @@ GET /api/offers
 GET /api/offers/:id
 ```
 
+Route de matching, accessible uniquement au role `STUDENT` :
+
+```http
+GET /api/offers/:id/match
+```
+
 Payload creation :
 
 ```json
@@ -174,6 +180,37 @@ Payload creation :
 ```
 
 `DELETE /api/companies/offers/:id` archive l'offre avec `status = ARCHIVED`.
+
+## Matching etudiant/offre
+
+Prerequis :
+
+- l'etudiant doit etre connecte avec un token `STUDENT` ;
+- l'etudiant doit avoir uploade au moins un CV analyse ;
+- l'offre doit exister avec `status = PUBLISHED` ;
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+
+Exemple Postman :
+
+```http
+GET http://localhost:5000/api/offers/<offer_id>/match
+Authorization: Bearer <student_token>
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "Matching calculated successfully",
+  "matching": {
+    "score": 67,
+    "matchedSkills": ["React", "Node.js"],
+    "missingSkills": ["Docker"],
+    "optionalMatchedSkills": [],
+    "explanation": "Le candidat possede 2 competence(s) requise(s) sur 3."
+  }
+}
+```
 
 ## Candidatures
 
@@ -266,6 +303,8 @@ Les fichiers uploades sont servis via :
 /uploads/cvs/<fileName>
 ```
 
+Le backend extrait le texte des fichiers PDF/DOCX pour envoyer le contenu a `ai-service`.
+
 Reponse attendue :
 
 ```json
@@ -277,7 +316,7 @@ Reponse attendue :
     "fileUrl": "/uploads/cvs/timestamp-cv.pdf",
     "fileType": "application/pdf",
     "fileSize": 123456,
-    "parsedText": "Temporary CV text extraction from timestamp-cv.pdf...",
+    "parsedText": "Texte extrait du CV...",
     "analysisJson": {
       "skills": ["React", "Node.js"],
       "experienceLevel": "junior",
