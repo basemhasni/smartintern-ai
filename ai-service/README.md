@@ -163,6 +163,70 @@ Commande de test :
 curl -X POST http://localhost:8000/ai/generate-letter -H "Content-Type: application/json" -d "{\"student\":{\"firstName\":\"Hasni\",\"lastName\":\"Badis\",\"educationLevel\":\"Licence Informatique\",\"targetJob\":\"Developpeur Fullstack\",\"bio\":\"Etudiant passionne par le developpement web.\"},\"candidateSkills\":[\"React\",\"Node.js\",\"PostgreSQL\"],\"offer\":{\"title\":\"Stage Developpeur Fullstack React Node.js\",\"description\":\"Nous recherchons un stagiaire React Node.js PostgreSQL.\",\"location\":\"Paris\",\"duration\":\"6 mois\",\"requiredSkills\":[\"React\",\"Node.js\",\"Docker\"]},\"company\":{\"companyName\":\"SmartTech\",\"sector\":\"Informatique\"},\"matching\":{\"score\":67,\"matchedSkills\":[\"React\",\"Node.js\"],\"missingSkills\":[\"Docker\"]},\"tone\":\"PROFESSIONAL\"}"
 ```
 
+## Assistant Carriere
+
+Endpoint :
+
+```http
+POST /ai/career-advice
+```
+
+Assistant MVP base sur des regles deterministes, sans LLM externe, OpenAI API, LangGraph ou RAG.
+
+Payload :
+
+```json
+{
+  "student": {
+    "firstName": "Hasni",
+    "lastName": "Badis",
+    "educationLevel": "Licence Informatique",
+    "targetJob": "Developpeur Fullstack",
+    "bio": "Etudiant passionne par le developpement web."
+  },
+  "candidateSkills": ["React", "Node.js", "PostgreSQL"],
+  "offer": {
+    "id": "offer_id",
+    "title": "Stage Developpeur Fullstack React Node.js",
+    "description": "Nous recherchons un stagiaire React Node.js Docker.",
+    "requiredSkills": ["React", "Node.js", "Docker"],
+    "optionalSkills": ["AWS"],
+    "companyName": "SmartTech"
+  },
+  "matching": {
+    "score": 67,
+    "matchedSkills": ["React", "Node.js"],
+    "missingSkills": ["Docker"]
+  },
+  "question": "Quelles competences dois-je ameliorer pour reussir cette offre ?"
+}
+```
+
+Reponse :
+
+```json
+{
+  "profileSummary": "Votre profil correspond partiellement a l'offre Stage Developpeur Fullstack React Node.js.",
+  "matchingScore": 67,
+  "strengths": ["Vous possedez deja React."],
+  "skillsToImprove": [
+    {
+      "skill": "Docker",
+      "priority": "HIGH",
+      "reason": "Cette competence est demandee dans l'offre mais absente de votre CV analyse.",
+      "actions": ["Comprendre les images et conteneurs Docker."]
+    }
+  ],
+  "actionPlan": [
+    {
+      "period": "Semaine 1",
+      "objective": "Travailler Docker avec une realisation pratique."
+    }
+  ],
+  "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste."
+}
+```
+
 ## Test avec Postman
 
 1. Lancer le service avec `uvicorn app.main:app --reload --port 8000`.

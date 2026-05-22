@@ -274,6 +274,77 @@ Reponse attendue :
 }
 ```
 
+## Assistant Carriere
+
+Route accessible uniquement au role `STUDENT` :
+
+```http
+POST /api/students/career-assistant
+```
+
+Prerequis :
+
+- l'etudiant doit etre connecte avec un token `STUDENT` ;
+- le dernier CV de l'etudiant doit etre analyse ;
+- l'offre cible doit exister avec `status = PUBLISHED` ;
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+
+Cette premiere version genere des conseils par regles deterministes a partir du profil, du CV analyse, de l'offre et du matching. Elle n'utilise pas de LLM externe, OpenAI API, LangGraph ou RAG.
+
+Payload :
+
+```json
+{
+  "offerId": "offer_id",
+  "question": "Quelles competences dois-je ameliorer pour reussir cette offre ?"
+}
+```
+
+`question` est optionnelle. Si elle est absente, le backend utilise une demande par defaut.
+
+Exemple Postman :
+
+```http
+POST http://localhost:5000/api/students/career-assistant
+Authorization: Bearer <student_token>
+Content-Type: application/json
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "Career advice generated successfully",
+  "careerAdvice": {
+    "profileSummary": "Votre profil correspond partiellement a l'offre Stage Developpeur Fullstack React Node.js.",
+    "matchingScore": 67,
+    "strengths": [
+      "Vous possedez deja React.",
+      "Vous possedez deja Node.js."
+    ],
+    "skillsToImprove": [
+      {
+        "skill": "Docker",
+        "priority": "HIGH",
+        "reason": "Cette competence est demandee dans l'offre mais absente de votre CV analyse.",
+        "actions": [
+          "Comprendre les images et conteneurs Docker.",
+          "Dockeriser une petite API Node.js.",
+          "Ajouter ce projet dans votre portfolio."
+        ]
+      }
+    ],
+    "actionPlan": [
+      {
+        "period": "Semaine 1",
+        "objective": "Travailler Docker avec une realisation pratique."
+      }
+    ],
+    "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste."
+  }
+}
+```
+
 ## Candidatures
 
 Routes etudiant, accessibles uniquement au role `STUDENT` :

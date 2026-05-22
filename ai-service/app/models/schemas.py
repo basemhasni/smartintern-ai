@@ -78,3 +78,55 @@ class MotivationLetterRequest(BaseModel):
 class MotivationLetterResponse(BaseModel):
     content: str
 
+
+class CareerStudent(BaseModel):
+    firstName: str
+    lastName: str
+    educationLevel: Optional[str] = None
+    targetJob: Optional[str] = None
+    bio: Optional[str] = None
+
+
+class CareerOffer(BaseModel):
+    id: str
+    title: str
+    description: str
+    requiredSkills: List[str]
+    optionalSkills: Optional[List[str]] = []
+    companyName: str
+
+
+class CareerMatching(BaseModel):
+    score: int
+    matchedSkills: List[str]
+    missingSkills: List[str]
+
+
+class CareerAdviceRequest(BaseModel):
+    student: CareerStudent
+    candidateSkills: List[str] = []
+    offer: CareerOffer
+    matching: CareerMatching
+    question: Optional[str] = None
+
+
+class SkillImprovement(BaseModel):
+    skill: str
+    priority: str
+    reason: str
+    actions: List[str]
+
+
+class ActionPlanItem(BaseModel):
+    period: str
+    objective: str
+
+
+class CareerAdviceResponse(BaseModel):
+    profileSummary: str
+    matchingScore: int
+    strengths: List[str]
+    skillsToImprove: List[SkillImprovement]
+    actionPlan: List[ActionPlanItem]
+    finalAdvice: str
+

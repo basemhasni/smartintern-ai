@@ -72,8 +72,30 @@ const generateMotivationLetter = async (payload) => {
   }
 };
 
+const generateCareerAdvice = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/career-advice`,
+      payload,
+      { timeout: 5000 }
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Career advice generation failed',
+      details: error.response?.data?.detail || error.message,
+    };
+  }
+};
+
 module.exports = {
   analyzeCV,
+  generateCareerAdvice,
   generateMotivationLetter,
   matchCandidateWithOffer,
 };
