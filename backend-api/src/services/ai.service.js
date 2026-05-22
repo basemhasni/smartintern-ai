@@ -51,7 +51,29 @@ const matchCandidateWithOffer = async (payload) => {
   }
 };
 
+const generateMotivationLetter = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/generate-letter`,
+      payload,
+      { timeout: 5000 }
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Motivation letter generation failed',
+      details: error.response?.data?.detail || error.message,
+    };
+  }
+};
+
 module.exports = {
   analyzeCV,
+  generateMotivationLetter,
   matchCandidateWithOffer,
 };

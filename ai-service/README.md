@@ -107,6 +107,62 @@ Payload :
 }
 ```
 
+## Generation Lettre de Motivation
+
+Endpoint :
+
+```http
+POST /ai/generate-letter
+```
+
+Cette generation MVP est deterministe et n'utilise pas de LLM externe, OpenAI API, LangGraph ou RAG.
+
+Payload :
+
+```json
+{
+  "student": {
+    "firstName": "Hasni",
+    "lastName": "Badis",
+    "educationLevel": "Licence Informatique",
+    "targetJob": "Developpeur Fullstack",
+    "bio": "Etudiant passionne par le developpement web."
+  },
+  "candidateSkills": ["React", "Node.js", "PostgreSQL"],
+  "offer": {
+    "title": "Stage Developpeur Fullstack React Node.js",
+    "description": "Nous recherchons un stagiaire React Node.js PostgreSQL.",
+    "location": "Paris",
+    "duration": "6 mois",
+    "requiredSkills": ["React", "Node.js", "Docker"]
+  },
+  "company": {
+    "companyName": "SmartTech",
+    "sector": "Informatique"
+  },
+  "matching": {
+    "score": 67,
+    "matchedSkills": ["React", "Node.js"],
+    "missingSkills": ["Docker"]
+  },
+  "tone": "PROFESSIONAL"
+}
+```
+
+Reponse :
+
+```json
+{
+  "content": "Madame, Monsieur,\n\nJe vous adresse ma candidature..."
+}
+```
+
+Commande de test :
+
+```bash
+curl -X POST http://localhost:8000/ai/generate-letter -H "Content-Type: application/json" -d "{\"student\":{\"firstName\":\"Hasni\",\"lastName\":\"Badis\",\"educationLevel\":\"Licence Informatique\",\"targetJob\":\"Developpeur Fullstack\",\"bio\":\"Etudiant passionne par le developpement web.\"},\"candidateSkills\":[\"React\",\"Node.js\",\"PostgreSQL\"],\"offer\":{\"title\":\"Stage Developpeur Fullstack React Node.js\",\"description\":\"Nous recherchons un stagiaire React Node.js PostgreSQL.\",\"location\":\"Paris\",\"duration\":\"6 mois\",\"requiredSkills\":[\"React\",\"Node.js\",\"Docker\"]},\"company\":{\"companyName\":\"SmartTech\",\"sector\":\"Informatique\"},\"matching\":{\"score\":67,\"matchedSkills\":[\"React\",\"Node.js\"],\"missingSkills\":[\"Docker\"]},\"tone\":\"PROFESSIONAL\"}"
+```
+
 ## Test avec Postman
 
 1. Lancer le service avec `uvicorn app.main:app --reload --port 8000`.

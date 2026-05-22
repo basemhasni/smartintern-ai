@@ -38,3 +38,43 @@ class MatchingResponse(BaseModel):
     optionalMatchedSkills: List[str]
     explanation: str
 
+
+class LetterStudent(BaseModel):
+    firstName: str
+    lastName: str
+    educationLevel: Optional[str] = None
+    targetJob: Optional[str] = None
+    bio: Optional[str] = None
+
+
+class LetterOffer(BaseModel):
+    title: str
+    description: str
+    location: Optional[str] = None
+    duration: Optional[str] = None
+    requiredSkills: Optional[List[str]] = []
+
+
+class LetterCompany(BaseModel):
+    companyName: str
+    sector: Optional[str] = None
+
+
+class LetterMatching(BaseModel):
+    score: Optional[int] = None
+    matchedSkills: Optional[List[str]] = []
+    missingSkills: Optional[List[str]] = []
+
+
+class MotivationLetterRequest(BaseModel):
+    student: LetterStudent
+    candidateSkills: List[str] = []
+    offer: LetterOffer
+    company: LetterCompany
+    matching: Optional[LetterMatching] = None
+    tone: str = "PROFESSIONAL"
+
+
+class MotivationLetterResponse(BaseModel):
+    content: str
+

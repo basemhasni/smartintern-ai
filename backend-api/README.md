@@ -394,6 +394,81 @@ Reponse attendue :
 }
 ```
 
+## Lettres de motivation
+
+Routes accessibles uniquement au role `STUDENT` :
+
+```http
+POST /api/applications/:applicationId/generate-letter
+GET /api/applications/:applicationId/motivation-letter
+PUT /api/applications/:applicationId/motivation-letter
+```
+
+Prerequis :
+
+- l'etudiant doit etre connecte avec un token `STUDENT` ;
+- la candidature doit exister et appartenir a l'etudiant connecte ;
+- le dernier CV de l'etudiant doit etre analyse ;
+- l'offre et l'entreprise associee doivent exister ;
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+
+La generation MVP est deterministe et personnalisee a partir du profil, du CV, de l'offre, de l'entreprise et du matching disponible. Elle n'utilise pas encore de LLM externe, OpenAI API, LangGraph ou RAG.
+
+Payload optionnel pour generer :
+
+```json
+{
+  "tone": "PROFESSIONAL"
+}
+```
+
+Tons acceptes :
+
+```text
+PROFESSIONAL
+DYNAMIC
+SIMPLE
+```
+
+Exemple Postman :
+
+```http
+POST http://localhost:5000/api/applications/<application_id>/generate-letter
+Authorization: Bearer <student_token>
+Content-Type: application/json
+```
+
+Modifier manuellement la lettre :
+
+```http
+PUT http://localhost:5000/api/applications/<application_id>/motivation-letter
+Authorization: Bearer <student_token>
+Content-Type: application/json
+```
+
+```json
+{
+  "content": "Texte modifie manuellement par l'etudiant."
+}
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "Motivation letter generated successfully",
+  "motivationLetter": {
+    "id": "letter_id",
+    "applicationId": "application_id",
+    "tone": "PROFESSIONAL",
+    "content": "Madame, Monsieur, ...",
+    "generatedByAI": true,
+    "createdAt": "2026-05-22T00:00:00.000Z",
+    "updatedAt": "2026-05-22T00:00:00.000Z"
+  }
+}
+```
+
 ## Upload CV
 
 Routes accessibles uniquement au role `STUDENT`.

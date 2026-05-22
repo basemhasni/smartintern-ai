@@ -9,6 +9,7 @@ const companyRoutes = require('./routes/company.routes');
 const cvRoutes = require('./routes/cv.routes');
 const healthRoutes = require('./routes/health.routes');
 const matchingRoutes = require('./routes/matching.routes');
+const motivationLetterRoutes = require('./routes/motivationLetter.routes');
 const recommendationRoutes = require('./routes/recommendation.routes');
 const studentRoutes = require('./routes/student.routes');
 const testProtectedRoutes = require('./routes/test-protected.routes');
@@ -41,6 +42,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/offers', offerApplicationRouter);
 app.use('/api/offers', matchingRoutes);
 app.use('/api/offers', publicOfferRouter);
+app.use('/api/applications', motivationLetterRoutes);
 app.use('/api/applications', applicationStatusRouter);
 
 app.use((req, res) => {

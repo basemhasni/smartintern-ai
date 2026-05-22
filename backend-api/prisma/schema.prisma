@@ -62,10 +62,11 @@ model Student {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applications    Application[]
-  cvs             CV[]
-  matchingResults MatchingResult[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications      Application[]
+  cvs               CV[]
+  matchingResults   MatchingResult[]
+  motivationLetters MotivationLetter[]
 }
 
 model Company {
@@ -98,9 +99,10 @@ model InternshipOffer {
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
 
-  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  applications    Application[]
-  matchingResults MatchingResult[]
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications      Application[]
+  matchingResults   MatchingResult[]
+  motivationLetters MotivationLetter[]
 }
 
 model Application {
@@ -113,8 +115,9 @@ model Application {
   appliedAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
-  student Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  offer   InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  student          Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offer            InternshipOffer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  motivationLetter MotivationLetter?
 
   @@unique([studentId, offerId])
 }
@@ -148,4 +151,20 @@ model MatchingResult {
   offer   InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, offerId])
+}
+
+model MotivationLetter {
+  id            String   @id @default(uuid())
+  applicationId String   @unique
+  studentId     String
+  offerId       String
+  tone          String   @default("PROFESSIONAL")
+  content       String   @db.Text
+  generatedByAI Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  application Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  student     Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offer       InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
