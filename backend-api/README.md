@@ -287,6 +287,7 @@ Routes entreprise, accessibles uniquement au role `COMPANY` :
 
 ```http
 GET /api/companies/offers/:offerId/applications
+GET /api/companies/offers/:offerId/candidates/ranking
 PUT /api/applications/:id/status
 ```
 
@@ -322,6 +323,76 @@ Regles principales :
 - un etudiant ne peut pas postuler deux fois a la meme offre ;
 - une entreprise consulte et modifie uniquement les candidatures de ses propres offres ;
 - `passwordHash` n'est jamais retourne par les reponses API.
+
+## Classement des candidats
+
+Route accessible uniquement au role `COMPANY` :
+
+```http
+GET /api/companies/offers/:offerId/candidates/ranking
+```
+
+Prerequis :
+
+- l'entreprise doit etre connectee avec un token `COMPANY` ;
+- l'offre doit appartenir a l'entreprise connectee ;
+- l'offre doit avoir des candidatures ;
+- les candidats doivent idealement avoir un CV analyse ;
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+
+Parametres optionnels :
+
+```http
+GET /api/companies/offers/<offer_id>/candidates/ranking?minScore=50&includeWithoutCV=false
+```
+
+- `minScore` : score minimum a retourner, par defaut `0` ;
+- `includeWithoutCV` : inclure les candidats sans CV analyse, par defaut `true`.
+
+Exemple Postman :
+
+```http
+GET http://localhost:5000/api/companies/offers/<offer_id>/candidates/ranking?minScore=50&includeWithoutCV=true
+Authorization: Bearer <company_token>
+```
+
+Reponse attendue :
+
+```json
+{
+  "message": "Candidates ranked successfully",
+  "offer": {
+    "id": "offer_id",
+    "title": "Stage Developpeur Fullstack React Node.js"
+  },
+  "count": 1,
+  "candidates": [
+    {
+      "rank": 1,
+      "applicationId": "application_id",
+      "applicationStatus": "SENT",
+      "appliedAt": "2026-05-22T00:00:00.000Z",
+      "student": {
+        "id": "student_id",
+        "firstName": "Hasni",
+        "lastName": "Badis",
+        "email": "student@example.com",
+        "phone": "+216 12 345 678",
+        "location": "Tunis",
+        "educationLevel": "Licence Informatique",
+        "targetJob": "Developpeur Fullstack"
+      },
+      "matching": {
+        "score": 87,
+        "matchedSkills": ["React", "Node.js", "PostgreSQL"],
+        "missingSkills": ["Docker"],
+        "optionalMatchedSkills": ["AWS"],
+        "explanation": "Le candidat possede 3 competence(s) requise(s) sur 4."
+      }
+    }
+  ]
+}
+```
 
 ## Upload CV
 

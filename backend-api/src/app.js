@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 const authRoutes = require('./routes/auth.routes');
+const candidateRankingRoutes = require('./routes/candidateRanking.routes');
 const companyRoutes = require('./routes/company.routes');
 const cvRoutes = require('./routes/cv.routes');
 const healthRoutes = require('./routes/health.routes');
@@ -34,6 +35,7 @@ app.use('/api/students/applications', studentApplicationRouter);
 app.use('/api/students', recommendationRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/companies/offers', companyOfferApplicationRouter);
+app.use('/api/companies/offers', candidateRankingRoutes);
 app.use('/api/companies/offers', companyOfferRouter);
 app.use('/api/companies', companyRoutes);
 app.use('/api/offers', offerApplicationRouter);
