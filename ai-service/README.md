@@ -19,8 +19,75 @@ Agents disponibles :
 - `MatchingAgent` : calcule le score entre candidat et offre.
 - `MotivationLetterAgent` : genere une lettre personnalisee deterministe.
 - `CareerAssistantAgent` : genere des conseils de progression pour une offre cible.
+- `AgentOrchestrator` : selectionne l'agent specialise selon une intention.
 
 Cette etape ne contient pas encore LangGraph, RAG ou LLM externe. Elle prepare seulement une future orchestration multi-agents.
+
+## AgentOrchestrator
+
+Endpoint :
+
+```http
+POST /ai/orchestrate
+```
+
+Role :
+
+- recevoir une intention ;
+- selectionner l'agent specialise ;
+- retourner une reponse standardisee avec `intent`, `agent` et `result`.
+
+Intentions supportees :
+
+```text
+analyze_cv
+analyze_offer
+match
+generate_letter
+career_advice
+```
+
+Payload generique :
+
+```json
+{
+  "intent": "match",
+  "payload": {
+    "candidateSkills": ["React", "Node.js"],
+    "requiredSkills": ["React", "Docker"],
+    "optionalSkills": ["AWS"]
+  }
+}
+```
+
+Reponse :
+
+```json
+{
+  "intent": "match",
+  "agent": "MatchingAgent",
+  "result": {
+    "score": 50,
+    "matchedSkills": ["React"],
+    "missingSkills": ["Docker"],
+    "optionalMatchedSkills": [],
+    "explanation": "Le candidat possede 1 competence(s) requise(s) sur 2."
+  }
+}
+```
+
+Exemple analyse CV :
+
+```json
+{
+  "intent": "analyze_cv",
+  "payload": {
+    "text": "Je suis developpeur React Node.js PostgreSQL."
+  }
+}
+```
+
+Cet orchestrateur est une premiere version simple. LangGraph sera ajoute plus tard pour gerer des workflows multi-agents plus complexes.
 
 ## Installation
 

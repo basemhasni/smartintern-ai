@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -129,4 +129,15 @@ class CareerAdviceResponse(BaseModel):
     skillsToImprove: List[SkillImprovement]
     actionPlan: List[ActionPlanItem]
     finalAdvice: str
+
+
+class OrchestratorRequest(BaseModel):
+    intent: Optional[str] = None
+    payload: Dict[str, Any] = {}
+
+
+class OrchestratorResponse(BaseModel):
+    intent: str
+    agent: str
+    result: Dict[str, Any]
 
