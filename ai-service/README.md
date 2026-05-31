@@ -4,6 +4,24 @@ Microservice IA minimal pour SmartIntern AI, basé sur FastAPI.
 
 Cette première version ne se connecte pas encore au backend Node.js et n'utilise pas de LLM, LangGraph, RAG, pgvector ou API externe.
 
+## Architecture agents IA
+
+Le microservice suit maintenant le flux interne :
+
+```text
+Route FastAPI -> Service -> Agent specialise
+```
+
+Agents disponibles :
+
+- `CVAnalysisAgent` : analyse les textes de CV et extrait les competences.
+- `OfferAnalysisAgent` : analyse les offres et detecte le domaine.
+- `MatchingAgent` : calcule le score entre candidat et offre.
+- `MotivationLetterAgent` : genere une lettre personnalisee deterministe.
+- `CareerAssistantAgent` : genere des conseils de progression pour une offre cible.
+
+Cette etape ne contient pas encore LangGraph, RAG ou LLM externe. Elle prepare seulement une future orchestration multi-agents.
+
 ## Installation
 
 Créer un environnement virtuel :
