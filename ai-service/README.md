@@ -436,6 +436,103 @@ Reponse :
 }
 ```
 
+## RAG MVP
+
+Objectif :
+
+- preparer l'architecture RAG sans OpenAI API, LLM externe, RAG complet ou pgvector reel ;
+- generer un embedding simple et deterministe base sur des mots-cles techniques ;
+- tester le chunking et une recherche cosine en memoire avant de brancher PostgreSQL/pgvector.
+
+Le futur RAG remplacera cet embedding MVP par de vrais embeddings et utilisera PostgreSQL avec l'extension `pgvector`.
+
+### Generer un embedding
+
+```http
+POST /ai/rag/embed
+```
+
+Payload :
+
+```json
+{
+  "text": "React Node.js PostgreSQL Docker"
+}
+```
+
+Reponse :
+
+```json
+{
+  "embedding": [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  "dimension": 13
+}
+```
+
+### Decouper un texte
+
+```http
+POST /ai/rag/chunk
+```
+
+Payload :
+
+```json
+{
+  "text": "long texte..."
+}
+```
+
+Reponse :
+
+```json
+{
+  "chunks": ["long texte..."],
+  "count": 1
+}
+```
+
+### Recherche demo en memoire
+
+```http
+POST /ai/rag/search-demo
+```
+
+Payload :
+
+```json
+{
+  "query": "Je cherche une offre React Node.js",
+  "documents": [
+    {
+      "id": 1,
+      "title": "Offre React",
+      "content": "Stage React Node.js PostgreSQL"
+    },
+    {
+      "id": 2,
+      "title": "Offre Java",
+      "content": "Stage Java Spring Boot"
+    }
+  ],
+  "topK": 2
+}
+```
+
+Reponse :
+
+```json
+{
+  "results": [
+    {
+      "id": 1,
+      "title": "Offre React",
+      "score": 0.8165
+    }
+  ]
+}
+```
+
 ## Test avec Postman
 
 1. Lancer le service avec `uvicorn app.main:app --reload --port 8000`.

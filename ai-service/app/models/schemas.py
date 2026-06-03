@@ -151,3 +151,25 @@ class OrchestratorResponse(BaseModel):
     agent: str
     result: Dict[str, Any]
 
+
+class RAGEmbedRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+
+
+class RAGChunkRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+    chunkSize: Optional[int] = 500
+
+
+class RAGDemoDocument(BaseModel):
+    id: Any
+    title: Optional[str] = None
+    content: str
+    embedding: Optional[List[float]] = None
+
+
+class RAGSearchDemoRequest(BaseModel):
+    query: str = Field(..., min_length=1)
+    documents: List[RAGDemoDocument]
+    topK: int = 5
+

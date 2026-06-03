@@ -35,6 +35,13 @@ enum ApplicationStatus {
   CANCELLED
 }
 
+enum VectorOwnerType {
+  CV
+  OFFER
+  CAREER_ADVICE
+  MOTIVATION_LETTER
+}
+
 model User {
   id           String   @id @default(uuid())
   firstName    String
@@ -167,4 +174,16 @@ model MotivationLetter {
   application Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   student     Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
   offer       InternshipOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+}
+
+model VectorDocument {
+  id           String          @id @default(uuid())
+  ownerType    VectorOwnerType
+  ownerId      String
+  title        String?
+  content      String          @db.Text
+  embeddingJson Json
+  metadataJson Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }

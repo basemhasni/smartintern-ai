@@ -36,6 +36,35 @@ Les migrations presentes couvrent :
 - offres de stage ;
 - candidatures.
 
+Une migration supplementaire sera necessaire pour la preparation RAG :
+
+```bash
+npx prisma migrate dev --name add_vector_documents
+```
+
+Le modele `VectorDocument` prepare l'indexation future des contenus utiles au RAG : CV, offres, conseils carriere et lettres de motivation. Pour ce MVP, l'embedding est stocke dans `embeddingJson` avec un vecteur JSON simple. La prochaine etape consistera a remplacer progressivement ce stockage par un vrai type `vector` pgvector.
+
+## PostgreSQL avec pgvector
+
+Pour une base PostgreSQL compatible pgvector, utiliser un conteneur dedie :
+
+```bash
+docker run --name smartintern-postgres-pgvector \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=smartintern_ai \
+  -p 5433:5432 \
+  -d pgvector/pgvector:pg16
+```
+
+Commande SQL future :
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+Ne pas supprimer l'ancien conteneur automatiquement. Cette documentation prepare seulement la migration vers pgvector reel.
+
 ## Lancer le backend
 
 ```bash
