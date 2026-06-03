@@ -192,6 +192,50 @@ Payload :
 }
 ```
 
+## LangGraph Matching Workflow
+
+Objectif :
+
+- orchestrer progressivement le matching avec LangGraph ;
+- garder la logique de calcul dans `MatchingAgent` ;
+- preparer des workflows plus complexes sans ajouter encore de LLM externe, RAG ou OpenAI API.
+
+Endpoint :
+
+```http
+POST /ai/workflows/match
+```
+
+Payload :
+
+```json
+{
+  "candidateSkills": ["React", "Node.js", "PostgreSQL"],
+  "requiredSkills": ["React", "Node.js", "Docker"],
+  "optionalSkills": ["AWS"]
+}
+```
+
+Reponse :
+
+```json
+{
+  "workflow": "matching_workflow",
+  "result": {
+    "score": 67,
+    "matchedSkills": ["React", "Node.js"],
+    "missingSkills": ["Docker"],
+    "optionalMatchedSkills": [],
+    "explanation": "Le candidat possede 2 competence(s) requise(s) sur 3."
+  }
+}
+```
+
+Difference avec `/ai/match` :
+
+- `/ai/match` appelle directement le service puis `MatchingAgent` ;
+- `/ai/workflows/match` utilise LangGraph pour orchestrer les etapes `validate_input -> matching -> format_response`.
+
 ## Generation Lettre de Motivation
 
 Endpoint :

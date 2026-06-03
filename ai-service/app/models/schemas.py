@@ -39,6 +39,12 @@ class MatchingResponse(BaseModel):
     explanation: str
 
 
+class MatchingWorkflowRequest(BaseModel):
+    candidateSkills: List[str]
+    requiredSkills: List[str]
+    optionalSkills: Optional[List[str]] = []
+
+
 class LetterStudent(BaseModel):
     firstName: str
     lastName: str
