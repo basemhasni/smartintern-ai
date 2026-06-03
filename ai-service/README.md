@@ -236,6 +236,86 @@ Difference avec `/ai/match` :
 - `/ai/match` appelle directement le service puis `MatchingAgent` ;
 - `/ai/workflows/match` utilise LangGraph pour orchestrer les etapes `validate_input -> matching -> format_response`.
 
+## LangGraph Motivation Letter Workflow
+
+Objectif :
+
+- orchestrer la generation de lettre de motivation avec LangGraph ;
+- garder la generation dans `MotivationLetterAgent` ;
+- ajouter une preparation de contexte et un controle qualite deterministe.
+
+Endpoint :
+
+```http
+POST /ai/workflows/generate-letter
+```
+
+Payload :
+
+```json
+{
+  "student": {
+    "firstName": "Hasni",
+    "lastName": "Badis",
+    "educationLevel": "Licence Informatique",
+    "targetJob": "Developpeur Fullstack",
+    "bio": "Etudiant passionne par le developpement web et l'intelligence artificielle."
+  },
+  "candidateSkills": ["React", "Node.js", "PostgreSQL"],
+  "offer": {
+    "title": "Stage Developpeur Fullstack React Node.js",
+    "description": "Developpement d'une plateforme web intelligente.",
+    "location": "Paris",
+    "duration": "6 mois",
+    "requiredSkills": ["React", "Node.js", "Docker"]
+  },
+  "company": {
+    "companyName": "SmartTech",
+    "sector": "Informatique"
+  },
+  "matching": {
+    "score": 67,
+    "matchedSkills": ["React", "Node.js"],
+    "missingSkills": ["Docker"]
+  },
+  "tone": "PROFESSIONAL"
+}
+```
+
+Reponse :
+
+```json
+{
+  "workflow": "motivation_letter_workflow",
+  "result": {
+    "content": "Madame, Monsieur,\n\n...",
+    "qualityChecks": {
+      "mentionsCompany": true,
+      "mentionsOffer": true,
+      "doesNotClaimMissingSkills": true,
+      "hasConclusion": true
+    }
+  }
+}
+```
+
+Nodes du workflow :
+
+```text
+validate_input
+-> prepare_student_profile
+-> prepare_offer_context
+-> check_missing_skills
+-> generate_letter
+-> quality_control
+-> format_response
+```
+
+Difference avec `/ai/generate-letter` :
+
+- `/ai/generate-letter` appelle directement le service puis `MotivationLetterAgent` ;
+- `/ai/workflows/generate-letter` utilise LangGraph pour orchestrer validation, preparation du contexte, generation et controle qualite.
+
 ## Generation Lettre de Motivation
 
 Endpoint :

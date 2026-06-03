@@ -7,3 +7,19 @@ class MatchingWorkflowState(TypedDict):
     optionalSkills: list[str]
     result: Optional[dict]
     error: Optional[str]
+
+
+class MotivationLetterWorkflowState(TypedDict):
+    student: dict
+    candidateSkills: list[str]
+    offer: dict
+    company: dict
+    matching: dict
+    tone: str
+    preparedStudentProfile: Optional[dict]
+    preparedOfferContext: Optional[dict]
+    missingSkills: list[str]
+    generatedLetter: Optional[str]
+    qualityChecks: Optional[dict]
+    result: Optional[dict]
+    error: Optional[str]

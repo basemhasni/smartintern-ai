@@ -81,6 +81,10 @@ class MotivationLetterRequest(BaseModel):
     tone: str = "PROFESSIONAL"
 
 
+class MotivationLetterWorkflowRequest(MotivationLetterRequest):
+    pass
+
+
 class MotivationLetterResponse(BaseModel):
     content: str
 
