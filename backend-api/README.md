@@ -44,6 +44,32 @@ npx prisma migrate dev --name add_vector_documents
 
 Le modele `VectorDocument` prepare l'indexation future des contenus utiles au RAG : CV, offres, conseils carriere et lettres de motivation. Pour ce MVP, l'embedding est stocke dans `embeddingJson` avec un vecteur JSON simple. La prochaine etape consistera a remplacer progressivement ce stockage par un vrai type `vector` pgvector.
 
+## Indexation RAG automatique
+
+Le backend cree ou met a jour automatiquement un `VectorDocument` pour preparer le futur RAG :
+
+- apres un upload CV, le document `ownerType = CV` est indexe avec le texte extrait, le nom du fichier et les competences detectees ;
+- apres une creation ou modification d'offre, le document `ownerType = OFFER` est indexe avec le titre, la description, les competences et les informations publiques de l'entreprise ;
+- lors de l'archivage d'une offre, le document est reindexe avec le statut `ARCHIVED` dans les metadonnees.
+
+L'indexation utilise `AI_SERVICE_URL` et l'endpoint MVP `POST /ai/rag/embed` de `ai-service`. Si `ai-service` est indisponible, l'upload du CV ou la creation de l'offre continue quand meme ; l'erreur est seulement journalisee cote serveur.
+
+Endpoints de debug reserves au role `ADMIN` :
+
+```http
+GET /api/rag/documents
+GET /api/rag/documents/:id
+```
+
+Exemple :
+
+```http
+GET http://localhost:5000/api/rag/documents?limit=50
+Authorization: Bearer <admin_token>
+```
+
+La liste retourne volontairement des champs reduits : `id`, `ownerType`, `ownerId`, `title`, `metadataJson`, `createdAt` et `updatedAt`.
+
 ## PostgreSQL avec pgvector
 
 Pour une base PostgreSQL compatible pgvector, utiliser un conteneur dedie :
@@ -631,7 +657,8 @@ Reponse attendue :
       "summary": "Profil oriente developpement web."
     },
     "uploadedAt": "2026-05-19T00:00:00.000Z"
-  }
+  },
+  "ragIndexed": true
 }
 ```
 
@@ -659,3 +686,6 @@ Si le service IA n'est pas disponible, l'upload du fichier reste valide et la re
 10. Ajouter `Authorization: Bearer <student_token>`.
 11. Dans `Body`, choisir `form-data`, ajouter la cle `cv`, choisir le type `File`, puis selectionner un fichier `.pdf` ou `.docx` de 5 MB maximum.
 12. Pour tester l'analyse IA automatique, verifier que `ai-service` tourne sur `http://localhost:8000` avant l'upload.
+13. Pour verifier l'indexation RAG, se connecter avec un compte `ADMIN`.
+14. Appeler `GET http://localhost:5000/api/rag/documents` avec `Authorization: Bearer <admin_token>`.
+15. Verifier la presence d'un document `ownerType = CV` apres upload CV et d'un document `ownerType = OFFER` apres creation d'offre.

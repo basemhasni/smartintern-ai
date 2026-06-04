@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { indexOfferDocument } = require('./rag.service');
 
 const OFFER_STATUSES = ['DRAFT', 'PUBLISHED', 'ARCHIVED', 'CLOSED'];
 const ALLOWED_OFFER_FIELDS = [
@@ -220,6 +221,14 @@ const findCompanyOffer = async (companyId, offerId) => {
   return offer;
 };
 
+const indexOfferBestEffort = async (offer) => {
+  try {
+    await indexOfferDocument(offer, offer.company);
+  } catch (error) {
+    console.error('Offer RAG indexing failed:', error.message);
+  }
+};
+
 const createCompanyOffer = async (userId, payload) => {
   const data = buildCreateData(payload);
   const company = await getCompanyByUserId(userId);
@@ -235,6 +244,8 @@ const createCompanyOffer = async (userId, payload) => {
       },
     },
   });
+
+  await indexOfferBestEffort(offer);
 
   return normalizeOffer(offer);
 };
@@ -284,6 +295,8 @@ const updateCompanyOffer = async (userId, offerId, payload) => {
     },
   });
 
+  await indexOfferBestEffort(offer);
+
   return normalizeOffer(offer);
 };
 
@@ -292,14 +305,21 @@ const archiveCompanyOffer = async (userId, offerId) => {
 
   await findCompanyOffer(company.id, offerId);
 
-  await prisma.internshipOffer.update({
+  const offer = await prisma.internshipOffer.update({
     where: {
       id: offerId,
     },
     data: {
       status: 'ARCHIVED',
     },
+    include: {
+      company: {
+        select: publicCompanySelect,
+      },
+    },
   });
+
+  await indexOfferBestEffort(offer);
 };
 
 const getPublishedOffers = async () => {

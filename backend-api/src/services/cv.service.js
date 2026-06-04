@@ -4,6 +4,7 @@ const path = require('path');
 const prisma = require('../config/prisma');
 const { analyzeCV } = require('./ai.service');
 const { extractTextFromCV } = require('./cv-text.service');
+const { indexCVDocument } = require('./rag.service');
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -14,6 +15,14 @@ const createHttpError = (statusCode, message) => {
 const getStudentByUserId = async (userId) => {
   const student = await prisma.student.findUnique({
     where: { userId },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
   });
 
   if (!student) {
@@ -67,9 +76,18 @@ const createCV = async (userId, file) => {
     },
   });
 
+  let ragIndexed = false;
+
+  try {
+    ragIndexed = await indexCVDocument(cv, student);
+  } catch (error) {
+    console.error('CV RAG indexing failed:', error.message);
+  }
+
   return {
     cv,
     analysisFailed,
+    ragIndexed,
   };
 };
 
