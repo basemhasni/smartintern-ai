@@ -6,6 +6,8 @@ const { authorizeRoles } = require('../middlewares/role.middleware');
 
 const router = express.Router();
 
+router.post('/search', protect, authorizeRoles('STUDENT', 'COMPANY', 'ADMIN'), ragController.searchDocuments);
+
 router.use(protect, authorizeRoles('ADMIN'));
 
 router.get('/documents', ragController.getDocuments);

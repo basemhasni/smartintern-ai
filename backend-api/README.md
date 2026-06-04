@@ -70,6 +70,65 @@ Authorization: Bearer <admin_token>
 
 La liste retourne volontairement des champs reduits : `id`, `ownerType`, `ownerId`, `title`, `metadataJson`, `createdAt` et `updatedAt`.
 
+## Recherche RAG MVP
+
+La recherche RAG MVP compare l'embedding d'une requete avec les embeddings stockes dans `VectorDocument`. Elle ne genere pas encore de reponse conversationnelle et n'utilise pas de LLM externe.
+
+Route protegee accessible aux roles `STUDENT`, `COMPANY` et `ADMIN` :
+
+```http
+POST /api/rag/search
+```
+
+Prerequis :
+
+- `ai-service` doit etre lance sur l'URL configuree par `AI_SERVICE_URL` ;
+- au moins un CV ou une offre doit deja etre indexe dans `VectorDocument` ;
+- utiliser un token JWT valide.
+
+Payload :
+
+```json
+{
+  "query": "Je cherche une offre React Node.js adaptee a mon profil",
+  "topK": 5,
+  "ownerType": "OFFER"
+}
+```
+
+Parametres :
+
+- `query` : texte obligatoire de recherche ;
+- `topK` : nombre maximum de resultats, defaut `5`, maximum `20` ;
+- `ownerType` : optionnel, parmi `CV`, `OFFER`, `CAREER_ADVICE`, `MOTIVATION_LETTER`.
+
+Reponse :
+
+```json
+{
+  "message": "RAG search completed successfully",
+  "query": "Je cherche une offre React Node.js adaptee a mon profil",
+  "count": 1,
+  "results": [
+    {
+      "id": "vector_document_id",
+      "ownerType": "OFFER",
+      "ownerId": "offer_id",
+      "title": "Offre - Stage Developpeur Fullstack React Node.js",
+      "score": 0.95,
+      "metadata": {
+        "offerId": "offer_id",
+        "companyName": "SmartTech",
+        "requiredSkills": ["React", "Node.js"]
+      },
+      "contentPreview": "Stage React Node.js PostgreSQL..."
+    }
+  ]
+}
+```
+
+Si `ai-service` est arrete, la route retourne `503` avec le message `AI service is currently unavailable.`
+
 ## PostgreSQL avec pgvector
 
 Pour une base PostgreSQL compatible pgvector, utiliser un conteneur dedie :
@@ -689,3 +748,6 @@ Si le service IA n'est pas disponible, l'upload du fichier reste valide et la re
 13. Pour verifier l'indexation RAG, se connecter avec un compte `ADMIN`.
 14. Appeler `GET http://localhost:5000/api/rag/documents` avec `Authorization: Bearer <admin_token>`.
 15. Verifier la presence d'un document `ownerType = CV` apres upload CV et d'un document `ownerType = OFFER` apres creation d'offre.
+16. Pour tester la recherche RAG, utiliser un token `STUDENT`, `COMPANY` ou `ADMIN`.
+17. Appeler `POST http://localhost:5000/api/rag/search` avec un body JSON contenant `query`, puis tester avec `ownerType` egal a `OFFER`, `CV`, puis sans `ownerType`.
+18. Tester les erreurs attendues : `query` vide retourne `400`, `ownerType` invalide retourne `400`, et `ai-service` arrete retourne `503`.

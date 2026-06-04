@@ -5,6 +5,14 @@ const prisma = require('../config/prisma');
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 const DEFAULT_DOCUMENT_LIMIT = 50;
 const MAX_DOCUMENT_LIMIT = 100;
+const DEFAULT_SEARCH_TOP_K = 5;
+const MAX_SEARCH_TOP_K = 20;
+
+const createHttpError = (statusCode, message) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
 
 const parseJsonValue = (value) => {
   if (!value) {
@@ -30,6 +38,55 @@ const toStringArray = (value) => {
   }
 
   return parsedValue.filter((item) => typeof item === 'string' && item.trim().length > 0);
+};
+
+const parseEmbedding = (value) => {
+  const parsedValue = parseJsonValue(value);
+
+  if (!Array.isArray(parsedValue)) {
+    return null;
+  }
+
+  const embedding = parsedValue.map((item) => Number(item));
+
+  if (embedding.some((item) => Number.isNaN(item))) {
+    return null;
+  }
+
+  return embedding;
+};
+
+const cosineSimilarity = (vectorA, vectorB) => {
+  if (!Array.isArray(vectorA) || !Array.isArray(vectorB) || vectorA.length !== vectorB.length) {
+    return 0;
+  }
+
+  if (vectorA.length === 0) {
+    return 0;
+  }
+
+  let dotProduct = 0;
+  let magnitudeA = 0;
+  let magnitudeB = 0;
+
+  for (let index = 0; index < vectorA.length; index += 1) {
+    const a = Number(vectorA[index]);
+    const b = Number(vectorB[index]);
+
+    if (Number.isNaN(a) || Number.isNaN(b)) {
+      return 0;
+    }
+
+    dotProduct += a * b;
+    magnitudeA += a * a;
+    magnitudeB += b * b;
+  }
+
+  if (magnitudeA === 0 || magnitudeB === 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, dotProduct / (Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB))));
 };
 
 const normalizeOwnerId = (ownerId) => String(ownerId);
@@ -185,6 +242,30 @@ const parseDocumentLimit = (limit) => {
   return Math.min(parsedLimit, MAX_DOCUMENT_LIMIT);
 };
 
+const parseSearchTopK = (topK) => {
+  const parsedTopK = Number.parseInt(topK, 10);
+
+  if (Number.isNaN(parsedTopK) || parsedTopK <= 0) {
+    return DEFAULT_SEARCH_TOP_K;
+  }
+
+  return Math.min(parsedTopK, MAX_SEARCH_TOP_K);
+};
+
+const buildContentPreview = (content) => {
+  if (typeof content !== 'string') {
+    return '';
+  }
+
+  const compactContent = content.replace(/\s+/g, ' ').trim();
+
+  if (compactContent.length <= 250) {
+    return compactContent;
+  }
+
+  return `${compactContent.slice(0, 250)}...`;
+};
+
 const getRecentVectorDocuments = async (limit) => prisma.vectorDocument.findMany({
   take: parseDocumentLimit(limit),
   orderBy: {
@@ -207,11 +288,67 @@ const getVectorDocumentById = async (id) => prisma.vectorDocument.findUnique({
   },
 });
 
+const searchVectorDocuments = async (query, options = {}) => {
+  if (typeof query !== 'string' || query.trim().length === 0) {
+    throw createHttpError(400, 'query is required');
+  }
+
+  const queryEmbedding = await generateEmbedding(query);
+
+  if (!queryEmbedding) {
+    throw createHttpError(503, 'AI service is currently unavailable.');
+  }
+
+  const documents = await prisma.vectorDocument.findMany({
+    where: options.ownerType
+      ? {
+        ownerType: options.ownerType,
+      }
+      : undefined,
+    select: {
+      id: true,
+      ownerType: true,
+      ownerId: true,
+      title: true,
+      content: true,
+      embeddingJson: true,
+      metadataJson: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  const results = documents
+    .map((document) => {
+      const documentEmbedding = parseEmbedding(document.embeddingJson);
+      const score = cosineSimilarity(queryEmbedding, documentEmbedding);
+
+      return {
+        id: document.id,
+        ownerType: document.ownerType,
+        ownerId: document.ownerId,
+        title: document.title,
+        score: Number(score.toFixed(4)),
+        metadata: document.metadataJson,
+        contentPreview: buildContentPreview(document.content),
+        createdAt: document.createdAt,
+        updatedAt: document.updatedAt,
+      };
+    })
+    .sort((firstResult, secondResult) => secondResult.score - firstResult.score)
+    .slice(0, parseSearchTopK(options.topK));
+
+  return results;
+};
+
 module.exports = {
   generateEmbedding,
   createVectorDocument,
   indexCVDocument,
   indexOfferDocument,
+  searchVectorDocuments,
+  cosineSimilarity,
+  parseEmbedding,
   getRecentVectorDocuments,
   getVectorDocumentById,
   parseJsonValue,

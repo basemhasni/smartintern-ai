@@ -446,7 +446,7 @@ Objectif :
 
 Le futur RAG remplacera cet embedding MVP par de vrais embeddings et utilisera PostgreSQL avec l'extension `pgvector`.
 
-Le backend `backend-api` utilise actuellement `POST /ai/rag/embed` pour indexer automatiquement les CV uploades et les offres de stage dans le modele Prisma `VectorDocument`.
+Le backend `backend-api` utilise actuellement `POST /ai/rag/embed` pour indexer automatiquement les CV uploades et les offres de stage dans le modele Prisma `VectorDocument`, puis pour calculer l'embedding des requetes de recherche RAG MVP.
 
 ### Generer un embedding
 
