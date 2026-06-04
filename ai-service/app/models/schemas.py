@@ -173,3 +173,29 @@ class RAGSearchDemoRequest(BaseModel):
     documents: List[RAGDemoDocument]
     topK: int = 5
 
+
+class RAGAnswerDocument(BaseModel):
+    id: Any
+    ownerType: Optional[str] = None
+    ownerId: Optional[Any] = None
+    title: Optional[str] = None
+    contentPreview: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = {}
+    score: Optional[float] = None
+
+
+class RAGAnswerRequest(BaseModel):
+    question: str = Field(..., min_length=1)
+    documents: List[RAGAnswerDocument] = []
+
+
+class RAGUsedDocument(BaseModel):
+    id: Any
+    title: Optional[str] = None
+    score: Optional[float] = None
+
+
+class RAGAnswerResponse(BaseModel):
+    answer: str
+    usedDocuments: List[RAGUsedDocument]
+

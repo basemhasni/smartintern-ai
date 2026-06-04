@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import RAGChunkRequest, RAGEmbedRequest, RAGSearchDemoRequest
+from app.models.schemas import RAGAnswerRequest, RAGChunkRequest, RAGEmbedRequest, RAGSearchDemoRequest
 from app.rag.embedding_service import generate_simple_embedding
+from app.rag.rag_answer_service import generate_rag_answer
 from app.rag.text_chunking_service import chunk_text
 from app.services.rag_service import retrieve_similar_documents
 
@@ -42,3 +43,14 @@ def search_demo_endpoint(payload: RAGSearchDemoRequest):
     return {
         "results": results,
     }
+
+
+@router.post("/answer")
+def answer_endpoint(payload: RAGAnswerRequest):
+    try:
+        return generate_rag_answer(
+            payload.question,
+            [document.model_dump() for document in payload.documents],
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error

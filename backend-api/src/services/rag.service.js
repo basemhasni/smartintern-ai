@@ -7,6 +7,7 @@ const DEFAULT_DOCUMENT_LIMIT = 50;
 const MAX_DOCUMENT_LIMIT = 100;
 const DEFAULT_SEARCH_TOP_K = 5;
 const MAX_SEARCH_TOP_K = 20;
+const MAX_ASK_TOP_K = 10;
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -252,6 +253,16 @@ const parseSearchTopK = (topK) => {
   return Math.min(parsedTopK, MAX_SEARCH_TOP_K);
 };
 
+const parseAskTopK = (topK) => {
+  const parsedTopK = Number.parseInt(topK, 10);
+
+  if (Number.isNaN(parsedTopK) || parsedTopK <= 0) {
+    return DEFAULT_SEARCH_TOP_K;
+  }
+
+  return Math.min(parsedTopK, MAX_ASK_TOP_K);
+};
+
 const buildContentPreview = (content) => {
   if (typeof content !== 'string') {
     return '';
@@ -341,12 +352,66 @@ const searchVectorDocuments = async (query, options = {}) => {
   return results;
 };
 
+const generateRagAnswer = async (question, documents) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/rag/answer`,
+      {
+        question,
+        documents,
+      },
+      { timeout: 5000 },
+    );
+
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 400) {
+      throw createHttpError(400, error.response.data?.detail || 'Invalid RAG answer request');
+    }
+
+    throw createHttpError(503, 'AI service is currently unavailable.');
+  }
+};
+
+const askRagQuestion = async (question, options = {}) => {
+  if (typeof question !== 'string' || question.trim().length === 0) {
+    throw createHttpError(400, 'question is required');
+  }
+
+  const results = await searchVectorDocuments(question, {
+    topK: parseAskTopK(options.topK),
+    ownerType: options.ownerType,
+  });
+  const contextDocuments = results.filter((document) => document.score > 0);
+  const answerResult = await generateRagAnswer(question, contextDocuments);
+  const usedDocumentIds = Array.isArray(answerResult.usedDocuments)
+    ? answerResult.usedDocuments.map((document) => document.id)
+    : [];
+  const sourceDocuments = usedDocumentIds.length > 0
+    ? contextDocuments.filter((document) => usedDocumentIds.includes(document.id))
+    : contextDocuments;
+  const sources = sourceDocuments.map((document) => ({
+    id: document.id,
+    ownerType: document.ownerType,
+    ownerId: document.ownerId,
+    title: document.title,
+    score: document.score,
+  }));
+
+  return {
+    answer: answerResult.answer,
+    sources,
+  };
+};
+
 module.exports = {
   generateEmbedding,
+  generateRagAnswer,
   createVectorDocument,
   indexCVDocument,
   indexOfferDocument,
   searchVectorDocuments,
+  askRagQuestion,
   cosineSimilarity,
   parseEmbedding,
   getRecentVectorDocuments,

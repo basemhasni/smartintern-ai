@@ -49,6 +49,34 @@ const searchDocuments = async (req, res, next) => {
   }
 };
 
+const askQuestion = async (req, res, next) => {
+  try {
+    const { question, topK, ownerType } = req.body;
+
+    if (typeof question !== 'string' || question.trim().length === 0) {
+      throw createHttpError(400, 'question is required');
+    }
+
+    if (ownerType && !ALLOWED_OWNER_TYPES.includes(ownerType)) {
+      throw createHttpError(400, 'ownerType must be CV, OFFER, CAREER_ADVICE, or MOTIVATION_LETTER');
+    }
+
+    const ragAnswer = await ragService.askRagQuestion(question, {
+      topK,
+      ownerType,
+    });
+
+    res.status(200).json({
+      message: 'RAG answer generated successfully',
+      question,
+      answer: ragAnswer.answer,
+      sources: ragAnswer.sources,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getDocumentById = async (req, res, next) => {
   try {
     const document = await ragService.getVectorDocumentById(req.params.id);
@@ -67,6 +95,7 @@ const getDocumentById = async (req, res, next) => {
 
 module.exports = {
   searchDocuments,
+  askQuestion,
   getDocuments,
   getDocumentById,
 };

@@ -129,6 +129,64 @@ Reponse :
 
 Si `ai-service` est arrete, la route retourne `503` avec le message `AI service is currently unavailable.`
 
+## Assistant RAG MVP
+
+L'assistant RAG MVP repond a une question en deux etapes :
+
+1. le backend retrouve les documents pertinents dans `VectorDocument` ;
+2. `ai-service` genere une reponse deterministe a partir des documents fournis.
+
+Il ne s'agit pas encore d'un chatbot conversationnel et aucun LLM externe n'est utilise.
+
+Route protegee accessible aux roles `STUDENT`, `COMPANY` et `ADMIN` :
+
+```http
+POST /api/rag/ask
+```
+
+Prerequis :
+
+- `ai-service` doit etre lance ;
+- des documents doivent deja etre indexes dans `VectorDocument` ;
+- l'utilisateur doit etre authentifie avec un token JWT valide.
+
+Payload :
+
+```json
+{
+  "question": "Pourquoi cette offre React Node.js est adaptee a mon profil ?",
+  "topK": 5,
+  "ownerType": "OFFER"
+}
+```
+
+Parametres :
+
+- `question` : question obligatoire ;
+- `topK` : nombre maximum de documents consultes, defaut `5`, maximum `10` ;
+- `ownerType` : optionnel, parmi `CV`, `OFFER`, `CAREER_ADVICE`, `MOTIVATION_LETTER`.
+
+Reponse :
+
+```json
+{
+  "message": "RAG answer generated successfully",
+  "question": "Pourquoi cette offre React Node.js est adaptee a mon profil ?",
+  "answer": "J'ai trouve plusieurs elements pertinents dans les documents indexes...",
+  "sources": [
+    {
+      "id": "vector_document_id",
+      "ownerType": "OFFER",
+      "ownerId": "offer_id",
+      "title": "Offre - Stage React",
+      "score": 0.95
+    }
+  ]
+}
+```
+
+Si aucun document pertinent n'est trouve, la reponse indique clairement que la base RAG actuelle ne contient pas assez d'elements.
+
 ## PostgreSQL avec pgvector
 
 Pour une base PostgreSQL compatible pgvector, utiliser un conteneur dedie :
@@ -751,3 +809,5 @@ Si le service IA n'est pas disponible, l'upload du fichier reste valide et la re
 16. Pour tester la recherche RAG, utiliser un token `STUDENT`, `COMPANY` ou `ADMIN`.
 17. Appeler `POST http://localhost:5000/api/rag/search` avec un body JSON contenant `query`, puis tester avec `ownerType` egal a `OFFER`, `CV`, puis sans `ownerType`.
 18. Tester les erreurs attendues : `query` vide retourne `400`, `ownerType` invalide retourne `400`, et `ai-service` arrete retourne `503`.
+19. Pour tester l'assistant RAG, appeler `POST http://localhost:5000/api/rag/ask` avec `question`, puis tester avec `ownerType` egal a `OFFER` et sans `ownerType`.
+20. Tester les erreurs attendues : `question` vide retourne `400`, `ownerType` invalide retourne `400`, et `ai-service` arrete retourne `503`.

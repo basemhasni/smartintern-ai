@@ -535,6 +535,50 @@ Reponse :
 }
 ```
 
+### Generer une reponse RAG MVP
+
+```http
+POST /ai/rag/answer
+```
+
+Cette route genere une reponse deterministe a partir des documents fournis par le backend. Elle n'utilise pas de LLM externe et ne doit pas inventer de competence absente des documents.
+
+Payload :
+
+```json
+{
+  "question": "Pourquoi cette offre est adaptee a mon profil ?",
+  "documents": [
+    {
+      "id": "vector_document_id",
+      "ownerType": "OFFER",
+      "ownerId": "offer_id",
+      "title": "Offre - Stage React",
+      "contentPreview": "Stage React Node.js PostgreSQL...",
+      "metadata": {
+        "requiredSkills": ["React", "Node.js", "PostgreSQL"]
+      },
+      "score": 0.95
+    }
+  ]
+}
+```
+
+Reponse :
+
+```json
+{
+  "answer": "J'ai trouve plusieurs elements pertinents dans les documents indexes...",
+  "usedDocuments": [
+    {
+      "id": "vector_document_id",
+      "title": "Offre - Stage React",
+      "score": 0.95
+    }
+  ]
+}
+```
+
 ## Test avec Postman
 
 1. Lancer le service avec `uvicorn app.main:app --reload --port 8000`.
