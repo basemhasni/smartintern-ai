@@ -459,9 +459,10 @@ Prerequis :
 - l'etudiant doit etre connecte avec un token `STUDENT` ;
 - le dernier CV de l'etudiant doit etre analyse ;
 - l'offre cible doit exister avec `status = PUBLISHED` ;
-- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL`.
+- `ai-service` doit tourner sur l'URL configuree par `AI_SERVICE_URL` ;
+- des documents indexes dans `VectorDocument` permettent d'enrichir les conseils avec le contexte RAG, mais l'assistant continue sans contexte si la recherche RAG echoue.
 
-Cette premiere version genere des conseils par regles deterministes a partir du profil, du CV analyse, de l'offre et du matching. Elle n'utilise pas de LLM externe, OpenAI API, LangGraph ou RAG.
+Cette version genere des conseils par regles deterministes a partir du profil, du CV analyse, de l'offre, du matching et du contexte RAG disponible. Elle n'utilise pas de LLM externe ni OpenAI API.
 
 Payload :
 
@@ -512,7 +513,22 @@ Reponse attendue :
         "objective": "Travailler Docker avec une realisation pratique."
       }
     ],
-    "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste."
+    "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste.",
+    "ragInsights": [
+      "Le contexte RAG inclut Offre - Stage React (OFFER), qui mentionne React, Node.js, PostgreSQL."
+    ]
+  },
+  "ragContext": {
+    "used": true,
+    "documentsCount": 1,
+    "documents": [
+      {
+        "id": "vector_document_id",
+        "ownerType": "OFFER",
+        "title": "Offre - Stage React",
+        "score": 0.95
+      }
+    ]
   }
 }
 ```

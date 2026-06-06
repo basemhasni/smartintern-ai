@@ -105,6 +105,44 @@ class CareerAssistantAgent(BaseAgent):
 
         return plan
 
+    def _document_skills(self, document: dict) -> list[str]:
+        metadata = document.get("metadata") or {}
+        skills: list[str] = []
+
+        for field in ("skills", "requiredSkills", "optionalSkills", "matchedSkills"):
+            skills.extend(self._normalize_list(metadata.get(field)))
+
+        return self._normalize_list(skills)
+
+    def _build_rag_insights(self, rag_documents: list[dict], missing_skills: list[str]) -> list[str]:
+        insights: list[str] = []
+        missing_skill_keys = {skill.lower() for skill in missing_skills}
+
+        for document in rag_documents[:3]:
+            if not isinstance(document, dict):
+                continue
+
+            title = document.get("title") or "un document indexe"
+            owner_type = document.get("ownerType") or "DOCUMENT"
+            document_skills = self._document_skills(document)
+
+            if document_skills:
+                insights.append(
+                    f"Le contexte RAG inclut {title} ({owner_type}), qui mentionne {', '.join(document_skills[:5])}."
+                )
+
+            missing_skills_in_document = [
+                skill for skill in document_skills if skill.lower() in missing_skill_keys
+            ]
+
+            if missing_skills_in_document:
+                insights.append(
+                    "Le contexte RAG confirme que "
+                    f"{', '.join(missing_skills_in_document)} apparait dans les documents indexes et reste utile a travailler."
+                )
+
+        return insights[:5]
+
     def run(self, input_data):
         student = input_data.student
         offer = input_data.offer
@@ -127,6 +165,8 @@ class CareerAssistantAgent(BaseAgent):
         missing_skills = self._normalize_list(matching.missingSkills)
         optional_skills = self._normalize_list(offer.optionalSkills)
         optional_missing_skills = self._missing_optional_skills(candidate_skills, matched_skills, optional_skills)
+        rag_documents = getattr(input_data, "ragContextDocuments", []) or []
+        rag_insights = self._build_rag_insights(rag_documents, missing_skills)
 
         strengths = [f"Vous possedez deja {skill}." for skill in matched_skills]
 
@@ -176,4 +216,5 @@ class CareerAssistantAgent(BaseAgent):
             "skillsToImprove": skills_to_improve,
             "actionPlan": action_plan,
             "finalAdvice": final_advice,
+            "ragInsights": rag_insights,
         }

@@ -380,7 +380,7 @@ Endpoint :
 POST /ai/career-advice
 ```
 
-Assistant MVP base sur des regles deterministes, sans LLM externe, OpenAI API, LangGraph ou RAG.
+Assistant MVP base sur des regles deterministes, sans LLM externe ni OpenAI API. Le champ optionnel `ragContextDocuments` permet d'ajouter des insights bases sur les documents indexes fournis par le backend.
 
 Payload :
 
@@ -407,7 +407,20 @@ Payload :
     "matchedSkills": ["React", "Node.js"],
     "missingSkills": ["Docker"]
   },
-  "question": "Quelles competences dois-je ameliorer pour reussir cette offre ?"
+  "question": "Quelles competences dois-je ameliorer pour reussir cette offre ?",
+  "ragContextDocuments": [
+    {
+      "id": "vector_document_id",
+      "ownerType": "OFFER",
+      "ownerId": "offer_id",
+      "title": "Offre - Stage React",
+      "score": 0.95,
+      "contentPreview": "Stage React Node.js PostgreSQL...",
+      "metadata": {
+        "requiredSkills": ["React", "Node.js", "PostgreSQL"]
+      }
+    }
+  ]
 }
 ```
 
@@ -432,9 +445,14 @@ Reponse :
       "objective": "Travailler Docker avec une realisation pratique."
     }
   ],
-  "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste."
+  "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste.",
+  "ragInsights": [
+    "Le contexte RAG inclut Offre - Stage React (OFFER), qui mentionne React, Node.js, PostgreSQL."
+  ]
 }
 ```
+
+Si `ragContextDocuments` est absent ou vide, `ragInsights` retourne une liste vide.
 
 ## RAG MVP
 

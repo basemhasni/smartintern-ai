@@ -118,6 +118,7 @@ class CareerAdviceRequest(BaseModel):
     offer: CareerOffer
     matching: CareerMatching
     question: Optional[str] = None
+    ragContextDocuments: List[Dict[str, Any]] = []
 
 
 class SkillImprovement(BaseModel):
@@ -139,6 +140,7 @@ class CareerAdviceResponse(BaseModel):
     skillsToImprove: List[SkillImprovement]
     actionPlan: List[ActionPlanItem]
     finalAdvice: str
+    ragInsights: List[str] = []
 
 
 class OrchestratorRequest(BaseModel):

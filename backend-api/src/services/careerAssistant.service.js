@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { generateCareerAdvice, matchCandidateWithOffer } = require('./ai.service');
+const { searchVectorDocuments } = require('./rag.service');
 
 const DEFAULT_QUESTION = "Analyse mon profil et propose un plan d'amélioration pour cette offre.";
 
@@ -159,6 +160,45 @@ const getOrCreateMatching = async (studentId, offerId, candidateSkills, required
   return matching;
 };
 
+const buildRagQuery = (offer, requiredSkills, missingSkills) => [
+  `Conseils pour ameliorer un profil etudiant pour l'offre ${offer.title}.`,
+  requiredSkills.length > 0 ? `Competences requises : ${requiredSkills.join(', ')}.` : null,
+  missingSkills.length > 0 ? `Competences manquantes : ${missingSkills.join(', ')}.` : null,
+].filter(Boolean).join(' ');
+
+const buildRagContext = async (offer, requiredSkills, missingSkills) => {
+  const ragQuery = buildRagQuery(offer, requiredSkills, missingSkills);
+
+  try {
+    const documents = await searchVectorDocuments(ragQuery, {
+      topK: 5,
+    });
+    const relevantDocuments = documents.filter((document) => document.score > 0);
+
+    return {
+      used: relevantDocuments.length > 0,
+      documentsCount: relevantDocuments.length,
+      documents: relevantDocuments.map((document) => ({
+        id: document.id,
+        ownerType: document.ownerType,
+        ownerId: document.ownerId,
+        title: document.title,
+        score: document.score,
+        contentPreview: document.contentPreview,
+        metadata: document.metadata,
+      })),
+    };
+  } catch (error) {
+    console.error('Career assistant RAG search failed:', error.message);
+
+    return {
+      used: false,
+      documentsCount: 0,
+      documents: [],
+    };
+  }
+};
+
 const generateAdvice = async (userId, payload) => {
   if (!payload.offerId) {
     throw createHttpError(400, 'offerId is required');
@@ -187,6 +227,7 @@ const generateAdvice = async (userId, payload) => {
     requiredSkills,
     optionalSkills
   );
+  const ragContext = await buildRagContext(offer, requiredSkills, matching.missingSkills);
 
   const adviceResult = await generateCareerAdvice({
     student: {
@@ -211,13 +252,26 @@ const generateAdvice = async (userId, payload) => {
       missingSkills: matching.missingSkills,
     },
     question,
+    ragContextDocuments: ragContext.documents,
   });
 
   if (!adviceResult.success) {
     throw createHttpError(503, 'AI service is currently unavailable.');
   }
 
-  return adviceResult.data;
+  return {
+    careerAdvice: adviceResult.data,
+    ragContext: {
+      used: ragContext.used,
+      documentsCount: ragContext.documentsCount,
+      documents: ragContext.documents.map((document) => ({
+        id: document.id,
+        ownerType: document.ownerType,
+        title: document.title,
+        score: document.score,
+      })),
+    },
+  };
 };
 
 module.exports = {
