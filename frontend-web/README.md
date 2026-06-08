@@ -112,6 +112,10 @@ POST /api/students/cv/upload
 DELETE /api/students/cv/:id
 GET /api/students/applications
 GET /api/students/recommendations?limit=3&minScore=0
+GET /api/offers
+GET /api/offers/:id
+GET /api/offers/:id/match
+POST /api/offers/:offerId/apply
 ```
 
 `src/api/studentApi.js` centralise ces appels et retourne uniquement les donnees utiles a l'interface.
@@ -136,7 +140,8 @@ La fonction centralisee se trouve dans `src/utils/auth.js`.
 /student/dashboard        Dashboard etudiant connecte
 /student/profile          Profil etudiant connecte
 /student/cv               Page CV connectee
-/student/offers           Placeholder offres
+/student/offers           Liste des offres et recommandations
+/student/offers/:offerId  Detail d'une offre
 /student/applications     Placeholder candidatures
 /student/career-assistant Placeholder assistant carriere
 /company/dashboard        Route protegee COMPANY
@@ -260,6 +265,64 @@ La page affiche :
 
 Si `ai-service` est indisponible, le backend peut retourner `CV uploaded successfully, but AI analysis failed`. Le frontend traite ce cas comme un upload reussi avec analyse incomplete.
 
+## Page Offres etudiant
+
+`/student/offers` affiche les recommandations personnalisees et les offres publiees.
+
+Fichiers principaux :
+
+```text
+src/pages/student/StudentOffersPage.jsx
+src/pages/student/StudentOfferDetailPage.jsx
+src/api/offersApi.js
+src/api/applicationsApi.js
+src/utils/offers.js
+src/components/student/offers/
+```
+
+Endpoints utilises :
+
+```text
+GET  /api/offers
+GET  /api/offers/:id
+GET  /api/students/recommendations?limit=50&minScore=0
+GET  /api/offers/:id/match
+GET  /api/students/applications
+POST /api/offers/:offerId/apply
+```
+
+Fonctionnement :
+
+- les recommandations sont chargees en parallele avec les offres publiees et les candidatures ;
+- si les recommandations echouent parce qu'aucun CV n'est analyse, les offres publiques restent visibles ;
+- les recommandations sont fusionnees avec les offres publiees sans doublon par `offer.id` ;
+- chaque offre recoit des proprietes frontend calculees : `isRecommended`, `hasApplied`, `matching` ;
+- les filtres sont realises cote frontend pour cette version.
+
+Recherche et filtres :
+
+- recherche par titre, entreprise, description, localisation et competences ;
+- affichage `Toutes` ou `Recommandees` ;
+- filtre localisation ;
+- filtre duree ;
+- score minimum : tous, 50%, 70%, 80% ;
+- tri : meilleure compatibilite, plus recentes, titre A-Z.
+
+Detail d'offre :
+
+- charge `GET /api/offers/:id` ;
+- calcule le matching via `GET /api/offers/:id/match` ;
+- garde l'offre visible si le matching echoue ;
+- affiche score, competences correspondantes, competences a developper et explication IA ;
+- permet de postuler avec un message optionnel.
+
+Candidature :
+
+- la modale envoie `POST /api/offers/:offerId/apply` ;
+- le message est optionnel et limite a 500 caracteres ;
+- l'erreur `409` est traitee comme une candidature deja existante ;
+- apres succes, le bouton devient `Candidature envoyee`.
+
 ## Dashboard etudiant
 
 `StudentDashboardPage.jsx` charge les donnees avec `Promise.allSettled` :
@@ -372,3 +435,27 @@ Tests CV :
 21. Tester responsive mobile.
 22. Tester navigation clavier et modale au clavier.
 23. Tester l'acces avec un token `COMPANY`.
+
+Tests offres :
+
+1. Ouvrir `/student/offers` avec un compte `STUDENT`.
+2. Tester avec un CV analyse.
+3. Tester sans CV analyse.
+4. Verifier les recommandations.
+5. Verifier les offres publiques.
+6. Rechercher par titre.
+7. Rechercher par competence.
+8. Filtrer par score.
+9. Filtrer les recommandations.
+10. Trier par score, date et titre.
+11. Ouvrir `/student/offers/:offerId`.
+12. Verifier un matching valide.
+13. Tester le matching sans CV.
+14. Postuler avec message.
+15. Postuler sans message.
+16. Tester une candidature deja existante.
+17. Arreter le backend.
+18. Arreter `ai-service`.
+19. Tester responsive mobile.
+20. Tester navigation clavier et modale.
+21. Tester l'acces avec un token `COMPANY`.
