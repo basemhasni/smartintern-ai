@@ -11,9 +11,9 @@ import LoginPage from '../pages/LoginPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import RegisterPage from '../pages/RegisterPage.jsx';
 import StudentLayout from '../components/layout/StudentLayout.jsx';
-import ApplicationsPlaceholderPage from '../pages/student/ApplicationsPlaceholderPage.jsx';
 import CareerAssistantPlaceholderPage from '../pages/student/CareerAssistantPlaceholderPage.jsx';
 import StudentCvPage from '../pages/student/StudentCvPage.jsx';
+import StudentApplicationsPage from '../pages/student/StudentApplicationsPage.jsx';
 import StudentDashboardPage from '../pages/student/StudentDashboardPage.jsx';
 import StudentOfferDetailPage from '../pages/student/StudentOfferDetailPage.jsx';
 import StudentOffersPage from '../pages/student/StudentOffersPage.jsx';
@@ -55,7 +55,7 @@ function AppRoutes() {
           <Route path="cv" element={<StudentCvPage />} />
           <Route path="offers" element={<StudentOffersPage />} />
           <Route path="offers/:offerId" element={<StudentOfferDetailPage />} />
-          <Route path="applications" element={<ApplicationsPlaceholderPage />} />
+          <Route path="applications" element={<StudentApplicationsPage />} />
           <Route path="career-assistant" element={<CareerAssistantPlaceholderPage />} />
         </Route>
       </Route>

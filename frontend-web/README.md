@@ -116,6 +116,9 @@ GET /api/offers
 GET /api/offers/:id
 GET /api/offers/:id/match
 POST /api/offers/:offerId/apply
+POST /api/applications/:applicationId/generate-letter
+GET /api/applications/:applicationId/motivation-letter
+PUT /api/applications/:applicationId/motivation-letter
 ```
 
 `src/api/studentApi.js` centralise ces appels et retourne uniquement les donnees utiles a l'interface.
@@ -142,7 +145,7 @@ La fonction centralisee se trouve dans `src/utils/auth.js`.
 /student/cv               Page CV connectee
 /student/offers           Liste des offres et recommandations
 /student/offers/:offerId  Detail d'une offre
-/student/applications     Placeholder candidatures
+/student/applications     Mes candidatures connectees
 /student/career-assistant Placeholder assistant carriere
 /company/dashboard        Route protegee COMPANY
 /admin/dashboard          Route protegee ADMIN
@@ -323,6 +326,64 @@ Candidature :
 - l'erreur `409` est traitee comme une candidature deja existante ;
 - apres succes, le bouton devient `Candidature envoyee`.
 
+## Page Mes candidatures
+
+`/student/applications` permet a un etudiant de suivre ses candidatures et de gerer les lettres de motivation associees.
+
+Fichiers principaux :
+
+```text
+src/pages/student/StudentApplicationsPage.jsx
+src/api/applicationsApi.js
+src/api/motivationLettersApi.js
+src/utils/applications.js
+src/components/student/applications/
+```
+
+Endpoints utilises :
+
+```text
+GET  /api/students/applications
+POST /api/applications/:applicationId/generate-letter
+GET  /api/applications/:applicationId/motivation-letter
+PUT  /api/applications/:applicationId/motivation-letter
+```
+
+Normalisation :
+
+- `normalizeApplication(application)` adapte la reponse backend vers une structure frontend stable ;
+- `offer` et `company` peuvent etre absents partiellement sans casser l'interface ;
+- `compatibilityScore` est affiche seulement s'il existe ;
+- les statuts sont traduits via `getApplicationStatusLabel`.
+
+Fonctionnalites :
+
+- statistiques par statut ;
+- recherche par offre, entreprise, localisation, secteur et message ;
+- filtres par statut ;
+- tri par date recente, date ancienne, score et entreprise A-Z ;
+- panneau de detail sans requete supplementaire par candidature ;
+- timeline simple basee sur le statut actuel ;
+- navigation vers `/student/offers/:offerId` ;
+- lien futur vers `/student/career-assistant?offerId=<id>`.
+
+Lettres de motivation :
+
+- les lettres ne sont pas chargees au montage ;
+- `GET /api/applications/:applicationId/motivation-letter` est appele uniquement au clic ;
+- `404` affiche un etat vide avec action de generation ;
+- generation avec les tons `PROFESSIONAL`, `DYNAMIC`, `SIMPLE` ;
+- edition manuelle avec textarea et dirty state ;
+- copie via `navigator.clipboard` si disponible.
+
+Erreurs gerees :
+
+- aucune lettre existante ;
+- CV analyse manquant pour generer ;
+- service IA indisponible ;
+- backend indisponible ;
+- candidature non autorisee.
+
 ## Dashboard etudiant
 
 `StudentDashboardPage.jsx` charge les donnees avec `Promise.allSettled` :
@@ -459,3 +520,31 @@ Tests offres :
 19. Tester responsive mobile.
 20. Tester navigation clavier et modale.
 21. Tester l'acces avec un token `COMPANY`.
+
+Tests candidatures :
+
+1. Ouvrir `/student/applications` sans candidature.
+2. Tester une candidature `SENT`.
+3. Tester `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`.
+4. Tester plusieurs candidatures.
+5. Rechercher par offre.
+6. Rechercher par entreprise.
+7. Filtrer par statut.
+8. Trier par date, score et entreprise.
+9. Ouvrir le detail de l'offre.
+10. Ouvrir une lettre inexistante.
+11. Generer en ton `PROFESSIONAL`.
+12. Generer en ton `DYNAMIC`.
+13. Generer en ton `SIMPLE`.
+14. Consulter une lettre existante.
+15. Modifier manuellement la lettre.
+16. Annuler une modification.
+17. Copier la lettre.
+18. Tester sans CV analyse.
+19. Arreter `ai-service`.
+20. Arreter le backend.
+21. Tester token expire.
+22. Tester l'acces `COMPANY`.
+23. Tester responsive mobile.
+24. Tester navigation clavier et fermeture par `Escape`.
+25. Tester le lien assistant carriere avec `offerId`.
