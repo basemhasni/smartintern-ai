@@ -5,6 +5,11 @@ export const getStudentProfile = async () => {
   return response.data.student;
 };
 
+export const updateStudentProfile = async (payload) => {
+  const response = await axiosClient.put('/api/students/profile', payload);
+  return response.data.student;
+};
+
 export const getStudentCvs = async () => {
   const response = await axiosClient.get('/api/students/cv');
   return response.data.cvs || [];

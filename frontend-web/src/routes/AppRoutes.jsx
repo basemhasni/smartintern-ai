@@ -16,7 +16,7 @@ import CareerAssistantPlaceholderPage from '../pages/student/CareerAssistantPlac
 import CvUploadPlaceholderPage from '../pages/student/CvUploadPlaceholderPage.jsx';
 import OffersPlaceholderPage from '../pages/student/OffersPlaceholderPage.jsx';
 import StudentDashboardPage from '../pages/student/StudentDashboardPage.jsx';
-import StudentProfilePlaceholderPage from '../pages/student/StudentProfilePlaceholderPage.jsx';
+import StudentProfilePage from '../pages/student/StudentProfilePage.jsx';
 
 function DashboardRedirect() {
   const { isAuthenticated, isLoading, role } = useAuth();
@@ -50,7 +50,7 @@ function AppRoutes() {
         <Route element={<StudentLayout />}>
           <Route index element={<Navigate to="/student/dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboardPage />} />
-          <Route path="profile" element={<StudentProfilePlaceholderPage />} />
+          <Route path="profile" element={<StudentProfilePage />} />
           <Route path="cv" element={<CvUploadPlaceholderPage />} />
           <Route path="offers" element={<OffersPlaceholderPage />} />
           <Route path="applications" element={<ApplicationsPlaceholderPage />} />

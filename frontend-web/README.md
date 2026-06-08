@@ -105,6 +105,7 @@ Dashboard etudiant :
 
 ```text
 GET /api/students/profile
+PUT /api/students/profile
 GET /api/students/cv
 GET /api/students/applications
 GET /api/students/recommendations?limit=3&minScore=0
@@ -130,7 +131,7 @@ La fonction centralisee se trouve dans `src/utils/auth.js`.
 /register                 Inscription publique
 /dashboard                Redirection automatique selon le role
 /student/dashboard        Dashboard etudiant connecte
-/student/profile          Placeholder profil
+/student/profile          Profil etudiant connecte
 /student/cv               Placeholder CV
 /student/offers           Placeholder offres
 /student/applications     Placeholder candidatures
@@ -153,6 +154,56 @@ Le layout etudiant se compose de :
 - `StudentLayout.jsx` pour envelopper toutes les pages `/student/*`.
 
 La navigation contient : Dashboard, Mon profil, Mon CV, Offres, Mes candidatures et Assistant carriere.
+
+## Page profil etudiant
+
+`/student/profile` permet a un etudiant connecte de consulter et modifier son profil.
+
+Fichiers principaux :
+
+```text
+src/pages/student/StudentProfilePage.jsx
+src/components/student/ProfileForm.jsx
+src/components/student/ProfileSummaryCard.jsx
+src/components/student/ProfileCompletionDetails.jsx
+```
+
+Champs affiches en lecture seule :
+
+```text
+firstName
+lastName
+email
+role
+```
+
+Champs modifiables :
+
+```text
+phone
+location
+educationLevel
+targetJob
+bio
+availabilityDate
+```
+
+Le formulaire :
+
+- charge `GET /api/students/profile` au montage ;
+- valide les champs cote frontend avant l'appel API ;
+- envoie uniquement les champs autorises avec `PUT /api/students/profile` ;
+- transforme les champs vides en `null` ;
+- affiche un message de succes temporaire ;
+- detecte les modifications non enregistrees ;
+- propose un bouton `Annuler les modifications`.
+
+Validation frontend :
+
+- `location`, `educationLevel`, `targetJob` : 120 caracteres maximum ;
+- `bio` : 500 caracteres maximum avec compteur ;
+- `availabilityDate` : date valide si fournie ;
+- `phone` : optionnel, validation volontairement souple.
 
 ## Dashboard etudiant
 
@@ -220,3 +271,23 @@ Les utilitaires dans `src/utils/formatters.js` et `src/utils/studentDashboard.js
 17. Naviguer dans la sidebar.
 18. Tester le responsive mobile.
 19. Tester la navigation clavier.
+
+Tests profil etudiant :
+
+1. Se connecter avec un compte `STUDENT`.
+2. Ouvrir `/student/profile`.
+3. Verifier le chargement du profil.
+4. Modifier le telephone.
+5. Modifier la localisation.
+6. Modifier le niveau d'etudes.
+7. Modifier l'objectif metier.
+8. Modifier la bio.
+9. Modifier la date de disponibilite.
+10. Enregistrer et verifier le message de succes.
+11. Actualiser le navigateur et verifier que les donnees restent.
+12. Modifier un champ puis cliquer sur `Annuler les modifications`.
+13. Tester une bio de plus de 500 caracteres.
+14. Arreter le backend et verifier le message reseau.
+15. Tester l'acces avec un compte `COMPANY` et verifier le refus.
+16. Tester le responsive mobile.
+17. Tester la navigation clavier.
