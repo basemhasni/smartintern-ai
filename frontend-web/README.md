@@ -107,6 +107,9 @@ Dashboard etudiant :
 GET /api/students/profile
 PUT /api/students/profile
 GET /api/students/cv
+GET /api/students/cv/:id
+POST /api/students/cv/upload
+DELETE /api/students/cv/:id
 GET /api/students/applications
 GET /api/students/recommendations?limit=3&minScore=0
 ```
@@ -132,7 +135,7 @@ La fonction centralisee se trouve dans `src/utils/auth.js`.
 /dashboard                Redirection automatique selon le role
 /student/dashboard        Dashboard etudiant connecte
 /student/profile          Profil etudiant connecte
-/student/cv               Placeholder CV
+/student/cv               Page CV connectee
 /student/offers           Placeholder offres
 /student/applications     Placeholder candidatures
 /student/career-assistant Placeholder assistant carriere
@@ -204,6 +207,58 @@ Validation frontend :
 - `bio` : 500 caracteres maximum avec compteur ;
 - `availabilityDate` : date valide si fournie ;
 - `phone` : optionnel, validation volontairement souple.
+
+## Page Mon CV
+
+`/student/cv` permet a un etudiant connecte de consulter, importer, analyser et supprimer ses CV.
+
+Fichiers principaux :
+
+```text
+src/pages/student/StudentCvPage.jsx
+src/api/studentCvApi.js
+src/components/student/cv/CvUploadZone.jsx
+src/components/student/cv/CvUploadProgress.jsx
+src/components/student/cv/CvAnalysisResult.jsx
+src/components/student/cv/CvSummaryCard.jsx
+src/components/student/cv/CvSkillsSection.jsx
+src/components/student/cv/CvHistoryList.jsx
+src/components/student/cv/CvHistoryItem.jsx
+src/components/student/cv/CvDeleteDialog.jsx
+src/components/student/cv/CvEmptyState.jsx
+```
+
+Endpoints utilises :
+
+```text
+GET    /api/students/cv
+GET    /api/students/cv/:id
+POST   /api/students/cv/upload
+DELETE /api/students/cv/:id
+```
+
+Upload :
+
+- requete `multipart/form-data` ;
+- champ form-data obligatoire : `cv` ;
+- formats acceptes : `.pdf` et `.docx` ;
+- types MIME acceptes : `application/pdf` et `application/vnd.openxmlformats-officedocument.wordprocessingml.document` ;
+- limite : `5 Mo` ;
+- `Content-Type` n'est pas defini manuellement afin de laisser Axios et le navigateur generer la boundary multipart.
+
+La page affiche :
+
+- progression reelle de l'upload HTTP ;
+- etat indetermine pour l'extraction et l'analyse IA ;
+- resume IA si `analysisJson.summary` existe ;
+- competences detectees depuis `analysisJson.skills` ;
+- niveau d'experience avec traduction simple ;
+- apercu replie du `parsedText`, limite a environ 500 caracteres ;
+- statut RAG non bloquant via `ragIndexed` apres upload ;
+- historique des CV trie par `uploadedAt` descendant ;
+- confirmation accessible avant suppression.
+
+Si `ai-service` est indisponible, le backend peut retourner `CV uploaded successfully, but AI analysis failed`. Le frontend traite ce cas comme un upload reussi avec analyse incomplete.
 
 ## Dashboard etudiant
 
@@ -291,3 +346,29 @@ Tests profil etudiant :
 15. Tester l'acces avec un compte `COMPANY` et verifier le refus.
 16. Tester le responsive mobile.
 17. Tester la navigation clavier.
+
+Tests CV :
+
+1. Ouvrir `/student/cv` avec un compte `STUDENT`.
+2. Verifier l'etat sans CV.
+3. Uploader un PDF valide.
+4. Uploader un DOCX valide.
+5. Tester un fichier de plus de 5 Mo.
+6. Tester une extension invalide.
+7. Tester un MIME invalide.
+8. Cliquer sur analyser sans fichier.
+9. Tester avec `ai-service` actif.
+10. Tester avec `ai-service` arrete.
+11. Verifier `analysisJson` objet.
+12. Verifier `analysisJson` string JSON si present.
+13. Verifier un CV sans `analysisJson`.
+14. Verifier plusieurs CV.
+15. Selectionner un CV dans l'historique.
+16. Annuler une suppression.
+17. Confirmer une suppression.
+18. Arreter le backend.
+19. Actualiser le navigateur.
+20. Naviguer vers `/student/offers` apres analyse.
+21. Tester responsive mobile.
+22. Tester navigation clavier et modale au clavier.
+23. Tester l'acces avec un token `COMPANY`.

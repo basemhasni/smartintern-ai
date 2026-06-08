@@ -13,8 +13,8 @@ import RegisterPage from '../pages/RegisterPage.jsx';
 import StudentLayout from '../components/layout/StudentLayout.jsx';
 import ApplicationsPlaceholderPage from '../pages/student/ApplicationsPlaceholderPage.jsx';
 import CareerAssistantPlaceholderPage from '../pages/student/CareerAssistantPlaceholderPage.jsx';
-import CvUploadPlaceholderPage from '../pages/student/CvUploadPlaceholderPage.jsx';
 import OffersPlaceholderPage from '../pages/student/OffersPlaceholderPage.jsx';
+import StudentCvPage from '../pages/student/StudentCvPage.jsx';
 import StudentDashboardPage from '../pages/student/StudentDashboardPage.jsx';
 import StudentProfilePage from '../pages/student/StudentProfilePage.jsx';
 
@@ -51,7 +51,7 @@ function AppRoutes() {
           <Route index element={<Navigate to="/student/dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboardPage />} />
           <Route path="profile" element={<StudentProfilePage />} />
-          <Route path="cv" element={<CvUploadPlaceholderPage />} />
+          <Route path="cv" element={<StudentCvPage />} />
           <Route path="offers" element={<OffersPlaceholderPage />} />
           <Route path="applications" element={<ApplicationsPlaceholderPage />} />
           <Route path="career-assistant" element={<CareerAssistantPlaceholderPage />} />

@@ -48,6 +48,35 @@ export const getCvAnalysis = (cv) => {
 
 export const getCvSkills = (cv) => toArray(getCvAnalysis(cv)?.skills);
 
+export const hasValidCvAnalysis = (cv) => {
+  const analysis = getCvAnalysis(cv);
+  return Boolean(analysis && !analysis.error && (toArray(analysis.skills).length || analysis.summary || analysis.experienceLevel));
+};
+
+export const getExperienceLevelLabel = (level) => {
+  const labels = {
+    junior: 'Junior',
+    intermediate: 'Intermediaire',
+    senior: 'Confirme',
+  };
+
+  return labels[String(level || '').toLowerCase()] || level || 'Non estime';
+};
+
+export const getParsedTextPreview = (text, limit = 500) => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+
+  const normalized = text.replace(/\s+/g, ' ').trim();
+
+  if (normalized.length <= limit) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, limit)}...`;
+};
+
 export const getRecommendationScore = (recommendation) => (
   normalizeScore(recommendation?.matching?.score ?? recommendation?.score)
 );
