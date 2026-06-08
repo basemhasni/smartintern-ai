@@ -10,7 +10,13 @@ import LandingPage from '../pages/LandingPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import RegisterPage from '../pages/RegisterPage.jsx';
-import StudentDashboard from '../pages/StudentDashboard.jsx';
+import StudentLayout from '../components/layout/StudentLayout.jsx';
+import ApplicationsPlaceholderPage from '../pages/student/ApplicationsPlaceholderPage.jsx';
+import CareerAssistantPlaceholderPage from '../pages/student/CareerAssistantPlaceholderPage.jsx';
+import CvUploadPlaceholderPage from '../pages/student/CvUploadPlaceholderPage.jsx';
+import OffersPlaceholderPage from '../pages/student/OffersPlaceholderPage.jsx';
+import StudentDashboardPage from '../pages/student/StudentDashboardPage.jsx';
+import StudentProfilePlaceholderPage from '../pages/student/StudentProfilePlaceholderPage.jsx';
 
 function DashboardRedirect() {
   const { isAuthenticated, isLoading, role } = useAuth();
@@ -40,14 +46,17 @@ function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/access-denied" element={<AccessDeniedPage />} />
       <Route path="/dashboard" element={<DashboardRedirect />} />
-      <Route
-        path="/student/dashboard"
-        element={(
-          <ProtectedRoute allowedRoles={['STUDENT']}>
-            <StudentDashboard />
-          </ProtectedRoute>
-        )}
-      />
+      <Route path="/student" element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
+        <Route element={<StudentLayout />}>
+          <Route index element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="dashboard" element={<StudentDashboardPage />} />
+          <Route path="profile" element={<StudentProfilePlaceholderPage />} />
+          <Route path="cv" element={<CvUploadPlaceholderPage />} />
+          <Route path="offers" element={<OffersPlaceholderPage />} />
+          <Route path="applications" element={<ApplicationsPlaceholderPage />} />
+          <Route path="career-assistant" element={<CareerAssistantPlaceholderPage />} />
+        </Route>
+      </Route>
       <Route
         path="/company/dashboard"
         element={(

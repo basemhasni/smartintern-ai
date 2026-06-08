@@ -7,6 +7,7 @@ Le design principal est base sur les captures Google Stitch placees dans :
 ```text
 frontend-web/design-references/stitch/
 frontend-web/design-references/stitch/auth/
+frontend-web/design-references/stitch/student-dashboard/
 ```
 
 ## Installation
@@ -36,51 +37,41 @@ http://localhost:5000
 
 ## Variables d'environnement
 
-Créer `frontend-web/.env` si nécessaire :
+Creer `frontend-web/.env` si necessaire :
 
 ```text
 VITE_API_BASE_URL=http://localhost:5000
 ```
 
-Le fichier `.env` est ignore par Git. Seul `.env.example` doit être versionne.
+Le fichier `.env` est ignore par Git. Seul `.env.example` doit etre versionne.
 
 ## Architecture auth
 
 ```text
 src/
 ├── api/
-│   └── axiosClient.js
+│   ├── axiosClient.js
+│   └── studentApi.js
 ├── auth/
 │   ├── AuthContext.jsx
 │   └── ProtectedRoute.jsx
 ├── components/
 │   ├── auth/
-│   └── landing/
+│   ├── common/
+│   ├── landing/
+│   ├── layout/
+│   └── student/
 ├── pages/
+│   └── student/
 ├── routes/
 └── utils/
-    └── auth.js
 ```
 
-### AuthContext
-
-`AuthContext` expose :
-
-- `user`
-- `token`
-- `role`
-- `isAuthenticated`
-- `isLoading`
-- `login(email, password)`
-- `register(formData)`
-- `logout()`
-- `refreshUser()`
+`AuthContext` expose `user`, `token`, `role`, `isAuthenticated`, `isLoading`, `login`, `register`, `logout` et `refreshUser`.
 
 Au chargement, le frontend relit le token local, appelle `GET /api/auth/me`, puis restaure ou supprime la session selon la validite du token.
 
 ### Stockage local
-
-Clés localStorage :
 
 ```text
 smartintern_token
@@ -102,11 +93,24 @@ Les erreurs `400`, `403`, `409` et `500` restent accessibles aux pages pour affi
 
 ## Endpoints backend utilises
 
+Auth :
+
 ```text
 POST /api/auth/login
 POST /api/auth/register
 GET  /api/auth/me
 ```
+
+Dashboard etudiant :
+
+```text
+GET /api/students/profile
+GET /api/students/cv
+GET /api/students/applications
+GET /api/students/recommendations?limit=3&minScore=0
+```
+
+`src/api/studentApi.js` centralise ces appels et retourne uniquement les donnees utiles a l'interface.
 
 ## Redirection selon le role
 
@@ -121,37 +125,98 @@ La fonction centralisee se trouve dans `src/utils/auth.js`.
 ## Routes
 
 ```text
-/                    Landing page
-/login               Connexion
-/register            Inscription publique
-/dashboard           Redirection automatique selon le role
-/student/dashboard   Route protegee STUDENT
-/company/dashboard   Route protegee COMPANY
-/admin/dashboard     Route protegee ADMIN
-/access-denied       Role non autorise
-*                    Page 404
+/                         Landing page
+/login                    Connexion
+/register                 Inscription publique
+/dashboard                Redirection automatique selon le role
+/student/dashboard        Dashboard etudiant connecte
+/student/profile          Placeholder profil
+/student/cv               Placeholder CV
+/student/offers           Placeholder offres
+/student/applications     Placeholder candidatures
+/student/career-assistant Placeholder assistant carriere
+/company/dashboard        Route protegee COMPANY
+/admin/dashboard          Route protegee ADMIN
+/access-denied            Role non autorise
+*                         Page 404
 ```
 
 Important : l'inscription publique propose uniquement `STUDENT` et `COMPANY`. Le role `ADMIN` n'est jamais disponible dans l'interface publique.
+
+## StudentLayout
+
+Le layout etudiant se compose de :
+
+- `AppSidebar.jsx` pour la navigation desktop.
+- `MobileSidebar.jsx` pour le drawer mobile accessible.
+- `AppHeader.jsx` pour le titre de page, le menu mobile, l'utilisateur et logout.
+- `StudentLayout.jsx` pour envelopper toutes les pages `/student/*`.
+
+La navigation contient : Dashboard, Mon profil, Mon CV, Offres, Mes candidatures et Assistant carriere.
+
+## Dashboard etudiant
+
+`StudentDashboardPage.jsx` charge les donnees avec `Promise.allSettled` :
+
+- le profil est indispensable ;
+- une erreur CV n'empeche pas l'affichage des candidatures ;
+- une erreur recommandations n'empeche pas l'affichage du profil ;
+- chaque section affiche son propre etat loading, error ou empty.
+
+Composants principaux :
+
+- `StudentStatsGrid`
+- `ProfileCompletionCard`
+- `CvStatusCard`
+- `RecommendedOffersPreview`
+- `ApplicationStatusSummary`
+- `SkillsOverview`
+- `StudentQuickActions`
+
+## Calcul de completion
+
+Le score de completion du profil est une estimation frontend basee sur :
+
+```text
+phone
+location
+educationLevel
+targetJob
+bio
+availabilityDate
+```
+
+Les champs obligatoires de `User` ne sont pas comptes comme manquants.
+
+## Normalisation des donnees
+
+Les utilitaires dans `src/utils/formatters.js` et `src/utils/studentDashboard.js` gerent :
+
+- dates nulles ou invalides ;
+- tailles de fichiers ;
+- `analysisJson` objet, string JSON ou null ;
+- listes de competences absentes ;
+- scores string ou number ;
+- statuts de candidature traduits en francais.
 
 ## Tests manuels
 
 1. Lancer `backend-api` sur `http://localhost:5000`.
 2. Lancer le frontend sur `http://localhost:5173`.
-3. Tester une inscription `STUDENT` valide.
-4. Vérifier la redirection vers `/student/dashboard`.
-5. Tester `logout`.
-6. Tester un login `STUDENT`.
-7. Actualiser la page et vérifier la restauration de session.
-8. Tester une inscription `COMPANY`.
-9. Vérifier la redirection vers `/company/dashboard`.
-10. Tester un login `ADMIN` existant.
-11. Vérifier la redirection vers `/admin/dashboard`.
-12. Tester un mauvais mot de passe.
-13. Tester un email deja utilise.
-14. Arrêter le backend et vérifier le message reseau.
-15. Acceder a une route protegee sans token.
-16. Acceder a une route `COMPANY` avec un token `STUDENT`.
-17. Tester un token invalide ou expire.
-18. Vérifier le responsive mobile.
-19. Vérifier la navigation clavier.
+3. Se connecter avec un compte `STUDENT`.
+4. Verifier la redirection vers `/student/dashboard`.
+5. Verifier le chargement du profil.
+6. Tester le cas sans CV.
+7. Tester le cas avec CV non analyse.
+8. Tester le cas avec CV analyse.
+9. Tester sans recommandations.
+10. Tester avec plusieurs recommandations.
+11. Tester sans candidatures.
+12. Tester avec candidatures `SENT`, `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`.
+13. Arreter le backend et verifier les messages d'erreur.
+14. Tester le cas ou une API secondaire echoue.
+15. Tester un token expire ou invalide.
+16. Actualiser le navigateur et verifier la restauration de session.
+17. Naviguer dans la sidebar.
+18. Tester le responsive mobile.
+19. Tester la navigation clavier.
