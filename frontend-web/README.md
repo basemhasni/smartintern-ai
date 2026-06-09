@@ -634,7 +634,7 @@ Routes entreprise :
 - `/company/applications`
 - `/company/candidate-ranking`
 
-Les routes `/company/applications` et `/company/candidate-ranking` sont encore des placeholders professionnels pour cette etape.
+La route `/company/candidate-ranking` est encore un placeholder professionnel pour cette etape.
 
 Services API :
 
@@ -915,3 +915,111 @@ Tests offres entreprise :
 32. Tester la modale avec `Escape`.
 33. Verifier le lien candidatures avec `offerId`.
 34. Verifier le lien classement avec `offerId`.
+
+### Candidatures entreprise
+
+Route :
+
+- `/company/applications`
+- `/company/applications?offerId=<offerId>`
+
+Endpoints utilises :
+
+- `GET /api/companies/offers`
+- `GET /api/companies/offers/:offerId/applications`
+- `PUT /api/applications/:id/status`
+- `GET /api/companies/offers/:offerId/candidates/ranking`
+
+Chargement :
+
+- La page charge d abord les offres de l entreprise.
+- Si `offerId` est present dans l URL et correspond a une offre, cette offre est selectionnee.
+- Sinon, la page selectionne une offre publiee, puis a defaut l offre la plus recente.
+- Les candidatures sont chargees uniquement pour l offre active.
+- Quand l utilisateur change d offre, l URL est mise a jour avec `offerId`.
+
+Strategie anti-N+1 :
+
+- La page ne charge pas les candidatures de toutes les offres.
+- La page n appelle pas un endpoint de profil pour chaque candidat.
+- Un seul appel au classement IA de l offre active est effectue pour enrichir les candidatures avec `score`, `matchedSkills`, `missingSkills` et `explanation` si disponibles.
+- Si le classement IA echoue, les candidatures restent consultables sans score.
+
+Normalisation :
+
+- `src/utils/companyApplications.js` transforme les candidatures en format frontend stable.
+- Les champs disponibles sont : identite du candidat, email, telephone, localisation, niveau d etude, objectif metier, message, statut, dates et matching si disponible.
+- `passwordHash`, tokens, CV complet, embeddings et donnees RAG brutes ne sont jamais affiches.
+
+Statuts geres :
+
+- `SENT` : Recue
+- `PENDING` : En cours d examen
+- `ACCEPTED` : Acceptee
+- `REJECTED` : Refusee
+- `CANCELLED` : Annulee
+
+Le backend accepte les 5 statuts via `PUT /api/applications/:id/status` avec :
+
+```json
+{
+  "status": "PENDING"
+}
+```
+
+Transitions :
+
+- Le frontend propose les statuts acceptes par le backend, en excluant le statut actuel.
+- Les decisions `ACCEPTED` et `REJECTED` sont presentees avec une confirmation explicite.
+
+Filtres et tri :
+
+- Recherche frontend sur nom, email, localisation, niveau, objectif metier et competences.
+- Filtre par statut.
+- Filtre score : tous, 50+, 70+, 80+.
+- Tri : plus recentes, plus anciennes, meilleur score, nom A-Z, statut.
+
+Navigation :
+
+- Chaque candidature permet d ouvrir un panneau de detail local.
+- Liens vers `/company/offers/:offerId`.
+- Liens vers `/company/candidate-ranking?offerId=<offerId>`.
+
+Tests candidatures entreprise :
+
+1. Login avec un compte `COMPANY`.
+2. Ouvrir `/company/applications`.
+3. Tester sans offre.
+4. Tester une offre sans candidature.
+5. Tester une offre avec une candidature.
+6. Tester plusieurs offres.
+7. Ouvrir `/company/applications?offerId=<id>` avec un id valide.
+8. Tester un `offerId` invalide.
+9. Changer d offre et verifier l URL.
+10. Verifier une candidature `SENT`.
+11. Verifier `PENDING`.
+12. Verifier `ACCEPTED`.
+13. Verifier `REJECTED`.
+14. Verifier une candidature sans score.
+15. Verifier une candidature avec matching.
+16. Rechercher par nom.
+17. Rechercher par competence.
+18. Filtrer par statut.
+19. Filtrer par score.
+20. Trier par recent.
+21. Trier par meilleur score.
+22. Ouvrir le panneau candidat.
+23. Mettre `SENT` vers `PENDING`.
+24. Accepter avec confirmation.
+25. Refuser avec confirmation.
+26. Tester une erreur de statut.
+27. Tester une offre d une autre entreprise.
+28. Arreter le backend.
+29. Tester token expire.
+30. Tester acces `STUDENT` refuse.
+31. Verifier le lien detail offre.
+32. Verifier le lien classement IA avec `offerId`.
+33. Tester responsive mobile.
+34. Tester navigation clavier.
+35. Fermer la modale avec `Escape`.
+36. Changer rapidement d offre.

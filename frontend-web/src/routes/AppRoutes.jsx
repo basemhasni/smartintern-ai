@@ -12,7 +12,7 @@ import RegisterPage from '../pages/RegisterPage.jsx';
 import CompanyLayout from '../components/layout/CompanyLayout.jsx';
 import StudentLayout from '../components/layout/StudentLayout.jsx';
 import CandidateRankingPlaceholderPage from '../pages/company/CandidateRankingPlaceholderPage.jsx';
-import CompanyApplicationsPlaceholderPage from '../pages/company/CompanyApplicationsPlaceholderPage.jsx';
+import CompanyApplicationsPage from '../pages/company/CompanyApplicationsPage.jsx';
 import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
 import CompanyOfferCreatePage from '../pages/company/CompanyOfferCreatePage.jsx';
 import CompanyOfferDetailPage from '../pages/company/CompanyOfferDetailPage.jsx';
@@ -76,7 +76,7 @@ function AppRoutes() {
           <Route path="offers/new" element={<CompanyOfferCreatePage />} />
           <Route path="offers/:offerId" element={<CompanyOfferDetailPage />} />
           <Route path="offers/:offerId/edit" element={<CompanyOfferEditPage />} />
-          <Route path="applications" element={<CompanyApplicationsPlaceholderPage />} />
+          <Route path="applications" element={<CompanyApplicationsPage />} />
           <Route path="candidate-ranking" element={<CandidateRankingPlaceholderPage />} />
         </Route>
       </Route>

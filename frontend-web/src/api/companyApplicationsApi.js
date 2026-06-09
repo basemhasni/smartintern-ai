@@ -14,3 +14,11 @@ export const getOfferCandidateRanking = async (offerId, params = {}) => {
     candidates: response.data.candidates || [],
   };
 };
+
+export const updateApplicationStatus = async (applicationId, status) => {
+  const response = await axiosClient.put(`/api/applications/${applicationId}/status`, { status });
+  return {
+    message: response.data.message,
+    application: response.data.application,
+  };
+};
