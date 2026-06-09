@@ -634,7 +634,7 @@ Routes entreprise :
 - `/company/applications`
 - `/company/candidate-ranking`
 
-Les routes `/company/offers`, `/company/applications` et `/company/candidate-ranking` sont encore des placeholders professionnels pour cette etape.
+Les routes `/company/applications` et `/company/candidate-ranking` sont encore des placeholders professionnels pour cette etape.
 
 Services API :
 
@@ -802,3 +802,116 @@ Tests profil entreprise :
 21. Tester navigation clavier.
 22. Verifier que le statut est comprehensible sans couleur.
 23. Retourner au dashboard et verifier les donnees au prochain chargement.
+
+### Gestion des offres entreprise
+
+Routes :
+
+- `/company/offers`
+- `/company/offers/new`
+- `/company/offers/:offerId`
+- `/company/offers/:offerId/edit`
+
+Endpoints utilises :
+
+- `POST /api/companies/offers`
+- `GET /api/companies/offers`
+- `GET /api/companies/offers/:id`
+- `PUT /api/companies/offers/:id`
+- `DELETE /api/companies/offers/:id`
+
+Endpoints lies depuis l interface :
+
+- `/company/applications?offerId=<offerId>`
+- `/company/candidate-ranking?offerId=<offerId>`
+
+Modele de donnees gere :
+
+- `title`
+- `description`
+- `location`
+- `duration`
+- `startDate`
+- `requiredSkills`
+- `optionalSkills`
+- `status`
+- `createdAt`
+- `updatedAt`
+
+Statuts :
+
+- `DRAFT` : Brouillon
+- `PUBLISHED` : Publiee
+- `ARCHIVED` : Archivee
+- `CLOSED` : Fermee
+
+Validation :
+
+- `title` obligatoire.
+- `description` obligatoire.
+- `startDate` doit etre une date valide si renseignee.
+- `requiredSkills` et `optionalSkills` sont envoyes comme tableaux.
+- Les doublons de competences sont ignores.
+- Une competence optionnelle ne peut pas etre aussi requise.
+
+Flux creation :
+
+- `Enregistrer en brouillon` envoie `status = DRAFT`.
+- `Publier l offre` envoie `status = PUBLISHED`.
+- Apres succes, l utilisateur est redirige vers `/company/offers/:offerId`.
+
+Flux modification :
+
+- La page charge l offre avec `GET /api/companies/offers/:id`.
+- Le formulaire est pre-rempli.
+- Le dirty state active ou desactive les actions.
+- `Annuler les modifications` restaure les dernieres donnees chargees.
+
+Archivage :
+
+- Le backend ne supprime pas definitivement l offre.
+- `DELETE /api/companies/offers/:id` archive l offre avec `status = ARCHIVED`.
+- L interface utilise donc le libelle `Archiver`, pas `Supprimer`.
+
+Recherche et filtres :
+
+- Recherche frontend sur titre, description, localisation, duree et competences.
+- Filtres frontend par statut, localisation et duree.
+- Tri frontend par recence, anciennete, titre ou statut.
+
+Tests offres entreprise :
+
+1. Ouvrir `/company/offers` avec un compte `COMPANY`.
+2. Tester le cas sans offre.
+3. Creer un brouillon.
+4. Creer une offre publiee.
+5. Tester les champs obligatoires manquants.
+6. Ajouter des competences.
+7. Tester les doublons de competences.
+8. Tester une competence requise aussi ajoutee en optionnelle.
+9. Tester une date valide.
+10. Tester une date invalide.
+11. Verifier la liste avec plusieurs statuts.
+12. Rechercher par titre.
+13. Rechercher par competence.
+14. Filtrer `DRAFT`.
+15. Filtrer `PUBLISHED`.
+16. Trier par recence.
+17. Ouvrir le detail d une offre.
+18. Modifier un brouillon.
+19. Modifier une offre publiee.
+20. Annuler les modifications.
+21. Verifier le dirty state.
+22. Publier un brouillon.
+23. Passer une offre en `CLOSED` via le statut si necessaire.
+24. Archiver une offre.
+25. Annuler l archivage.
+26. Arreter le backend.
+27. Tester token expire.
+28. Tester une offre introuvable.
+29. Tester acces `STUDENT` refuse.
+30. Tester responsive mobile.
+31. Tester navigation clavier.
+32. Tester la modale avec `Escape`.
+33. Verifier le lien candidatures avec `offerId`.
+34. Verifier le lien classement avec `offerId`.

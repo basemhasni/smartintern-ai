@@ -14,7 +14,10 @@ import StudentLayout from '../components/layout/StudentLayout.jsx';
 import CandidateRankingPlaceholderPage from '../pages/company/CandidateRankingPlaceholderPage.jsx';
 import CompanyApplicationsPlaceholderPage from '../pages/company/CompanyApplicationsPlaceholderPage.jsx';
 import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
-import CompanyOffersPlaceholderPage from '../pages/company/CompanyOffersPlaceholderPage.jsx';
+import CompanyOfferCreatePage from '../pages/company/CompanyOfferCreatePage.jsx';
+import CompanyOfferDetailPage from '../pages/company/CompanyOfferDetailPage.jsx';
+import CompanyOfferEditPage from '../pages/company/CompanyOfferEditPage.jsx';
+import CompanyOffersPage from '../pages/company/CompanyOffersPage.jsx';
 import CompanyProfilePage from '../pages/company/CompanyProfilePage.jsx';
 import StudentCareerAssistantPage from '../pages/student/StudentCareerAssistantPage.jsx';
 import StudentCvPage from '../pages/student/StudentCvPage.jsx';
@@ -69,7 +72,10 @@ function AppRoutes() {
           <Route index element={<Navigate to="/company/dashboard" replace />} />
           <Route path="dashboard" element={<CompanyDashboardPage />} />
           <Route path="profile" element={<CompanyProfilePage />} />
-          <Route path="offers" element={<CompanyOffersPlaceholderPage />} />
+          <Route path="offers" element={<CompanyOffersPage />} />
+          <Route path="offers/new" element={<CompanyOfferCreatePage />} />
+          <Route path="offers/:offerId" element={<CompanyOfferDetailPage />} />
+          <Route path="offers/:offerId/edit" element={<CompanyOfferEditPage />} />
           <Route path="applications" element={<CompanyApplicationsPlaceholderPage />} />
           <Route path="candidate-ranking" element={<CandidateRankingPlaceholderPage />} />
         </Route>
