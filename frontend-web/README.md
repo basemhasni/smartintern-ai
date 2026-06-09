@@ -617,3 +617,91 @@ Tests assistant carriere :
 21. Tester les liens vers offre, CV, profil et candidatures.
 22. Tester responsive mobile.
 23. Tester navigation clavier.
+
+## Espace entreprise
+
+Architecture :
+
+- `CompanyLayout` enveloppe les routes entreprise avec sidebar desktop, drawer mobile, header connecte et bouton logout.
+- `CompanySidebar`, `CompanyMobileSidebar` et `CompanyHeader` sont separes du layout etudiant pour garder une navigation adaptee au role `COMPANY`.
+- Le dashboard dynamique vit dans `/company/dashboard`.
+
+Routes entreprise :
+
+- `/company/dashboard`
+- `/company/profile`
+- `/company/offers`
+- `/company/applications`
+- `/company/candidate-ranking`
+
+Les routes autres que le dashboard sont des placeholders professionnels pour cette etape.
+
+Services API :
+
+- `src/api/companyApi.js`
+- `src/api/companyOffersApi.js`
+- `src/api/companyApplicationsApi.js`
+
+Endpoints utilises :
+
+- `GET /api/companies/profile`
+- `GET /api/companies/offers`
+- `GET /api/companies/offers/:id`
+- `GET /api/companies/offers/:offerId/applications`
+- `GET /api/companies/offers/:offerId/candidates/ranking`
+
+Strategie de chargement :
+
+- Le profil entreprise et les offres sont charges en parallele.
+- Le profil est indispensable au dashboard.
+- Les offres, candidatures et classement IA peuvent echouer localement sans bloquer toute la page.
+- Les candidatures ne sont chargees que pour un maximum de 5 offres publiees afin d eviter un N+1 lourd.
+- Si les candidatures sont partielles, l interface indique que les chiffres sont un apercu.
+
+Statistiques :
+
+- Offres totales.
+- Offres publiees.
+- Brouillons.
+- Candidatures recues sur le perimetre charge.
+
+Aucune statistique non fournie par le backend, comme vues, taux de recrutement ou croissance, n est inventee.
+
+Classement IA :
+
+- Une seule offre est envoyee au classement au chargement du dashboard.
+- Priorite : offre publiee avec candidatures, sinon offre publiee la plus recente.
+- Le dashboard affiche au maximum 3 candidats.
+- Le score est presente comme une aide a la decision, pas comme une decision automatique.
+
+Normalisation :
+
+- `src/utils/companyDashboard.js` centralise les mappings profil, offres, candidatures, classement, statuts, scores et listes JSON.
+- Les objets API originaux ne sont pas mutes.
+
+Tests entreprise :
+
+1. Login avec un compte `COMPANY`.
+2. Verifier la redirection vers `/company/dashboard`.
+3. Tester profil `PENDING`.
+4. Tester profil `VALIDATED`.
+5. Tester profil incomplet.
+6. Tester profil complet.
+7. Tester aucune offre.
+8. Tester plusieurs offres.
+9. Tester statuts `DRAFT`, `PUBLISHED`, `ARCHIVED`, `CLOSED`.
+10. Tester aucune candidature.
+11. Tester plusieurs candidatures.
+12. Tester une offre avec candidats classes.
+13. Tester une offre sans candidat.
+14. Arreter `ai-service`.
+15. Arreter le backend.
+16. Tester une seule section en erreur.
+17. Tester token expire.
+18. Tester l acces avec un compte `STUDENT`.
+19. Tester navigation sidebar.
+20. Tester logout.
+21. Actualiser le navigateur.
+22. Tester responsive mobile.
+23. Tester navigation clavier.
+24. Tester reduced motion.

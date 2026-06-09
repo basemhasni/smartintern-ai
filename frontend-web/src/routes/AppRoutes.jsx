@@ -5,12 +5,17 @@ import { useAuth } from '../auth/AuthContext.jsx';
 import { getDashboardPathByRole } from '../utils/auth.js';
 import AccessDeniedPage from '../pages/AccessDeniedPage.jsx';
 import AdminDashboard from '../pages/AdminDashboard.jsx';
-import CompanyDashboard from '../pages/CompanyDashboard.jsx';
 import LandingPage from '../pages/LandingPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import RegisterPage from '../pages/RegisterPage.jsx';
+import CompanyLayout from '../components/layout/CompanyLayout.jsx';
 import StudentLayout from '../components/layout/StudentLayout.jsx';
+import CandidateRankingPlaceholderPage from '../pages/company/CandidateRankingPlaceholderPage.jsx';
+import CompanyApplicationsPlaceholderPage from '../pages/company/CompanyApplicationsPlaceholderPage.jsx';
+import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
+import CompanyOffersPlaceholderPage from '../pages/company/CompanyOffersPlaceholderPage.jsx';
+import CompanyProfilePlaceholderPage from '../pages/company/CompanyProfilePlaceholderPage.jsx';
 import StudentCareerAssistantPage from '../pages/student/StudentCareerAssistantPage.jsx';
 import StudentCvPage from '../pages/student/StudentCvPage.jsx';
 import StudentApplicationsPage from '../pages/student/StudentApplicationsPage.jsx';
@@ -59,14 +64,16 @@ function AppRoutes() {
           <Route path="career-assistant" element={<StudentCareerAssistantPage />} />
         </Route>
       </Route>
-      <Route
-        path="/company/dashboard"
-        element={(
-          <ProtectedRoute allowedRoles={['COMPANY']}>
-            <CompanyDashboard />
-          </ProtectedRoute>
-        )}
-      />
+      <Route path="/company" element={<ProtectedRoute allowedRoles={['COMPANY']} />}>
+        <Route element={<CompanyLayout />}>
+          <Route index element={<Navigate to="/company/dashboard" replace />} />
+          <Route path="dashboard" element={<CompanyDashboardPage />} />
+          <Route path="profile" element={<CompanyProfilePlaceholderPage />} />
+          <Route path="offers" element={<CompanyOffersPlaceholderPage />} />
+          <Route path="applications" element={<CompanyApplicationsPlaceholderPage />} />
+          <Route path="candidate-ranking" element={<CandidateRankingPlaceholderPage />} />
+        </Route>
+      </Route>
       <Route
         path="/admin/dashboard"
         element={(
