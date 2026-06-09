@@ -548,3 +548,72 @@ Tests candidatures :
 23. Tester responsive mobile.
 24. Tester navigation clavier et fermeture par `Escape`.
 25. Tester le lien assistant carriere avec `offerId`.
+
+## Assistant carriere etudiant
+
+Route :
+
+- `/student/career-assistant`
+- `/student/career-assistant?offerId=123` pour preselectionner une offre depuis le detail d'une offre ou une candidature.
+
+Endpoint backend utilise :
+
+- `POST /api/students/career-assistant`
+
+Payload envoye :
+
+```json
+{
+  "offerId": 1,
+  "question": "Quelles competences dois-je ameliorer pour cette offre ?"
+}
+```
+
+Sources de donnees pour le selecteur :
+
+- `GET /api/offers` pour les offres publiees.
+- `GET /api/students/recommendations?limit=10&minScore=0` pour prioriser les offres recommandees et recuperer les scores deja calcules.
+
+La page ne lance pas de generation automatiquement au chargement. L'utilisateur choisit une offre, peut saisir une question ou laisser le champ vide, puis declenche la generation. Si `offerId` est present dans l'URL et correspond a une offre disponible, l'offre est selectionnee automatiquement.
+
+La reponse `careerAdvice` est normalisee cote frontend pour gerer les champs absents, les listes nulles, les scores sous forme de chaine ou de nombre, les priorites inconnues et les reponses partielles. Les conseils restent uniquement dans l'etat React de la page : aucun historique persistant n'est cree tant que le backend ne fournit pas d'endpoint dedie.
+
+Affichage RAG :
+
+- `careerAdvice.ragInsights` est affiche sous forme de pistes courtes.
+- `ragContext.documents` est affiche dans un panneau repliable avec titre, type de document et score de similarite si disponible.
+- Les embeddings, metadonnees techniques brutes et contenus longs ne sont jamais affiches.
+
+Erreurs gerees :
+
+- Aucun CV analyse : message invitant a importer un CV.
+- `offerId` absent ou invalide : selection d'offre demandee.
+- Offre introuvable : message non technique.
+- `ai-service` indisponible : message temporaire.
+- Erreur reseau : verification backend et ai-service.
+
+Tests assistant carriere :
+
+1. Ouvrir `/student/career-assistant` avec un compte `STUDENT`.
+2. Ouvrir `/student/career-assistant?offerId=1`.
+3. Tester un `offerId` invalide.
+4. Selectionner une offre recommandee.
+5. Selectionner une offre publique.
+6. Cliquer sur une question suggeree.
+7. Envoyer une question personnalisee.
+8. Envoyer sans question pour l'analyse complete.
+9. Verifier le resume profil et le score.
+10. Verifier les points forts.
+11. Verifier les competences a developper.
+12. Verifier le plan d'action.
+13. Verifier le conseil final.
+14. Verifier le panneau RAG avec documents.
+15. Verifier le cas sans contexte RAG.
+16. Tester sans CV analyse.
+17. Arreter `ai-service`.
+18. Arreter le backend.
+19. Tester token expire.
+20. Tester l'acces avec un compte `COMPANY`.
+21. Tester les liens vers offre, CV, profil et candidatures.
+22. Tester responsive mobile.
+23. Tester navigation clavier.
