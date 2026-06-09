@@ -15,7 +15,7 @@ import CandidateRankingPlaceholderPage from '../pages/company/CandidateRankingPl
 import CompanyApplicationsPlaceholderPage from '../pages/company/CompanyApplicationsPlaceholderPage.jsx';
 import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
 import CompanyOffersPlaceholderPage from '../pages/company/CompanyOffersPlaceholderPage.jsx';
-import CompanyProfilePlaceholderPage from '../pages/company/CompanyProfilePlaceholderPage.jsx';
+import CompanyProfilePage from '../pages/company/CompanyProfilePage.jsx';
 import StudentCareerAssistantPage from '../pages/student/StudentCareerAssistantPage.jsx';
 import StudentCvPage from '../pages/student/StudentCvPage.jsx';
 import StudentApplicationsPage from '../pages/student/StudentApplicationsPage.jsx';
@@ -68,7 +68,7 @@ function AppRoutes() {
         <Route element={<CompanyLayout />}>
           <Route index element={<Navigate to="/company/dashboard" replace />} />
           <Route path="dashboard" element={<CompanyDashboardPage />} />
-          <Route path="profile" element={<CompanyProfilePlaceholderPage />} />
+          <Route path="profile" element={<CompanyProfilePage />} />
           <Route path="offers" element={<CompanyOffersPlaceholderPage />} />
           <Route path="applications" element={<CompanyApplicationsPlaceholderPage />} />
           <Route path="candidate-ranking" element={<CandidateRankingPlaceholderPage />} />

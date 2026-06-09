@@ -634,7 +634,7 @@ Routes entreprise :
 - `/company/applications`
 - `/company/candidate-ranking`
 
-Les routes autres que le dashboard sont des placeholders professionnels pour cette etape.
+Les routes `/company/offers`, `/company/applications` et `/company/candidate-ranking` sont encore des placeholders professionnels pour cette etape.
 
 Services API :
 
@@ -705,3 +705,100 @@ Tests entreprise :
 22. Tester responsive mobile.
 23. Tester navigation clavier.
 24. Tester reduced motion.
+
+### Profil entreprise
+
+Route :
+
+- `/company/profile`
+
+Endpoints utilises :
+
+- `GET /api/companies/profile`
+- `PUT /api/companies/profile`
+
+Champs modifiables :
+
+- `companyName`
+- `sector`
+- `description`
+- `website`
+- `address`
+
+Champs en lecture seule :
+
+- `firstName`
+- `lastName`
+- `email`
+- `role`
+- `status`
+
+Le frontend n envoie jamais `status`, `userId`, `companyId`, `role` ou `email` dans le `PUT`.
+
+Payload de mise a jour :
+
+```json
+{
+  "companyName": "SmartTech",
+  "sector": "Informatique",
+  "description": "Entreprise specialisee dans le developpement web, mobile et IA.",
+  "website": "https://smarttech.com",
+  "address": "Tunis, Tunisie"
+}
+```
+
+Validation frontend :
+
+- `companyName` obligatoire.
+- `sector` limite a 120 caracteres.
+- `description` limitee a 1000 caracteres avec compteur.
+- `website` optionnel, mais doit commencer par `http` ou `https` si renseigne.
+- `address` limitee a 250 caracteres.
+
+Gestion du statut :
+
+- `PENDING` : en attente de validation.
+- `VALIDATED` : entreprise validee.
+- `REJECTED` : validation refusee.
+- `SUSPENDED` : compte suspendu.
+
+Le statut est affiche dans une bannière lisible et reste non modifiable par l entreprise.
+
+Completion :
+
+- Score estime cote frontend.
+- Champs pris en compte : `companyName`, `sector`, `description`, `website`, `address`.
+- Formule : champs remplis / 5 x 100.
+- Le statut n est pas inclus dans le calcul.
+
+Dirty state :
+
+- Le bouton `Enregistrer les modifications` est desactive sans modification.
+- `Annuler les modifications` restaure les dernieres donnees enregistrees.
+- Un message `Modifications non enregistrees` apparait lorsque le formulaire differe des donnees initiales.
+
+Tests profil entreprise :
+
+1. Login avec un compte `COMPANY`.
+2. Ouvrir `/company/profile`.
+3. Verifier le chargement d un profil complet.
+4. Verifier un profil incomplet.
+5. Verifier les statuts `PENDING`, `VALIDATED`, `REJECTED`, `SUSPENDED`.
+6. Modifier le nom de l entreprise.
+7. Modifier le secteur.
+8. Modifier la description.
+9. Tester le compteur de description.
+10. Modifier le site web.
+11. Tester une URL invalide.
+12. Modifier l adresse.
+13. Sauvegarder et verifier le message de succes.
+14. Actualiser et verifier la persistance.
+15. Modifier puis annuler les changements.
+16. Verifier que le bouton sauvegarde est desactive sans changement.
+17. Arreter le backend.
+18. Tester un token expire.
+19. Tester l acces avec un compte `STUDENT`.
+20. Tester responsive mobile.
+21. Tester navigation clavier.
+22. Verifier que le statut est comprehensible sans couleur.
+23. Retourner au dashboard et verifier les donnees au prochain chargement.
