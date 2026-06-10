@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 
+const adminRoutes = require('./routes/admin.routes');
 const authRoutes = require('./routes/auth.routes');
 const candidateRankingRoutes = require('./routes/candidateRanking.routes');
 const careerAssistantRoutes = require('./routes/careerAssistant.routes');
@@ -32,6 +33,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/test', testProtectedRoutes);
 app.use('/api/rag', ragRoutes);
 app.use('/api/students/cv', cvRoutes);

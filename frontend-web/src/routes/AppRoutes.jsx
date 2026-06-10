@@ -4,13 +4,16 @@ import ProtectedRoute from '../auth/ProtectedRoute.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { getDashboardPathByRole } from '../utils/auth.js';
 import AccessDeniedPage from '../pages/AccessDeniedPage.jsx';
-import AdminDashboard from '../pages/AdminDashboard.jsx';
 import LandingPage from '../pages/LandingPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import RegisterPage from '../pages/RegisterPage.jsx';
+import AdminLayout from '../components/layout/AdminLayout.jsx';
 import CompanyLayout from '../components/layout/CompanyLayout.jsx';
 import StudentLayout from '../components/layout/StudentLayout.jsx';
+import AdminCompaniesPage from '../pages/admin/AdminCompaniesPage.jsx';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage.jsx';
+import AdminUsersPage from '../pages/admin/AdminUsersPage.jsx';
 import CompanyApplicationsPage from '../pages/company/CompanyApplicationsPage.jsx';
 import CompanyCandidateRankingPage from '../pages/company/CompanyCandidateRankingPage.jsx';
 import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
@@ -80,14 +83,14 @@ function AppRoutes() {
           <Route path="candidate-ranking" element={<CompanyCandidateRankingPage />} />
         </Route>
       </Route>
-      <Route
-        path="/admin/dashboard"
-        element={(
-          <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        )}
-      />
+      <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="companies" element={<AdminCompaniesPage />} />
+        </Route>
+      </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const prisma = require('../config/prisma');
 const { generateToken } = require('../utils/token.util');
 
-const VALID_ROLES = ['STUDENT', 'COMPANY', 'ADMIN'];
+const PUBLIC_REGISTRATION_ROLES = ['STUDENT', 'COMPANY'];
 const PASSWORD_SALT_ROUNDS = 10;
 
 const createHttpError = (statusCode, message) => {
@@ -31,8 +31,8 @@ const register = async ({ firstName, lastName, email, password, role }) => {
     ['firstName', 'lastName', 'email', 'password', 'role']
   );
 
-  if (!VALID_ROLES.includes(role)) {
-    throw createHttpError(400, 'Role must be STUDENT, COMPANY, or ADMIN');
+  if (!PUBLIC_REGISTRATION_ROLES.includes(role)) {
+    throw createHttpError(400, 'Public registration is only available for STUDENT and COMPANY roles.');
   }
 
   const existingUser = await prisma.user.findUnique({

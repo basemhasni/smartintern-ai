@@ -827,3 +827,144 @@ Si le service IA n'est pas disponible, l'upload du fichier reste valide et la re
 18. Tester les erreurs attendues : `query` vide retourne `400`, `ownerType` invalide retourne `400`, et `ai-service` arrete retourne `503`.
 19. Pour tester l'assistant RAG, appeler `POST http://localhost:5000/api/rag/ask` avec `question`, puis tester avec `ownerType` egal a `OFFER` et sans `ownerType`.
 20. Tester les erreurs attendues : `question` vide retourne `400`, `ownerType` invalide retourne `400`, et `ai-service` arrete retourne `503`.
+
+## Administration
+
+Les routes admin sont montees sous :
+
+```http
+/api/admin
+```
+
+Toutes les routes admin utilisent :
+
+- `protect`
+- `authorizeRoles('ADMIN')`
+
+### Securite inscription publique
+
+`POST /api/auth/register` accepte uniquement :
+
+- `STUDENT`
+- `COMPANY`
+
+Une tentative avec `ADMIN` retourne `400` :
+
+```json
+{
+  "message": "Public registration is only available for STUDENT and COMPANY roles."
+}
+```
+
+Un administrateur doit etre cree par seed, Prisma Studio ou procedure interne controlee. Aucune route publique ne cree de compte `ADMIN`.
+
+### Dashboard admin
+
+```http
+GET /api/admin/dashboard
+```
+
+Retourne des statistiques calculees avec Prisma :
+
+- `totalUsers`
+- `totalStudents`
+- `totalCompanies`
+- `totalOffers`
+- `publishedOffers`
+- `totalApplications`
+- `acceptedApplications`
+- `pendingCompanies`
+- `inactiveUsers`
+
+Retourne aussi :
+
+- `recentUsers`
+- `recentCompanies`
+- `recentOffers`
+
+Aucun `passwordHash` n est expose.
+
+### Utilisateurs admin
+
+```http
+GET /api/admin/users
+```
+
+Query params :
+
+- `search`
+- `role` : `STUDENT`, `COMPANY`, `ADMIN`
+- `isActive` : `true`, `false`
+- `page`
+- `limit`, maximum `100`
+
+Tri par defaut : `createdAt` decroissant.
+
+```http
+PATCH /api/admin/users/:userId/status
+```
+
+Payload :
+
+```json
+{
+  "isActive": false
+}
+```
+
+Regles :
+
+- `isActive` doit etre booleen ;
+- l utilisateur doit exister ;
+- un administrateur ne peut pas desactiver son propre compte ;
+- le role n est jamais modifie ;
+- l utilisateur n est pas supprime.
+
+### Entreprises admin
+
+```http
+GET /api/admin/companies
+```
+
+Query params :
+
+- `search`
+- `status` : `PENDING`, `VALIDATED`, `REJECTED`, `SUSPENDED`
+- `page`
+- `limit`, maximum `100`
+
+```http
+PATCH /api/admin/companies/:companyId/status
+```
+
+Payload :
+
+```json
+{
+  "status": "VALIDATED"
+}
+```
+
+Statuts acceptes :
+
+- `PENDING`
+- `VALIDATED`
+- `REJECTED`
+- `SUSPENDED`
+
+La route modifie uniquement le statut de l entreprise et journalise l action sans donnee sensible.
+
+### Tests admin Postman
+
+1. Creer ou recuperer un compte `ADMIN` via Prisma Studio ou seed interne.
+2. Se connecter via `POST /api/auth/login`.
+3. Appeler `GET /api/admin/dashboard` avec le token admin.
+4. Appeler `GET /api/admin/users?page=1&limit=20`.
+5. Tester `role=STUDENT`, `role=COMPANY`, `isActive=true`, `isActive=false`.
+6. Tester `PATCH /api/admin/users/:userId/status`.
+7. Tester l auto-desactivation du compte admin connecte : elle doit retourner `400`.
+8. Appeler `GET /api/admin/companies?status=PENDING`.
+9. Tester `PATCH /api/admin/companies/:companyId/status` avec `VALIDATED`, `REJECTED`, `SUSPENDED`.
+10. Tester un statut invalide : la route doit retourner `400`.
+11. Tester sans token, avec token `STUDENT`, avec token `COMPANY`.
+12. Tester `POST /api/auth/register` avec `role: "ADMIN"` : la route doit refuser.

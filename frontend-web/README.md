@@ -1127,3 +1127,96 @@ Tests classement IA :
 31. Tester navigation clavier.
 32. Fermer le panneau avec `Escape`.
 33. Changer rapidement d offre.
+
+### Espace administrateur
+
+Routes :
+
+- `/admin/dashboard`
+- `/admin/users`
+- `/admin/companies`
+
+Toutes les routes sont protegees avec `allowedRoles=["ADMIN"]` et utilisent `AdminLayout`.
+
+Service API :
+
+- `src/api/adminApi.js`
+
+Endpoints utilises :
+
+- `GET /api/admin/dashboard`
+- `GET /api/admin/users`
+- `PATCH /api/admin/users/:userId/status`
+- `GET /api/admin/companies`
+- `PATCH /api/admin/companies/:companyId/status`
+
+Architecture UI :
+
+- `src/components/layout/AdminLayout.jsx`
+- `src/components/layout/AdminSidebar.jsx`
+- `src/components/layout/AdminHeader.jsx`
+- `src/components/layout/AdminMobileSidebar.jsx`
+- composants admin dans `src/components/admin/`
+- pages dans `src/pages/admin/`
+
+Dashboard :
+
+- affiche des statistiques reelles retournees par le backend ;
+- met en avant les entreprises en attente, les utilisateurs desactives, les offres et les candidatures ;
+- affiche les utilisateurs, entreprises et offres recemment crees ;
+- ne contient aucun graphique historique non calcule.
+
+Utilisateurs :
+
+- recherche par nom, prenom et email ;
+- filtre par role ;
+- filtre actif/desactive ;
+- pagination backend ;
+- activation et desactivation via modale ;
+- auto-desactivation de l administrateur connecte bloquee par le backend et evitee dans l UI ;
+- aucun `passwordHash` n est affiche.
+
+Entreprises :
+
+- recherche par entreprise, secteur, adresse, recruteur ou email ;
+- filtre par statut ;
+- pagination backend ;
+- actions de validation : `VALIDATED`, `REJECTED`, `SUSPENDED`, `PENDING` ;
+- aucune notification email ni motif n est invente.
+
+Normalisation :
+
+- `src/utils/admin.js` normalise dashboard, utilisateurs, entreprises et pagination.
+- Les dates invalides, valeurs nulles et nombres sous forme de chaine sont geres prudemment.
+
+Securite :
+
+- l inscription publique ne propose pas `ADMIN` cote frontend ;
+- le backend refuse aussi `role: "ADMIN"` sur `/api/auth/register` ;
+- un compte admin doit etre cree via seed, Prisma Studio ou procedure interne.
+
+Tests admin frontend :
+
+1. Login avec un compte `ADMIN`.
+2. Ouvrir `/admin/dashboard`.
+3. Verifier les statistiques reelles.
+4. Ouvrir `/admin/users`.
+5. Rechercher un utilisateur.
+6. Filtrer `STUDENT`, `COMPANY`, `ADMIN`.
+7. Filtrer actifs et desactives.
+8. Tester pagination.
+9. Desactiver un utilisateur.
+10. Reactiver un utilisateur.
+11. Tenter l auto-desactivation admin.
+12. Ouvrir `/admin/companies`.
+13. Filtrer `PENDING`.
+14. Valider une entreprise.
+15. Refuser une entreprise.
+16. Suspendre une entreprise.
+17. Tester backend arrete.
+18. Tester token expire.
+19. Tester acces `STUDENT` refuse.
+20. Tester acces `COMPANY` refuse.
+21. Tester responsive mobile.
+22. Tester navigation clavier.
+23. Fermer les modales avec `Escape`.
