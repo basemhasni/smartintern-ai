@@ -1023,3 +1023,107 @@ Tests candidatures entreprise :
 34. Tester navigation clavier.
 35. Fermer la modale avec `Escape`.
 36. Changer rapidement d offre.
+
+### Classement IA des candidats
+
+Route :
+
+- `/company/candidate-ranking`
+- `/company/candidate-ranking?offerId=<offerId>`
+
+Endpoints utilises :
+
+- `GET /api/companies/offers`
+- `GET /api/companies/offers/:offerId/candidates/ranking`
+- `PUT /api/applications/:id/status`
+
+Query params du classement :
+
+- `minScore` : nombre entre `0` et `100`.
+- `includeWithoutCV` : `true` ou `false`.
+
+Chargement et selection :
+
+- La page lit `offerId` depuis l URL.
+- Si l offre existe pour l entreprise connectee, elle est selectionnee.
+- Sinon, la page choisit l offre publiee la plus recente disponible, puis a defaut la premiere offre chargee.
+- Le classement est charge uniquement pour l offre active.
+- Au changement d offre, l URL est mise a jour et les reponses obsoletes sont ignorees.
+
+Strategie anti-N+1 :
+
+- Aucun matching individuel n est lance par candidat.
+- Les CV ne sont pas charges un par un.
+- Une seule requete de classement est effectuee par offre active.
+- Les filtres, tris et recherches sont faits cote frontend a partir de la reponse chargee.
+
+Normalisation :
+
+- `src/utils/candidateRanking.js` transforme la reponse backend en format stable.
+- Le rang backend est conserve comme `originalRank`.
+- Si le backend ne fournit pas de rang, le frontend trie par score decroissant puis attribue un rang.
+- En cas d egalite, le tie-breaker choisi est la date de candidature la plus ancienne, puis le nom du candidat.
+- Apres filtrage, le rang affiche reste le rang original pour eviter de modifier silencieusement le classement.
+
+Candidats sans CV analyse exploitable :
+
+- Le backend retourne actuellement un score `0` avec une explication comme `No analyzed CV found for this candidate`.
+- Le frontend interprete ces cas, ainsi que les analyses sans competences exploitables, comme `Score non disponible` plutot que comme une mauvaise compatibilite.
+- Ces candidats peuvent etre filtres avec le mode `Sans score`.
+
+Filtres et statistiques :
+
+- Recherche sur nom, email, localisation, niveau, objectif metier et competences.
+- Filtres : statut, disponibilite du score, score minimum, competence.
+- Tri : classement IA, score decroissant, score croissant, date de candidature, nom A-Z.
+- Statistiques calculees uniquement sur le classement charge : candidats classes, score moyen, meilleure compatibilite, sans analyse CV.
+
+Methodologie affichee :
+
+- La page explique que SmartIntern AI compare les competences extraites du CV avec les competences requises et optionnelles de l offre.
+- Le classement est presente comme une aide a la lecture des competences, pas comme une decision automatique de recrutement.
+- Les criteres sensibles, le CV complet, les embeddings et les donnees techniques internes ne sont pas affiches.
+
+Erreurs gerees :
+
+- `400` : offre invalide.
+- `403` : acces refuse, redirection vers `/access-denied`.
+- `404` : offre introuvable ou inaccessible.
+- `500`/`503` : classement IA temporairement indisponible.
+- Erreur reseau : verifier que le backend et le service IA sont demarres.
+
+Tests classement IA :
+
+1. Login avec un compte `COMPANY`.
+2. Ouvrir `/company/candidate-ranking`.
+3. Ouvrir `/company/candidate-ranking?offerId=<id>` avec un id valide.
+4. Tester un `offerId` invalide.
+5. Tester aucune offre.
+6. Tester une offre sans candidature.
+7. Tester une offre avec un candidat.
+8. Tester plusieurs candidats.
+9. Verifier candidat avec score.
+10. Verifier candidat sans CV analyse.
+11. Verifier scores identiques.
+12. Rechercher par nom.
+13. Rechercher par competence.
+14. Filtrer avec score.
+15. Filtrer sans score.
+16. Filtrer score 50, 70 et 80.
+17. Trier par classement IA.
+18. Trier par nom.
+19. Ouvrir le panneau detail.
+20. Verifier `matchedSkills`, `missingSkills` et `optionalMatchedSkills`.
+21. Verifier une explication absente.
+22. Modifier le statut si autorise.
+23. Tester ai-service arrete.
+24. Tester backend arrete.
+25. Tester offre d une autre entreprise.
+26. Tester token expire.
+27. Tester acces `STUDENT` refuse.
+28. Verifier lien candidatures avec `offerId`.
+29. Verifier lien detail offre.
+30. Tester responsive mobile.
+31. Tester navigation clavier.
+32. Fermer le panneau avec `Escape`.
+33. Changer rapidement d offre.
