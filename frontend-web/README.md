@@ -1220,3 +1220,183 @@ Tests admin frontend :
 21. Tester responsive mobile.
 22. Tester navigation clavier.
 23. Fermer les modales avec `Escape`.
+
+### Landing page premium
+
+Route :
+
+- `/`
+
+Structure :
+
+- `src/pages/LandingPage.jsx`
+- `src/data/landingData.js`
+- `src/components/landing/LandingNavbar.jsx`
+- `src/components/landing/LandingHero.jsx`
+- `src/components/landing/LandingProblemSolution.jsx`
+- `src/components/landing/LandingFeatures.jsx`
+- `src/components/landing/LandingJourneys.jsx`
+- `src/components/landing/LandingHowItWorks.jsx`
+- `src/components/landing/LandingAiArchitecture.jsx`
+- `src/components/landing/LandingProductShowcase.jsx`
+- `src/components/landing/LandingImpact.jsx`
+- `src/components/landing/LandingFinalCta.jsx`
+- `src/components/landing/LandingFooter.jsx`
+- `src/components/landing/AnimatedReveal.jsx`
+- `src/components/landing/FloatingVisualCard.jsx`
+- `src/components/landing/LandingImage.jsx`
+- `src/components/landing/LandingSection.jsx`
+
+Assets :
+
+- les images sont servies depuis `public/images/landing/`;
+- le mapping central se trouve dans `src/data/landingData.js`;
+- les chemins publics utilisent `/images/landing/<filename>`;
+- le hero charge `hero-career-signal-map.webp` en priorite ;
+- les autres images utilisent `loading="lazy"` et `decoding="async"`.
+
+Assets utilises :
+
+- `hero-career-signal-map.webp`
+- `abstract-ai-background.webp`
+- `problem-solution.webp`
+- `student-journey.webp`
+- `company-journey.webp`
+- `agents-orchestration.webp`
+- `rag-knowledge-insights.webp`
+- `explainable-ai.webp`
+- `product-mockup-collage.webp`
+- `company-dashboard-illustration.webp`
+- `career-assistant-illustration.webp`
+- `motivation-letter-generator.webp`
+- `cta-opportunity-bridge.webp`
+- icones PNG des fonctionnalites.
+
+Animations :
+
+- `AnimatedReveal` utilise `IntersectionObserver`;
+- animations `fade-up`, `fade-left`, `fade-right` et `scale`;
+- hero avec flottement doux ;
+- cartes avec hover lift ;
+- badges avec micro-mouvement.
+
+Reduced motion :
+
+- `prefers-reduced-motion` force les animations et transitions a une duree minimale ;
+- les elements reveal restent visibles sans dependance au scroll anime.
+
+Accessibilite :
+
+- un seul `h1` dans le hero ;
+- navbar avec menu mobile accessible ;
+- images avec `alt` utile quand elles portent du sens ;
+- images decoratives avec `alt=""`;
+- focus visible via les styles globaux ;
+- CTA vers routes existantes `/login` et `/register`.
+
+Performance :
+
+- aucune dependance d animation ajoutee ;
+- pas de Framer Motion ;
+- les images hors hero sont lazy-load ;
+- les sections sont decoupees pour limiter les rerenders ;
+- si une image est remplacee, conserver WebP compresse et dimensions adaptees.
+
+Remplacer une image :
+
+1. Ajouter le fichier dans `public/images/landing/`.
+2. Mettre a jour `landingImages` dans `src/data/landingData.js`.
+3. Verifier l `alt` dans la section concernee.
+4. Lancer `npm run build`.
+
+Tests landing :
+
+1. Ouvrir `/`.
+2. Verifier le hero et l image principale.
+3. Verifier tous les chemins image.
+4. Tester navbar sticky.
+5. Tester le menu mobile.
+6. Tester les ancres `#features`, `#journeys`, `#ai`, `#product`.
+7. Tester CTA `/login` et `/register`.
+8. Tester animations au scroll.
+9. Tester `prefers-reduced-motion`.
+10. Tester hover cards.
+11. Tester 1440px, 1024px, 768px et 390px.
+12. Verifier absence d overflow horizontal.
+13. Verifier navigation clavier et focus visible.
+14. Lancer `npm run build`.
+
+### Landing page experience 3D
+
+Route :
+
+- `/`
+
+Objectif :
+
+- premiere vue avec scene WebGL reelle ;
+- interaction souris avec parallax ;
+- cartes flottantes en profondeur ;
+- sections produit avec tilt 3D, perspective et timeline animee ;
+- fallback propre si WebGL ou les animations sont indisponibles.
+
+Fichiers principaux :
+
+- `src/pages/LandingPage.jsx`
+- `src/components/landing/LandingHero3D.jsx`
+- `src/components/landing/Hero3DScene.jsx`
+- `src/components/landing/HeroFallbackVisual.jsx`
+- `src/components/landing/FloatingUiCard3D.jsx`
+- `src/components/landing/LandingFeatures3D.jsx`
+- `src/components/landing/LandingJourneys3D.jsx`
+- `src/components/landing/LandingHowItWorks3D.jsx`
+- `src/components/landing/LandingProductShowcase3D.jsx`
+- `src/components/landing/MagneticButton.jsx`
+- `src/hooks/useMouseParallax.js`
+- `src/hooks/useReducedMotion.js`
+
+Dependencies :
+
+- aucune dependance 3D ajoutee dans cette iteration ;
+- la scene hero utilise l API WebGL native du navigateur ;
+- `three`, `@react-three/fiber`, `@react-three/drei` et `framer-motion` peuvent etre ajoutes plus tard si l environnement npm le permet.
+
+Hero 3D :
+
+- `Hero3DScene` dessine un noyau IA central, des anneaux orbitaux, des lignes de connexion et des particules avec WebGL ;
+- les cartes HTML autour du canvas representent le profil etudiant, le CV analyse, l offre recommandee et le classement candidat ;
+- `useMouseParallax` pilote la profondeur des cartes et l orientation douce de la scene ;
+- le canvas est decoratif et porte `aria-hidden`.
+
+Fallback :
+
+- `HeroFallbackVisual` affiche `hero-career-signal-map.webp` si WebGL est indisponible ;
+- le fallback est aussi utilise avec `prefers-reduced-motion: reduce`.
+
+Reduced motion :
+
+- `useReducedMotion` lit `prefers-reduced-motion` ;
+- les animations CSS et transformations 3D sont neutralisees dans `src/index.css` ;
+- le contenu important reste lisible hors canvas.
+
+Performance :
+
+- aucune texture WebGL lourde ;
+- nombre de particules limite ;
+- images hors hero en lazy-load ;
+- animations infinies reservees a peu d elements ;
+- sur mobile, la scene se reduit avec la grille responsive et garde une seule colonne.
+
+Tests recommandes :
+
+1. Ouvrir `/` sur desktop.
+2. Verifier que le canvas WebGL du hero est visible.
+3. Deplacer la souris sur la scene et verifier le parallax.
+4. Verifier le fallback avec `prefers-reduced-motion`.
+5. Tester les CTA `/register`, `/login` et l ancre `#product`.
+6. Verifier les cards features avec tilt 3D.
+7. Verifier la timeline animee.
+8. Verifier le product showcase en perspective.
+9. Tester 1440px, 1024px, 768px et 390px.
+10. Verifier l absence d overflow horizontal.
+11. Lancer `npm run build`.

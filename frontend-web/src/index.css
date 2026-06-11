@@ -94,17 +94,635 @@ select {
   }
 }
 
+@keyframes hero-card-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotateZ(0deg);
+  }
+  50% {
+    transform: translate3d(0, -14px, 18px) rotateZ(-1.4deg);
+  }
+}
+
+@keyframes hero-ring-spin {
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes hero-ring-counter {
+  to {
+    transform: rotateZ(-360deg);
+  }
+}
+
+@keyframes hero-core-breathe {
+  0%, 100% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  50% {
+    opacity: 0.86;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+@keyframes connector-dash {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes fallback-beam-flow {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    background-position: 100% 50%;
+    opacity: 0.2;
+  }
+}
+
+@keyframes section-field-drift {
+  0%, 100% {
+    transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 4%, 0) rotate(8deg) scale(1.12);
+  }
+}
+
+@keyframes kinetic-card-idle {
+  0%, 100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(2.4deg) rotateY(-3.2deg) translate3d(0, -12px, 26px);
+  }
+}
+
+@keyframes orbit-chip-one {
+  from {
+    transform: rotate(0deg) translateX(190px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(190px) rotate(-360deg);
+  }
+}
+
+@keyframes orbit-chip-two {
+  from {
+    transform: rotate(110deg) translateX(168px) rotate(-110deg);
+  }
+  to {
+    transform: rotate(470deg) translateX(168px) rotate(-470deg);
+  }
+}
+
+@keyframes scan-plane {
+  0% {
+    transform: translateY(-90px) rotateX(64deg);
+    opacity: 0;
+  }
+  20%, 70% {
+    opacity: 0.78;
+  }
+  100% {
+    transform: translateY(120px) rotateX(64deg);
+    opacity: 0;
+  }
+}
+
+@keyframes energy-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ai-orbit-sweep {
+  0%, 100% {
+    transform: rotate(0deg) scale(0.96);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.08);
+  }
+}
+
+.landing-section-kinetic {
+  isolation: isolate;
+}
+
+.landing-section-kinetic > .stitch-container {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-section-kinetic::before,
+.landing-section-kinetic::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 999px;
+  filter: blur(26px);
+  opacity: 0.42;
+}
+
+.landing-section-kinetic::before {
+  left: -12%;
+  top: 16%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(15, 91, 215, 0.18), transparent 68%);
+  animation: section-field-drift 9s ease-in-out infinite;
+}
+
+.landing-section-kinetic::after {
+  right: -10%;
+  bottom: 8%;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(109, 54, 232, 0.16), transparent 70%);
+  animation: section-field-drift 11s ease-in-out infinite reverse;
+}
+
+.landing-reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 720ms ease,
+    transform 720ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.landing-reveal-left {
+  transform: translate3d(28px, 0, 0);
+}
+
+.landing-reveal-right {
+  transform: translate3d(-28px, 0, 0);
+}
+
+.landing-reveal-scale {
+  transform: scale(0.96);
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.landing-hero-visual {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+.landing-float {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+.landing-badge {
+  animation: float-soft 5.5s ease-in-out infinite;
+}
+
+.landing-badge:nth-child(2n) {
+  animation-delay: 700ms;
+}
+
+.landing-badge:nth-child(3n) {
+  animation-delay: 1200ms;
+}
+
+.landing-mesh {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(15, 91, 215, 0.16), transparent 26%),
+    radial-gradient(circle at 80% 16%, rgba(109, 54, 232, 0.14), transparent 28%),
+    radial-gradient(circle at 55% 72%, rgba(35, 185, 214, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,246,255,0.78));
+}
+
+.hero-3d-stage,
+.landing-perspective-card,
+.landing-timeline-3d,
+.product-stack-3d {
+  perspective: 1100px;
+  transform-style: preserve-3d;
+}
+
+.hero-ui-card {
+  transform-style: preserve-3d;
+  box-shadow: 0 20px 50px rgba(31, 38, 76, 0.12);
+}
+
+.hero-card-drift {
+  animation: hero-card-drift 4.8s ease-in-out infinite;
+}
+
+.absolute:nth-of-type(2) > .hero-card-drift,
+.absolute:nth-of-type(4) > .hero-card-drift {
+  animation-delay: 900ms;
+}
+
+.hero-connection-map path {
+  fill: none;
+  stroke: rgba(15, 91, 215, 0.42);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 10 15;
+  animation: connector-dash 4.5s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(35, 185, 214, 0.42));
+}
+
+.hero-scan-plane {
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(35, 185, 214, 0.16), transparent),
+    repeating-linear-gradient(90deg, rgba(15,91,215,0.16) 0 1px, transparent 1px 18px);
+  box-shadow: 0 0 34px rgba(35, 185, 214, 0.24);
+  transform-origin: center;
+  animation: scan-plane 4.2s ease-in-out infinite;
+}
+
+.hero-orbit-chip {
+  position: absolute;
+  left: calc(50% - 34px);
+  top: calc(50% - 16px);
+  z-index: 6;
+  display: grid;
+  min-width: 68px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.84);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 14px 35px rgba(31, 38, 76, 0.14), 0 0 22px rgba(35, 185, 214, 0.16);
+  backdrop-filter: blur(14px);
+}
+
+.hero-orbit-chip-one {
+  animation: orbit-chip-one 10s linear infinite;
+}
+
+.hero-orbit-chip-two {
+  color: var(--ai);
+  animation: orbit-chip-two 12s linear infinite;
+}
+
+.hero-orbit-chip-three {
+  color: #0f8ea2;
+  animation: orbit-chip-one 14s linear infinite reverse;
+}
+
+.hero-orbit-chip-four {
+  animation: orbit-chip-two 16s linear infinite reverse;
+}
+
+.hero-connection-map path:nth-child(2) {
+  stroke: rgba(109, 54, 232, 0.44);
+  animation-duration: 5.8s;
+}
+
+.hero-connection-map path:nth-child(3) {
+  stroke: rgba(35, 185, 214, 0.46);
+  animation-duration: 6.6s;
+}
+
+.hero-core-rings {
+  animation: hero-core-breathe 4s ease-in-out infinite;
+}
+
+.hero-core-rings span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 91, 215, 0.25);
+  box-shadow: 0 0 34px rgba(35, 185, 214, 0.18);
+}
+
+.hero-core-rings span:nth-child(1) {
+  border-top-color: rgba(15, 91, 215, 0.8);
+  animation: hero-ring-spin 7s linear infinite;
+}
+
+.hero-core-rings span:nth-child(2) {
+  inset: 28px;
+  border-right-color: rgba(109, 54, 232, 0.82);
+  transform: rotateX(64deg);
+  animation: hero-ring-counter 8.5s linear infinite;
+}
+
+.hero-core-rings span:nth-child(3) {
+  inset: 52px;
+  border-bottom-color: rgba(35, 185, 214, 0.82);
+  transform: rotateY(58deg);
+  animation: hero-ring-spin 9.5s linear infinite;
+}
+
+.hero-fallback-animated {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+.hero-fallback-beam {
+  z-index: 2;
+  background: linear-gradient(90deg, transparent, rgba(35, 185, 214, 0.9), rgba(109, 54, 232, 0.72), transparent);
+  background-size: 220% 100%;
+  box-shadow: 0 0 18px rgba(35, 185, 214, 0.35);
+  animation: fallback-beam-flow 3.6s ease-in-out infinite;
+}
+
+.hero-fallback-beam:nth-child(2) {
+  animation-delay: 1.2s;
+}
+
+.hero-ui-card::before,
+.landing-tilt-card::before,
+.product-collage-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(15,91,215,0.45), rgba(109,54,232,0.2), rgba(35,185,214,0.42));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+
+.hero-ui-card:hover::before,
+.landing-tilt-card:hover::before,
+.product-collage-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes orbit-soft {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translate3d(0, -10px, 22px) rotateX(2deg) rotateY(-3deg);
+  }
+}
+
+@keyframes pulse-line {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.36;
+  }
+  50% {
+    opacity: 0.88;
+  }
+  100% {
+    background-position: 100% 50%;
+    opacity: 0.36;
+  }
+}
+
+.landing-tilt-card,
+.product-module-3d,
+.timeline-card-3d,
+.landing-perspective-card {
+  transform-style: preserve-3d;
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 420ms ease,
+    border-color 420ms ease;
+}
+
+.landing-tilt-card {
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0);
+  animation: kinetic-card-idle 7s ease-in-out infinite;
+}
+
+.landing-tilt-card:hover {
+  transform: perspective(1000px) rotateX(7deg) rotateY(-9deg) translate3d(0, -16px, 42px) scale(1.025);
+  border-color: rgba(15, 91, 215, 0.26);
+  box-shadow: 0 34px 90px rgba(31, 38, 76, 0.18), 0 0 34px rgba(35, 185, 214, 0.14);
+}
+
+.landing-perspective-card:hover,
+.product-module-3d:hover {
+  transform: perspective(1000px) rotateX(6deg) rotateY(-7deg) translateY(-12px) translateZ(36px);
+  box-shadow: 0 34px 90px rgba(31, 38, 76, 0.16);
+}
+
+.kinetic-panel,
+.impact-kinetic-card {
+  transform-style: preserve-3d;
+  animation: kinetic-card-idle 8s ease-in-out infinite;
+}
+
+.impact-kinetic-card {
+  animation-delay: var(--impact-delay, 0ms);
+}
+
+.problem-core-3d {
+  transform-style: preserve-3d;
+}
+
+.problem-core-3d > div:not(.problem-energy-ring) {
+  position: relative;
+  z-index: 2;
+  transform: perspective(900px) rotateY(-7deg) rotateX(3deg);
+  transition: transform 420ms ease;
+}
+
+.problem-core-3d:hover > div:not(.problem-energy-ring) {
+  transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(28px);
+}
+
+.problem-energy-ring {
+  position: absolute;
+  inset: -24px;
+  z-index: 1;
+  border-radius: 34px;
+  background:
+    conic-gradient(from 0deg, transparent 0 16%, rgba(35,185,214,0.44) 18%, transparent 26%, rgba(109,54,232,0.4) 42%, transparent 52%, rgba(15,91,215,0.4) 70%, transparent 82%),
+    radial-gradient(circle, rgba(15,91,215,0.08), transparent 62%);
+  filter: blur(0.2px);
+  animation: energy-ring-spin 8s linear infinite;
+}
+
+.ai-orbit-stage {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.ai-orbit-stage > div:not(.ai-orbit-line) {
+  position: relative;
+  z-index: 2;
+}
+
+.ai-orbit-line {
+  position: absolute;
+  inset: -24px 12px auto 12px;
+  z-index: 1;
+  height: 55%;
+  border: 1px solid rgba(15,91,215,0.18);
+  border-radius: 999px;
+  box-shadow: 0 0 28px rgba(35,185,214,0.16);
+  animation: ai-orbit-sweep 9s ease-in-out infinite;
+}
+
+.ai-orbit-line-two {
+  inset: auto 30px -18px 30px;
+  border-color: rgba(109,54,232,0.18);
+  animation-duration: 11s;
+  animation-direction: reverse;
+}
+
+.ai-agent-card {
+  transform-style: preserve-3d;
+  animation: kinetic-card-idle 7.5s ease-in-out infinite;
+  animation-delay: var(--agent-delay, 0ms);
+}
+
+.ai-agent-card:hover {
+  transform: perspective(900px) rotateX(6deg) rotateY(-8deg) translateY(-10px) translateZ(34px);
+  box-shadow: 0 32px 82px rgba(31, 38, 76, 0.16);
+}
+
+.journey-step-3d {
+  transform: translateZ(0);
+  transition:
+    transform 320ms ease,
+    background 320ms ease,
+    box-shadow 320ms ease;
+}
+
+.journey-step-3d:hover {
+  transform: translate3d(8px, 0, 18px);
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(43, 54, 116, 0.08);
+}
+
+.timeline-card-3d {
+  transform: perspective(900px) rotateY(-3deg);
+  animation: kinetic-card-idle 8.4s ease-in-out infinite;
+}
+
+.timeline-card-3d:hover {
+  transform: perspective(900px) rotateY(4deg) rotateX(4deg) translateY(-14px) translateZ(42px);
+  box-shadow: 0 32px 84px rgba(31, 38, 76, 0.17);
+}
+
+.product-stack-3d {
+  transform: rotateX(2deg);
+  animation: kinetic-card-idle 9s ease-in-out infinite;
+}
+
+.product-collage-card {
+  position: relative;
+  transform: perspective(1100px) rotateY(-10deg) rotateX(4deg) translateZ(20px);
+  transition:
+    transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 520ms ease;
+}
+
+.product-stack-3d:hover .product-collage-card {
+  transform: perspective(1100px) rotateY(-2deg) rotateX(1deg) translateZ(52px);
+  box-shadow: 0 30px 80px rgba(31, 38, 76, 0.15);
+}
+
+.product-panel-3d {
+  animation: orbit-soft 7s ease-in-out infinite;
+  animation-delay: var(--panel-delay, 0ms);
+  transform: translateZ(20px);
+}
+
+.cta-flow-line {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+  background-size: 220% 100%;
+  animation: pulse-line 4s ease-in-out infinite;
+}
+
+.cta-kinetic-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(15,91,215,0.12), transparent 30%),
+    radial-gradient(circle at 80% 40%, rgba(109,54,232,0.1), transparent 28%);
+  animation: section-field-drift 10s ease-in-out infinite;
+}
+
+.cta-portal {
+  transform-style: preserve-3d;
+  animation: kinetic-card-idle 8s ease-in-out infinite;
+}
+
+.cta-orbit {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 0 34px rgba(35,185,214,0.16);
+  pointer-events: none;
+}
+
+.cta-orbit-one {
+  inset: 18px 22%;
+  animation: hero-ring-spin 12s linear infinite;
+}
+
+.cta-orbit-two {
+  inset: 38px 13%;
+  animation: hero-ring-counter 16s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html:not([data-motion='force']) {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion='force']) *,
+  html:not([data-motion='force']) *::before,
+  html:not([data-motion='force']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  html:not([data-motion='force']) .landing-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  html:not([data-motion='force']) .hero-ui-card,
+  html:not([data-motion='force']) .landing-tilt-card,
+  html:not([data-motion='force']) .landing-perspective-card,
+  html:not([data-motion='force']) .product-module-3d,
+  html:not([data-motion='force']) .timeline-card-3d,
+  html:not([data-motion='force']) .product-collage-card,
+  html:not([data-motion='force']) .product-panel-3d,
+  html:not([data-motion='force']) .landing-section-kinetic::before,
+  html:not([data-motion='force']) .landing-section-kinetic::after,
+  html:not([data-motion='force']) .hero-card-drift,
+  html:not([data-motion='force']) .hero-core-rings,
+  html:not([data-motion='force']) .hero-core-rings span,
+  html:not([data-motion='force']) .hero-fallback-animated,
+  html:not([data-motion='force']) .hero-fallback-beam,
+  html:not([data-motion='force']) .hero-connection-map path,
+  html:not([data-motion='force']) .hero-scan-plane,
+  html:not([data-motion='force']) .hero-orbit-chip,
+  html:not([data-motion='force']) .kinetic-panel,
+  html:not([data-motion='force']) .impact-kinetic-card,
+  html:not([data-motion='force']) .problem-energy-ring,
+  html:not([data-motion='force']) .ai-orbit-line,
+  html:not([data-motion='force']) .ai-agent-card,
+  html:not([data-motion='force']) .cta-portal,
+  html:not([data-motion='force']) .cta-orbit,
+  html:not([data-motion='force']) .cta-kinetic-field::before {
+    animation: none !important;
+    transform: none !important;
   }
 }
