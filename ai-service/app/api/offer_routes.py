@@ -9,7 +9,7 @@ router = APIRouter(prefix="/ai", tags=["Offer Analysis"])
 @router.post("/analyze-offer", response_model=OfferAnalysisResponse)
 def analyze_offer_endpoint(payload: OfferAnalysisRequest):
     try:
-        return analyze_offer(payload.title, payload.description)
+        return analyze_offer(payload.title, payload.description, payload.requiredSkills, payload.optionalSkills)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
 

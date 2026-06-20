@@ -5,6 +5,9 @@ class MatchingWorkflowState(TypedDict):
     candidateSkills: list[str]
     requiredSkills: list[str]
     optionalSkills: list[str]
+    candidateAnalysis: dict
+    offerAnalysis: dict
+    qualityChecks: Optional[dict]
     result: Optional[dict]
     error: Optional[str]
 

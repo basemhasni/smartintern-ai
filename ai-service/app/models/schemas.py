@@ -11,24 +11,48 @@ class CVAnalysisResponse(BaseModel):
     skills: List[str]
     experienceLevel: str
     summary: str
+    detectedSkills: List[str] = []
+    skillsByCategory: Dict[str, List[str]] = {}
+    detectedMentions: List[Dict[str, Any]] = []
+    inferredRelatedSkills: List[Dict[str, Any]] = []
+    technicalSkills: List[str] = []
+    softSkills: List[str] = []
+    educationLevel: str = "UNKNOWN"
+    experienceLevelV2: str = "UNKNOWN"
+    projectSignals: List[str] = []
+    domainSignals: List[str] = []
+    languages: List[str] = []
+    tools: List[str] = []
+    rawTextQuality: Dict[str, Any] = {}
 
 
 class OfferAnalysisRequest(BaseModel):
     title: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
+    requiredSkills: Optional[List[str]] = []
+    optionalSkills: Optional[List[str]] = []
 
 
 class OfferAnalysisResponse(BaseModel):
+    title: str
     requiredSkills: List[str]
     optionalSkills: List[str]
     domain: str
     summary: str
+    skillsByCategory: Dict[str, List[str]] = {}
+    responsibilities: List[str] = []
+    seniorityExpected: str = "UNKNOWN"
+    keywords: List[str] = []
+    criticalSkills: List[str] = []
+    niceToHaveSkills: List[str] = []
 
 
 class MatchingRequest(BaseModel):
     candidateSkills: List[str]
     requiredSkills: List[str]
     optionalSkills: Optional[List[str]] = []
+    candidateAnalysis: Optional[Dict[str, Any]] = None
+    offerAnalysis: Optional[Dict[str, Any]] = None
 
 
 class MatchingResponse(BaseModel):
@@ -37,12 +61,25 @@ class MatchingResponse(BaseModel):
     missingSkills: List[str]
     optionalMatchedSkills: List[str]
     explanation: str
+    confidence: str = "LOW"
+    decisionLabel: str = "INSUFFICIENT_DATA"
+    partialMatchedSkills: List[Dict[str, Any]] = []
+    missingRequiredSkills: List[str] = []
+    missingOptionalSkills: List[str] = []
+    extraCandidateSkills: List[str] = []
+    categoryScores: Dict[str, int] = {}
+    scoreBreakdown: Dict[str, Any] = {}
+    strengths: List[str] = []
+    risks: List[str] = []
+    recommendations: List[str] = []
 
 
 class MatchingWorkflowRequest(BaseModel):
     candidateSkills: List[str]
     requiredSkills: List[str]
     optionalSkills: Optional[List[str]] = []
+    candidateAnalysis: Optional[Dict[str, Any]] = None
+    offerAnalysis: Optional[Dict[str, Any]] = None
 
 
 class LetterStudent(BaseModel):

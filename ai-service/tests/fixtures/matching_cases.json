@@ -1,0 +1,82 @@
+[
+  {
+    "name": "frontend_react_cv_vs_react_offer",
+    "cvText": "Etudiant junior en developpement frontend. J'ai realise plusieurs projets web avec React, TypeScript, JavaScript, HTML, CSS, Git et Jest. Mon projet principal est une interface React testee avec Jest.",
+    "offer": {
+      "title": "Stage developpeur React",
+      "description": "Developper et tester des interfaces web React TypeScript.",
+      "requiredSkills": ["React", "TypeScript", "JavaScript", "HTML", "CSS"],
+      "optionalSkills": ["Jest", "Git"]
+    },
+    "expectedRange": [80, 100]
+  },
+  {
+    "name": "java_spring_cv_vs_react_offer",
+    "cvText": "Etudiant en informatique avec connaissances Java, Spring Boot et MySQL. Projet academique de creation d'une API backend.",
+    "offer": {
+      "title": "Stage React Node.js",
+      "description": "Stage frontend et backend web.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "AWS"]
+    },
+    "expectedRange": [10, 40]
+  },
+  {
+    "name": "fullstack_cv_vs_fullstack_offer",
+    "cvText": "Developpeur fullstack junior disponible pour un stage. Projets realises avec React, Node.js, Express.js, PostgreSQL, Prisma, Docker et Git. Experience dans la creation d'API REST, les interfaces web responsives et les tests unitaires. J'ai documente et deployee une application complete.",
+    "offer": {
+      "title": "Stage developpeur fullstack React Node.js",
+      "description": "Developper une plateforme web fullstack et collaborer avec l'equipe produit.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "CI/CD", "AWS"]
+    },
+    "expectedRange": [80, 100]
+  },
+  {
+    "name": "qa_cv_vs_qa_offer",
+    "cvText": "Profil QA junior avec projets de test. Utilisation de Postman, Selenium, Playwright, integration testing et unit testing. Creation de scenarios de test et automatisation des controles qualite.",
+    "offer": {
+      "title": "Stage QA automation",
+      "description": "Tester les API et automatiser les parcours critiques.",
+      "requiredSkills": ["Postman", "Selenium", "Integration Testing"],
+      "optionalSkills": ["Playwright", "Jira"]
+    },
+    "expectedRange": [80, 100]
+  },
+  {
+    "name": "poor_cv_vs_complete_offer",
+    "cvText": "Etudiant en informatique.",
+    "offer": {
+      "title": "Stage fullstack",
+      "description": "Developper une application web.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL"],
+      "optionalSkills": ["Docker"]
+    },
+    "expectedRange": [0, 15],
+    "expectedConfidence": "LOW"
+  },
+  {
+    "name": "complete_cv_vs_poor_offer",
+    "cvText": "Developpeur junior React Node.js PostgreSQL Docker avec plusieurs projets web documentes et testes.",
+    "offer": {
+      "title": "Stage informatique",
+      "description": "Participer aux activites de l'equipe.",
+      "requiredSkills": [],
+      "optionalSkills": []
+    },
+    "expectedRange": [0, 0],
+    "expectedConfidence": "LOW"
+  },
+  {
+    "name": "docker_only_vs_react_node_offer",
+    "cvText": "Etudiant debutant ayant utilise Docker dans un atelier.",
+    "offer": {
+      "title": "Stage React Node.js",
+      "description": "Developper une application web.",
+      "requiredSkills": ["React", "Node.js"],
+      "optionalSkills": []
+    },
+    "expectedRange": [0, 30]
+  }
+]
+

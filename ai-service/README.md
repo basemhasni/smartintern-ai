@@ -604,3 +604,209 @@ Reponse :
 3. Ajouter le header `Content-Type: application/json` pour les routes POST.
 4. Envoyer les payloads JSON ci-dessus.
 
+## Architecture IA V2
+
+La version V2 remplace les intersections de chaines simples par un moteur deterministe partage :
+
+```text
+Route FastAPI
+-> service public compatible
+-> agent V2
+-> taxonomie / analyse V2 / MatchingEngineV2
+-> reponse enrichie avec anciens champs conserves
+```
+
+Modules principaux :
+
+```text
+app/knowledge/skill_taxonomy.py
+app/utils/text_normalization.py
+app/services/skill_extraction_service.py
+app/services/cv_analysis_v2.py
+app/services/offer_analysis_v2.py
+app/services/matching_engine_v2.py
+app/agents/cv_analysis_agent_v2.py
+app/agents/offer_analysis_agent_v2.py
+app/agents/matching_agent_v2.py
+app/workflows/matching_workflow_v2.py
+```
+
+Les anciens modules d agents sont conserves dans le depot pour compatibilite historique, mais les services publics et l orchestrateur utilisent les agents V2.
+
+### Taxonomie de competences
+
+La taxonomie couvre :
+
+- Frontend ;
+- Backend ;
+- Database ;
+- DevOps / Cloud ;
+- Data / AI ;
+- Mobile ;
+- Testing / QA ;
+- Tools.
+
+Chaque competence possede un nom canonique, des alias francais ou anglais, une categorie, des competences liees et un poids par defaut. Les alias les plus longs sont reserves avant les alias courts afin que `Node.js` ne cree pas artificiellement une mention `JavaScript` via `js`.
+
+Les competences liees servent uniquement au matching partiel. Elles ne sont jamais ajoutees aux competences maitrisees du candidat.
+
+### Analyse CV V2
+
+`POST /ai/analyze-cv` conserve :
+
+```text
+skills
+experienceLevel
+summary
+```
+
+La reponse ajoute :
+
+```text
+detectedSkills
+skillsByCategory
+detectedMentions
+inferredRelatedSkills
+technicalSkills
+softSkills
+educationLevel
+experienceLevelV2
+projectSignals
+domainSignals
+languages
+tools
+rawTextQuality
+```
+
+`experienceLevel` reste en minuscules pour le frontend existant. `experienceLevelV2` expose `BEGINNER`, `JUNIOR`, `INTERMEDIATE` ou `UNKNOWN`.
+
+### Analyse offre V2
+
+`POST /ai/analyze-offer` accepte toujours `title` et `description`. Il accepte aussi les champs optionnels `requiredSkills` et `optionalSkills`.
+
+Les listes structurees sont prioritaires. Le texte sert a completer la categorie, le domaine, les responsabilites et les mots-cles sans transformer automatiquement les competences optionnelles en exigences.
+
+Champs ajoutes :
+
+```text
+skillsByCategory
+responsibilities
+seniorityExpected
+keywords
+criticalSkills
+niceToHaveSkills
+```
+
+### MatchingEngineV2
+
+Bareme :
+
+```text
+Competences requises : 60 %
+Competences optionnelles : 20 %
+Alignement domaine : 10 %
+Experience : 10 %
+```
+
+Regles :
+
+- correspondance canonique ou alias : match exact ;
+- competence explicitement liee : match partiel a 50 % maximum ;
+- exigence absente : aucun point pour cette exigence ;
+- competences supplementaires : aucun bonus artificiel sur les exigences ;
+- offre sans competence requise : score 0 et `INSUFFICIENT_DATA` ;
+- score borne entre 0 et 100.
+
+Les champs historiques restent presents :
+
+```text
+score
+matchedSkills
+missingSkills
+optionalMatchedSkills
+explanation
+```
+
+Nouveaux champs :
+
+```text
+confidence
+decisionLabel
+partialMatchedSkills
+missingRequiredSkills
+missingOptionalSkills
+extraCandidateSkills
+categoryScores
+scoreBreakdown
+strengths
+risks
+recommendations
+```
+
+Valeurs de confiance : `HIGH`, `MEDIUM`, `LOW`.
+
+Labels : `STRONG_MATCH`, `GOOD_MATCH`, `PARTIAL_MATCH`, `LOW_MATCH`, `INSUFFICIENT_DATA`.
+
+### Workflow LangGraph V2
+
+`POST /ai/workflows/match` utilise :
+
+```text
+validate_input
+prepare_cv_analysis
+prepare_offer_analysis
+extract_skill_signals
+compute_matching_score
+generate_explanation
+quality_check
+format_response
+```
+
+Le controle qualite verifie les bornes du score, les doublons, la coherence entre competences presentes et manquantes, la confiance et l explication.
+
+### Compatibilite backend Node.js
+
+Le backend continue a lire et sauvegarder :
+
+```text
+analysisJson.skills
+matching.score
+matching.matchedSkills
+matching.missingSkills
+matching.optionalMatchedSkills
+matching.explanation
+```
+
+Aucune migration Prisma n est requise. Les champs V2 supplementaires sont disponibles dans les reponses directes, mais ne sont pas encore persistes par le backend.
+
+### Tests et evaluation
+
+Tests unitaires sans dependance supplementaire :
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Evaluation fonctionnelle :
+
+```bash
+python scripts/evaluate_matching.py
+```
+
+Fixtures :
+
+```text
+tests/fixtures/matching_cases.json
+```
+
+Les cas couvrent React, fullstack, Java/Spring face a React, QA, CV pauvre, offre pauvre et Docker seul face a React/Node.
+
+### Limites actuelles
+
+- Le systeme reste deterministe et ne realise pas de comprehension semantique profonde sans LLM.
+- Les resultats dependent de la qualite et de la precision du texte extrait du CV.
+- La taxonomie doit etre enrichie progressivement avec les technologies et formulations observees en production.
+- Les niveaux d experience et d education sont des estimations prudentes basees sur des indices textuels.
+- Les competences liees representent une proximite technique, pas une preuve de maitrise.
+- Le backend persiste encore uniquement les champs historiques du matching.
+

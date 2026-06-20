@@ -9,7 +9,13 @@ router = APIRouter(prefix="/ai", tags=["Matching"])
 @router.post("/match", response_model=MatchingResponse)
 def match_endpoint(payload: MatchingRequest):
     try:
-        return match_candidate(payload.candidateSkills, payload.requiredSkills, payload.optionalSkills)
+        return match_candidate(
+            payload.candidateSkills,
+            payload.requiredSkills,
+            payload.optionalSkills,
+            payload.candidateAnalysis,
+            payload.offerAnalysis,
+        )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
