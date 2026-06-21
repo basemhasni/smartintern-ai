@@ -968,3 +968,8 @@ La route modifie uniquement le statut de l entreprise et journalise l action san
 10. Tester un statut invalide : la route doit retourner `400`.
 11. Tester sans token, avec token `STUDENT`, avec token `COMPANY`.
 12. Tester `POST /api/auth/register` avec `role: "ADMIN"` : la route doit refuser.
+## Career Assistant V2
+
+`POST /api/students/career-assistant` recalcule un contexte Hybrid Matching V3 pour l'offre cible en utilisant `CV.parsedText`, `CV.analysisJson` et les competences structurees de l'offre. Le payload transmis a `POST /ai/career-advice` contient les champs historiques du matching ainsi que `confidence`, `decisionLabel` et l'objet `v3` complet.
+
+Les champs historiques restent enregistres dans `MatchingResult`; les details V3 servent uniquement a la generation courante des conseils. Aucune migration Prisma n'est requise. Si le recalcul V3 echoue mais qu'un matching historique existe, le service utilise ce resultat avec une confiance faible et signale des donnees insuffisantes.

@@ -25,7 +25,7 @@ function CareerOfferSelector({ offers, selectedOfferId, onSelectOffer }) {
   return (
     <section className="rounded-stitch border border-line bg-white p-6 shadow-panel">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Offre cible</p>
-      <h2 className="mt-2 text-xl font-black text-ink">Choisir l opportunite a analyser</h2>
+      <h2 className="mt-2 text-xl font-black text-ink">Choisir l opportunite</h2>
       <div className="relative mt-5">
         <label className="sr-only" htmlFor="career-offer-search">Rechercher une offre</label>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" aria-hidden="true" />
@@ -37,7 +37,7 @@ function CareerOfferSelector({ offers, selectedOfferId, onSelectOffer }) {
           onChange={(event) => setQuery(event.target.value)}
         />
       </div>
-      <div className="mt-4 max-h-[430px] space-y-3 overflow-y-auto pr-1">
+      <div className="mt-4 max-h-[300px] space-y-3 overflow-y-auto pr-1">
         {filteredOffers.map((offer) => {
           const isSelected = String(offer.id) === String(selectedOfferId);
 

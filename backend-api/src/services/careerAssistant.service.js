@@ -96,47 +96,62 @@ const getPublishedOffer = async (offerId) => {
   return offer;
 };
 
-const getOrCreateMatching = async (studentId, offerId, candidateSkills, requiredSkills, optionalSkills) => {
+const getOrCreateMatching = async ({
+  studentId,
+  offer,
+  cv,
+  candidateSkills,
+  requiredSkills,
+  optionalSkills,
+}) => {
   const existingMatching = await prisma.matchingResult.findUnique({
     where: {
       studentId_offerId: {
         studentId,
-        offerId,
+        offerId: offer.id,
       },
     },
   });
-
-  if (existingMatching) {
-    return {
-      score: existingMatching.score,
-      matchedSkills: toArray(existingMatching.matchedSkillsJson),
-      missingSkills: toArray(existingMatching.missingSkillsJson),
-    };
-  }
 
   const matchingResult = await matchCandidateWithOffer({
     candidateSkills,
     requiredSkills,
     optionalSkills,
+    candidateAnalysis: cv.analysisJson || {},
+    offerAnalysis: {
+      title: offer.title,
+      description: offer.description,
+      requiredSkills,
+      optionalSkills,
+    },
+    candidateText: cv.parsedText || null,
+    offerText: `${offer.title}. ${offer.description || ''}`,
+    debug: true,
   });
 
   if (!matchingResult.success) {
+    if (existingMatching) {
+      return {
+        score: existingMatching.score,
+        matchedSkills: toArray(existingMatching.matchedSkillsJson),
+        missingSkills: toArray(existingMatching.missingSkillsJson),
+        optionalMatchedSkills: toArray(existingMatching.optionalMatchedSkillsJson),
+        explanation: existingMatching.explanation,
+        confidence: 'LOW',
+        decisionLabel: 'INSUFFICIENT_DATA',
+        v3: {},
+      };
+    }
     throw createHttpError(503, 'AI service is currently unavailable.');
   }
 
-  const matching = {
-    score: matchingResult.data.score,
-    matchedSkills: matchingResult.data.matchedSkills || [],
-    missingSkills: matchingResult.data.missingSkills || [],
-    optionalMatchedSkills: matchingResult.data.optionalMatchedSkills || [],
-    explanation: matchingResult.data.explanation || null,
-  };
+  const matching = matchingResult.data;
 
   await prisma.matchingResult.upsert({
     where: {
       studentId_offerId: {
         studentId,
-        offerId,
+        offerId: offer.id,
       },
     },
     update: {
@@ -148,7 +163,7 @@ const getOrCreateMatching = async (studentId, offerId, candidateSkills, required
     },
     create: {
       studentId,
-      offerId,
+      offerId: offer.id,
       score: matching.score,
       matchedSkillsJson: matching.matchedSkills,
       missingSkillsJson: matching.missingSkills,
@@ -220,13 +235,14 @@ const generateAdvice = async (userId, payload) => {
     throw createHttpError(400, 'No candidate skills found in the analyzed CV.');
   }
 
-  const matching = await getOrCreateMatching(
-    student.id,
-    offer.id,
+  const matching = await getOrCreateMatching({
+    studentId: student.id,
+    offer,
+    cv,
     candidateSkills,
     requiredSkills,
-    optionalSkills
-  );
+    optionalSkills,
+  });
   const ragContext = await buildRagContext(offer, requiredSkills, matching.missingSkills);
 
   const adviceResult = await generateCareerAdvice({
@@ -250,6 +266,14 @@ const generateAdvice = async (userId, payload) => {
       score: matching.score,
       matchedSkills: matching.matchedSkills,
       missingSkills: matching.missingSkills,
+      optionalMatchedSkills: matching.optionalMatchedSkills || [],
+      explanation: matching.explanation || null,
+      confidence: matching.confidence || 'LOW',
+      decisionLabel: matching.decisionLabel || 'INSUFFICIENT_DATA',
+      strengths: matching.strengths || [],
+      risks: matching.risks || [],
+      recommendations: matching.recommendations || [],
+      v3: matching.v3 || {},
     },
     question,
     ragContextDocuments: ragContext.documents,

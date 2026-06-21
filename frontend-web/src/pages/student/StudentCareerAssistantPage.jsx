@@ -47,6 +47,7 @@ function StudentCareerAssistantPage() {
   const [recommendedOffers, setRecommendedOffers] = useState([]);
   const [selectedOfferId, setSelectedOfferId] = useState(queryOfferId || '');
   const [question, setQuestion] = useState('');
+  const [submittedQuestion, setSubmittedQuestion] = useState('');
   const [advice, setAdvice] = useState(null);
   const [loadError, setLoadError] = useState('');
   const [formError, setFormError] = useState('');
@@ -143,6 +144,7 @@ function StudentCareerAssistantPage() {
 
       const response = await generateCareerAdvice(payload);
       const normalizedAdvice = normalizeCareerAdviceResponse(response);
+      setSubmittedQuestion(trimmedQuestion);
       setAdvice(normalizedAdvice);
       window.setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -177,14 +179,15 @@ function StudentCareerAssistantPage() {
       ) : null}
 
       {offerOptions.length ? (
-        <div className="grid gap-6 xl:grid-cols-[400px_minmax(0,1fr)]">
-          <div className="space-y-6">
+        <div className="space-y-7">
+          <div className="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
             <CareerOfferSelector
               offers={offerOptions}
               selectedOfferId={selectedOfferId}
               onSelectOffer={(offerId) => {
                 setSelectedOfferId(offerId);
                 setAdvice(null);
+                setSubmittedQuestion('');
                 setFormError('');
               }}
             />
@@ -201,10 +204,10 @@ function StudentCareerAssistantPage() {
               onSubmit={handleSubmit}
             />
           </div>
-          <div className="space-y-6" ref={resultRef}>
+          <div className="space-y-6 scroll-mt-24" ref={resultRef}>
             {isGenerating ? <CareerGenerationState /> : null}
             {!isGenerating && advice ? (
-              <CareerAdviceResult advice={advice} offer={selectedOffer} onAskAnother={handleAskAnother} />
+              <CareerAdviceResult advice={advice} offer={selectedOffer} question={submittedQuestion} onAskAnother={handleAskAnother} />
             ) : null}
             {!isGenerating && !advice ? <CareerAssistantEmptyState /> : null}
           </div>

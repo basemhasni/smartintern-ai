@@ -8,7 +8,7 @@ function CareerPromptSuggestions({ onSelect }) {
         {promptSuggestions.map((suggestion) => (
           <button
             key={suggestion}
-            className="rounded-full border border-line bg-canvas px-3 py-2 text-xs font-bold text-ink transition hover:bg-primarySoft hover:text-primary"
+            className="rounded-lg border border-line bg-canvas px-3 py-2 text-left text-xs font-bold leading-5 text-ink transition hover:border-primary/40 hover:bg-primarySoft hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/15"
             type="button"
             onClick={() => onSelect(suggestion)}
           >

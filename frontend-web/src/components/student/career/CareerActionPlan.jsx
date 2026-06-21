@@ -7,9 +7,15 @@ function CareerActionPlan({ actionPlan }) {
         {actionPlan.length ? actionPlan.map((step, index) => (
           <div key={`${step.period}-${step.objective}`} className="flex gap-4">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-black text-white">{index + 1}</span>
-            <div className="rounded-stitch bg-canvas p-4">
+            <div className="min-w-0 flex-1 rounded-stitch bg-canvas p-4">
               <p className="text-sm font-black text-primary">{step.period}</p>
               <p className="mt-1 text-sm leading-6 text-ink">{step.objective}</p>
+              {step.actions?.length ? (
+                <ul className="mt-3 space-y-2 border-t border-line pt-3">
+                  {step.actions.map((action) => <li key={action} className="text-sm leading-6 text-muted">{action}</li>)}
+                </ul>
+              ) : null}
+              {step.expectedOutcome ? <p className="mt-3 text-xs font-bold leading-5 text-muted">Resultat attendu : {step.expectedOutcome}</p> : null}
             </div>
           </div>
         )) : (

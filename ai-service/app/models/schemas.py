@@ -158,6 +158,14 @@ class CareerMatching(BaseModel):
     score: int
     matchedSkills: List[str]
     missingSkills: List[str]
+    optionalMatchedSkills: List[str] = []
+    explanation: Optional[str] = None
+    confidence: str = "LOW"
+    decisionLabel: str = "INSUFFICIENT_DATA"
+    strengths: List[str] = []
+    risks: List[str] = []
+    recommendations: List[str] = []
+    v3: Dict[str, Any] = {}
 
 
 class CareerAdviceRequest(BaseModel):
@@ -174,11 +182,17 @@ class SkillImprovement(BaseModel):
     priority: str
     reason: str
     actions: List[str]
+    gapType: Optional[str] = None
+    impactOnMatching: Optional[str] = None
+    currentEvidence: List[str] = []
 
 
 class ActionPlanItem(BaseModel):
     period: str
     objective: str
+    actions: List[str] = []
+    targetSkills: List[str] = []
+    expectedOutcome: Optional[str] = None
 
 
 class CareerAdviceResponse(BaseModel):
@@ -189,6 +203,7 @@ class CareerAdviceResponse(BaseModel):
     actionPlan: List[ActionPlanItem]
     finalAdvice: str
     ragInsights: List[str] = []
+    v2: Dict[str, Any] = {}
 
 
 class OrchestratorRequest(BaseModel):

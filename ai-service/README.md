@@ -380,7 +380,7 @@ Endpoint :
 POST /ai/career-advice
 ```
 
-Assistant MVP base sur des regles deterministes, sans LLM externe ni OpenAI API. Le champ optionnel `ragContextDocuments` permet d'ajouter des insights bases sur les documents indexes fournis par le backend.
+Career Assistant V2 transforme le resultat detaille de Hybrid Matching V3 en conseils fondes sur les preuves du CV. Il reste deterministe et ne depend pas d'un LLM externe. Le champ optionnel `ragContextDocuments` enrichit les conclusions sans remplacer le matching et sans bloquer la reponse lorsqu'aucun document pertinent n'est disponible.
 
 Payload :
 
@@ -405,7 +405,16 @@ Payload :
   "matching": {
     "score": 67,
     "matchedSkills": ["React", "Node.js"],
-    "missingSkills": ["Docker"]
+    "missingSkills": ["Docker"],
+    "confidence": "MEDIUM",
+    "decisionLabel": "PARTIAL_MATCH",
+    "v3": {
+      "coverageMatrix": [],
+      "criticalMissingSkills": [],
+      "missingRequiredSkills": ["Docker"],
+      "missingOptionalSkills": ["AWS"],
+      "evidenceSummary": {}
+    }
   },
   "question": "Quelles competences dois-je ameliorer pour reussir cette offre ?",
   "ragContextDocuments": [
@@ -428,7 +437,7 @@ Reponse :
 
 ```json
 {
-  "profileSummary": "Votre profil correspond partiellement a l'offre Stage Developpeur Fullstack React Node.js.",
+  "profileSummary": "Compatibilite 67/100 pour Stage Developpeur Fullstack React Node.js. Niveau de preparation: NEEDS_TARGETED_WORK.",
   "matchingScore": 67,
   "strengths": ["Vous possedez deja React."],
   "skillsToImprove": [
@@ -445,14 +454,65 @@ Reponse :
       "objective": "Travailler Docker avec une realisation pratique."
     }
   ],
-  "finalAdvice": "Vous avez deja une base pertinente pour cette offre. En ameliorant Docker, vous augmenterez votre adequation avec le poste.",
+  "finalAdvice": "Travaillez en priorite Docker avec une realisation limitee mais terminee, puis mettez le CV a jour uniquement avec ce que vous pouvez demontrer.",
   "ragInsights": [
     "Le contexte RAG inclut Offre - Stage React (OFFER), qui mentionne React, Node.js, PostgreSQL."
-  ]
+  ],
+  "v2": {
+    "adviceMethod": "CAREER_ASSISTANT_V2_FROM_MATCHING_V3",
+    "questionIntent": "SKILL_GAPS",
+    "readinessLevel": "NEEDS_TARGETED_WORK",
+    "priorityFocus": [],
+    "criticalGaps": [],
+    "requiredGaps": [],
+    "optionalImprovements": [],
+    "evidenceBasedStrengths": [],
+    "weakEvidenceAreas": [],
+    "recommendedProjects": [],
+    "cvImprovementTips": [],
+    "interviewPreparationTips": [],
+    "learningRoadmap": [],
+    "estimatedPreparationEffort": {"level": "MEDIUM", "reason": "..."},
+    "warnings": [],
+    "ragContextUsed": true
+  }
 }
 ```
 
-Si `ragContextDocuments` est absent ou vide, `ragInsights` retourne une liste vide.
+Les champs historiques `profileSummary`, `matchingScore`, `strengths`, `skillsToImprove`, `actionPlan`, `finalAdvice` et `ragInsights` sont conserves pour le frontend existant. L'objet `v2` peut etre adopte progressivement.
+
+### Readiness et priorites
+
+- `READY` : score eleve, confiance exploitable et aucune competence critique manquante.
+- `ALMOST_READY` : quelques ecarts cibles sans manque critique majeur.
+- `NEEDS_TARGETED_WORK` : plusieurs exigences ou preuves doivent etre renforcees.
+- `NEEDS_MAJOR_WORK` : score faible ou plusieurs exigences critiques absentes.
+- `INSUFFICIENT_DATA` : confiance faible, CV pauvre, offre ambigue ou matrice vide.
+
+Les ecarts critiques passent avant les exigences obligatoires. Les correspondances partielles et preuves faibles restent en priorite moyenne. Les competences optionnelles ne deviennent jamais critiques et restent en priorite basse apres les exigences principales.
+
+### Conseils produits
+
+- un a trois projets limites et directement lies aux gaps detectes ;
+- une roadmap adaptee au niveau de preparation, et non un calendrier fixe ;
+- des conseils CV qui interdisent explicitement d'inventer une competence ;
+- des conseils entretien relies aux preuves ou aux lacunes ;
+- une intention locale `SKILL_GAPS`, `PROJECT_IDEAS`, `CV_IMPROVEMENT`, `INTERVIEW_PREP` ou `FULL_ANALYSIS` selon la question.
+
+### RAG et limites
+
+Le RAG ne confirme une priorite que lorsque les metadonnees d'un document indexe mentionnent un gap detecte. Un contexte vide ou peu precis ajoute un warning non bloquant. Les conseils restent dependants de la qualite du CV, de la matrice V3 et des exigences structurees de l'offre. Ils ne garantissent pas une decision de recrutement.
+
+### Pourquoi les conseils peuvent varier
+
+Le resultat varie selon le score, les competences critiques manquantes, la qualite des preuves du CV, la question posee, le contexte RAG et le niveau de confiance. Deux profils au meme score peuvent donc recevoir des priorites differentes.
+
+### Evaluation Career Assistant V2
+
+```bash
+python scripts/evaluate_career_assistant_v2.py
+python -m unittest discover -s tests -v
+```
 
 ## RAG MVP
 

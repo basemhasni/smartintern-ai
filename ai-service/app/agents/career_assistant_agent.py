@@ -1,4 +1,7 @@
 from app.agents.base_agent import BaseAgent
+from app.services.career_assistant_v2_service import generate_career_advice_v2
+
+"""Legacy catalogs are retained below for import compatibility only."""
 
 ACTION_CATALOG = {
     "docker": [
@@ -36,8 +39,8 @@ GENERIC_ACTIONS = [
 
 
 class CareerAssistantAgent(BaseAgent):
-    name = "CareerAssistantAgent"
-    description = "Generates deterministic career improvement advice"
+    name = "CareerAssistantAgentV2"
+    description = "Transforms Matching V3 evidence into targeted career advice"
 
     def _normalize_list(self, values: list[str] | None) -> list[str]:
         normalized: list[str] = []
@@ -144,6 +147,9 @@ class CareerAssistantAgent(BaseAgent):
         return insights[:5]
 
     def run(self, input_data):
+        return generate_career_advice_v2(input_data)
+
+    def _run_legacy(self, input_data):
         student = input_data.student
         offer = input_data.offer
         matching = input_data.matching
