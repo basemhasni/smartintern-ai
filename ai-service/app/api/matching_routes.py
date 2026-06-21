@@ -15,6 +15,9 @@ def match_endpoint(payload: MatchingRequest):
             payload.optionalSkills,
             payload.candidateAnalysis,
             payload.offerAnalysis,
+            payload.candidateText,
+            payload.offerText,
+            payload.debug,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error

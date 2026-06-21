@@ -1,7 +1,7 @@
-from app.workflows.matching_workflow_v2 import build_matching_workflow_v2
+from app.workflows.matching_workflow_v3 import build_matching_workflow_v3
 from app.workflows.motivation_letter_workflow import build_motivation_letter_workflow
 
-_matching_workflow = build_matching_workflow_v2()
+_matching_workflow = build_matching_workflow_v3()
 _motivation_letter_workflow = build_motivation_letter_workflow()
 
 
@@ -12,6 +12,14 @@ def run_matching_workflow(payload) -> dict:
         "optionalSkills": payload.optionalSkills or [],
         "candidateAnalysis": payload.candidateAnalysis or {},
         "offerAnalysis": payload.offerAnalysis or {},
+        "candidateText": payload.candidateText,
+        "offerText": payload.offerText,
+        "debug": payload.debug,
+        "preparedCandidateProfile": None,
+        "preparedOfferRequirements": None,
+        "evidenceProfile": None,
+        "coverageMatrix": None,
+        "hybridScore": None,
         "qualityChecks": None,
         "result": None,
         "error": None,

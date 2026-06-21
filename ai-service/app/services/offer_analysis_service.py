@@ -1,6 +1,6 @@
-from app.agents.offer_analysis_agent_v2 import OfferAnalysisAgentV2
+from app.agents.offer_analysis_agent_v3 import OfferAnalysisAgentV3
 
-_agent = OfferAnalysisAgentV2()
+_agent = OfferAnalysisAgentV3()
 
 
 def detect_domain(text: str) -> str:

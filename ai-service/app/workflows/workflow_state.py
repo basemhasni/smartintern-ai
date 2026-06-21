@@ -7,6 +7,14 @@ class MatchingWorkflowState(TypedDict):
     optionalSkills: list[str]
     candidateAnalysis: dict
     offerAnalysis: dict
+    candidateText: Optional[str]
+    offerText: Optional[str]
+    debug: bool
+    preparedCandidateProfile: Optional[dict]
+    preparedOfferRequirements: Optional[dict]
+    evidenceProfile: Optional[dict]
+    coverageMatrix: Optional[list[dict]]
+    hybridScore: Optional[dict]
     qualityChecks: Optional[dict]
     result: Optional[dict]
     error: Optional[str]

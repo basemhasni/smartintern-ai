@@ -1,6 +1,6 @@
-from app.agents.cv_analysis_agent_v2 import CVAnalysisAgentV2
+from app.agents.cv_analysis_agent_v3 import CVAnalysisAgentV3
 
-_agent = CVAnalysisAgentV2()
+_agent = CVAnalysisAgentV3()
 
 
 def extract_skills(text: str) -> list[str]:

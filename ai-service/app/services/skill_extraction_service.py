@@ -22,6 +22,15 @@ def _context_windows(text: str, start: int, end: int, radius: int = 90) -> list[
     return [context] if context else []
 
 
+def _is_negated_mention(text: str, start: int) -> bool:
+    compact = " ".join(text[max(0, start - 70):start].split()[-10:])
+    return any(pattern in compact for pattern in (
+        "pas encore", "n ai pas", "ne dispose pas", "ne connais pas",
+        "aucune experience", "aucune connaissance", "sans experience",
+        "not used", "have not used", "no experience", "never used",
+    ))
+
+
 def detect_skill_mentions(text: str, taxonomy=SKILL_TAXONOMY) -> list[dict]:
     normalized = normalize_text(text)
     if not normalized:
@@ -37,6 +46,8 @@ def detect_skill_mentions(text: str, taxonomy=SKILL_TAXONOMY) -> list[dict]:
     selected: list[tuple[int, int, SkillDefinition, str]] = []
     occupied: list[tuple[int, int]] = []
     for start, end, definition, alias in sorted(candidates, key=lambda item: (-(item[1] - item[0]), item[0])):
+        if _is_negated_mention(normalized, start):
+            continue
         if any(start < occupied_end and end > occupied_start for occupied_start, occupied_end in occupied):
             continue
         occupied.append((start, end))

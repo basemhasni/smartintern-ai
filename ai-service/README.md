@@ -810,3 +810,263 @@ Les cas couvrent React, fullstack, Java/Spring face a React, QA, CV pauvre, offr
 - Les competences liees representent une proximite technique, pas une preuve de maitrise.
 - Le backend persiste encore uniquement les champs historiques du matching.
 
+## Hybrid Matching V3
+
+La V3 combine plusieurs signaux au lieu de reposer uniquement sur une intersection de competences :
+
+```text
+exact / alias
+-> fuzzy controle
+-> similarite semantique
+-> preuves CV
+-> criticite de l offre
+-> matrice de couverture
+-> score pondere et plafonds
+-> explication detaillee
+```
+
+Moteur principal :
+
+```text
+app/services/hybrid_matching_engine_v3.py
+```
+
+Services associes :
+
+```text
+app/services/semantic_similarity_service.py
+app/services/evidence_extraction_service.py
+app/services/matching_explanation_service.py
+app/services/cv_analysis_v3.py
+app/services/offer_analysis_v3.py
+```
+
+### Dependances semantiques optionnelles
+
+Le service reste fonctionnel sans nouvelle dependance. Les backends optionnels sont listes dans :
+
+```text
+requirements-matching-v3.txt
+```
+
+Installation optionnelle :
+
+```bash
+pip install -r requirements-matching-v3.txt
+```
+
+Priorite de similarite :
+
+1. `sentence-transformers` avec chargement lazy d un modele local ;
+2. TF-IDF et cosine similarity via `scikit-learn` ;
+3. similarite lexicale deterministe.
+
+Par defaut, le modele sentence-transformers doit deja etre present localement. Pour autoriser son telechargement :
+
+```env
+SMARTINTERN_ALLOW_MODEL_DOWNLOAD=true
+SMARTINTERN_SENTENCE_MODEL=all-MiniLM-L6-v2
+```
+
+Une erreur de modele ou une dependance absente ne bloque jamais `/ai/match`.
+
+### Extraction de preuves
+
+Les phrases CV sont classees en :
+
+```text
+PROJECT
+EXPERIENCE
+EDUCATION
+SKILL_LIST
+SUMMARY
+UNKNOWN
+```
+
+Une mention dans un projet ou une experience vaut davantage qu un mot isole. Les phrases negatives comme `je n ai pas utilise React` sont exclues des competences et des preuves semantiques.
+
+Les preuves retournees sont courtes et limitees. Le CV complet n est pas copie dans la reponse normale.
+
+### Exigences et criticite
+
+L analyse offre produit `requirementItems` avec :
+
+```text
+id
+label
+type
+importance
+category
+source
+```
+
+Une competence requise devient `CRITICAL` seulement si elle est aussi presente dans le titre. Une competence optionnelle ne devient jamais critique automatiquement.
+
+### Coverage matrix
+
+Chaque exigence contient :
+
+```text
+requirement
+importance
+category
+matchType
+coverage
+confidence
+evidence
+evidenceType
+reason
+```
+
+Types :
+
+```text
+EXACT
+ALIAS
+FUZZY
+SEMANTIC
+RELATED
+MISSING
+```
+
+Une relation technique reste inferieure ou egale a `0.55` et ne rejoint pas `matchedSkills`.
+
+### Scoring V3
+
+```text
+Critical skills coverage : 35 %
+Required skills coverage : 30 %
+Optional skills coverage : 10 %
+Evidence quality : 10 %
+Domain alignment : 8 %
+Seniority alignment : 5 %
+CV quality : 2 %
+```
+
+Plafonds :
+
+- competence critique insuffisamment couverte : `72` ;
+- plus de 50 % des exigences manquantes : `55` ;
+- aucune exigence couverte : `35` ;
+- CV pauvre : `60` ;
+- score superieur a 90 reserve aux CV riches avec couverture optionnelle presque complete.
+
+Decisions :
+
+```text
+85-100 STRONG_MATCH
+70-84  GOOD_MATCH
+50-69  PARTIAL_MATCH
+30-49  LOW_MATCH
+0-29   VERY_LOW_MATCH
+INSUFFICIENT_DATA si les donnees ne permettent pas le calcul
+```
+
+### Reponse compatible
+
+Les champs historiques restent toujours presents :
+
+```text
+score
+matchedSkills
+missingSkills
+optionalMatchedSkills
+explanation
+```
+
+Les details V3 sont places dans `v3` :
+
+```text
+scoringMethod
+scoreBreakdown
+coverageMatrix
+criticalMissingSkills
+missingRequiredSkills
+missingOptionalSkills
+partialMatchedSkills
+extraCandidateSkills
+domainAlignment
+evidenceSummary
+semanticMethod
+```
+
+### Mode debug
+
+Payload normal :
+
+```json
+{
+  "candidateSkills": ["React", "Node.js"],
+  "requiredSkills": ["React", "Node.js", "PostgreSQL"],
+  "optionalSkills": ["Docker"]
+}
+```
+
+Payload debug avec preuves :
+
+```json
+{
+  "candidateSkills": ["React", "Node.js"],
+  "requiredSkills": ["React", "Node.js", "PostgreSQL"],
+  "optionalSkills": ["Docker"],
+  "candidateText": "Projet e-commerce developpe avec React et Node.js...",
+  "offerText": "Developper une plateforme React Node.js PostgreSQL...",
+  "debug": true
+}
+```
+
+Le mode debug ajoute les preuves detaillees, les matches semantiques, les warnings de plafonnement et le profil de preuves candidat.
+
+### Workflow LangGraph V3
+
+```text
+validate_input
+build_candidate_profile
+build_offer_requirements
+extract_candidate_evidence
+compute_requirement_coverage
+calculate_hybrid_score
+generate_detailed_explanation
+quality_control
+format_response
+```
+
+Le controle qualite verifie la matrice, les doublons, les bornes, le plafond critique et la richesse de l explication.
+
+### Evaluation V3
+
+```bash
+python scripts/evaluate_matching_v3.py
+python -m unittest discover -s tests -v
+```
+
+Cas :
+
+```text
+evaluation/cases/matching_v3_cases.json
+```
+
+Les 12 scenarios couvrent fullstack, frontend, Java/Spring, QA, DevOps, CV pauvre, offre pauvre, Docker seul, Angular vers React, Python vers Node, Flutter et IA/RAG.
+
+### Pourquoi le score n est pas toujours eleve
+
+Un score est volontairement limite lorsque :
+
+- une competence critique du titre est absente ;
+- plus de la moitie des exigences ne sont pas couvertes ;
+- le CV contient peu de texte ou peu de preuves ;
+- l offre est ambiguë ou sans competences structurees ;
+- une technologie est seulement liee a l exigence ;
+- la competence apparait sans projet, experience ou contexte exploitable ;
+- les competences optionnelles restent absentes.
+
+Le classement aide le recruteur a lire les preuves techniques. Il ne remplace pas une evaluation humaine.
+
+### Limites V3
+
+- Sans dependances optionnelles, la similarite semantique utilise un fallback lexical.
+- Les embeddings locaux apportent une meilleure detection des paraphrases mais augmentent le poids et le temps de chargement.
+- La detection de negation reste basee sur des formulations connues.
+- Les preuves sont limitees par la qualite du texte extrait du PDF ou DOCX.
+- Le backend actuel continue de transmettre principalement des listes de competences ; les meilleurs resultats semantiques sont obtenus avec `candidateAnalysis`, `candidateText`, `offerAnalysis` et `offerText`.
+

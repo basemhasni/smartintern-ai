@@ -1,6 +1,6 @@
-from app.agents.matching_agent_v2 import MatchingAgentV2
+from app.agents.matching_agent_v3 import MatchingAgentV3
 
-_agent = MatchingAgentV2()
+_agent = MatchingAgentV3()
 
 
 def normalize_skills(skills: list[str], field_name: str) -> list[str]:
@@ -13,6 +13,9 @@ def match_candidate(
     optional_skills: list[str] | None,
     candidate_analysis: dict | None = None,
     offer_analysis: dict | None = None,
+    candidate_text: str | None = None,
+    offer_text: str | None = None,
+    debug: bool = False,
 ) -> dict:
     return _agent.run(
         {
@@ -21,5 +24,8 @@ def match_candidate(
             "optionalSkills": optional_skills,
             "candidateAnalysis": candidate_analysis or {},
             "offerAnalysis": offer_analysis or {},
+            "candidateText": candidate_text,
+            "offerText": offer_text,
+            "debug": debug,
         }
     )

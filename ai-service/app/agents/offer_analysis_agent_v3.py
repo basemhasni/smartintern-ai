@@ -2,9 +2,9 @@ from app.agents.base_agent import BaseAgent
 from app.services.offer_analysis_v3 import analyze_offer_v3
 
 
-class OfferAnalysisAgentV2(BaseAgent):
+class OfferAnalysisAgentV3(BaseAgent):
     name = "OfferAnalysisAgent"
-    description = "Extracts structured requirements and domain signals from offers"
+    description = "Builds structured and critical offer requirement items"
 
     def detect_domain(self, text: str) -> str:
         return analyze_offer_v3("Offer analysis", text)["domain"]

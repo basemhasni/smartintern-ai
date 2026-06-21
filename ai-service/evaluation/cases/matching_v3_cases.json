@@ -1,0 +1,86 @@
+[
+  {
+    "name": "fullstack_react_node_postgresql",
+    "cv_text": "Developpeur fullstack junior ayant realise un projet e-commerce complet avec React, Node.js, Express.js et PostgreSQL. J'ai concu les API REST, implemente l'interface responsive et utilise Prisma pour les donnees. Le projet a ete conteneurise avec Docker, teste et documente. Cette experience m'a permis de travailler sur toutes les couches de l'application avec Git et une organisation agile.",
+    "offer": {"title": "Stage developpeur React Node.js", "description": "Developper une plateforme web fullstack, concevoir des API REST et maintenir la base PostgreSQL au sein d'une equipe produit.", "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker", "CI/CD", "AWS"]},
+    "expected_score_min": 80, "expected_score_max": 92, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["React", "Node.js", "PostgreSQL", "REST API"], "expected_missing_required_skills": []
+  },
+  {
+    "name": "react_frontend",
+    "cv_text": "Developpeur frontend junior. Mon projet principal est une application de gestion construite avec React, TypeScript, JavaScript, HTML et CSS. J'ai cree des composants reutilisables, gere les formulaires et travaille avec Git. Le code a ete documente et presente lors de ma formation. Je souhaite approfondir les tests automatises et la qualite frontend.",
+    "offer": {"title": "Stage frontend React TypeScript", "description": "Construire des interfaces React accessibles et responsives avec TypeScript, JavaScript, HTML et CSS. Participer aux revues de code.", "requiredSkills": ["React", "TypeScript", "JavaScript", "HTML", "CSS"], "optionalSkills": ["Jest"]},
+    "expected_score_min": 75, "expected_score_max": 90, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["React", "TypeScript", "JavaScript", "HTML", "CSS"], "expected_missing_required_skills": []
+  },
+  {
+    "name": "java_spring_vs_react_node",
+    "cv_text": "Etudiant backend ayant realise un projet academique avec Java, Spring Boot et MySQL. J'ai developpe plusieurs services et documente les endpoints. La base MySQL stockait les donnees du projet. Je connais Git et Postman, mais je n'ai pas encore travaille avec React ni Node.js dans un projet concret.",
+    "offer": {"title": "Stage developpeur React Node.js", "description": "Developper une application web avec React, Node.js, PostgreSQL et des API REST.", "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
+    "expected_score_min": 25, "expected_score_max": 50, "expected_decision_label": "VERY_LOW_MATCH",
+    "expected_matched_skills": [], "expected_missing_required_skills": ["React", "Node.js"]
+  },
+  {
+    "name": "qa_postman_selenium",
+    "cv_text": "Profil QA junior avec un projet complet d'automatisation des tests. J'ai utilise Postman pour tester les API, Selenium pour automatiser les parcours navigateur et Playwright pour verifier les scenarios critiques. J'ai redige des tests d'integration, suivi les anomalies et documente les resultats avec l'equipe de developpement.",
+    "offer": {"title": "Stage QA automation", "description": "Tester les API avec Postman, automatiser les interfaces avec Selenium et maintenir les tests d'integration. Participer au suivi des anomalies.", "requiredSkills": ["Postman", "Selenium", "Integration Testing"], "optionalSkills": ["Playwright", "Jira"]},
+    "expected_score_min": 75, "expected_score_max": 90, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["Postman", "Selenium", "Integration Testing"], "expected_missing_required_skills": []
+  },
+  {
+    "name": "devops_docker_kubernetes",
+    "cv_text": "Etudiant DevOps ayant deploye un projet dans des conteneurs Docker et orchestre les services avec Kubernetes. J'ai administre un environnement Linux, configure Nginx et automatise un pipeline avec GitHub Actions. Le projet comprenait monitoring, documentation et scripts de deploiement reproductibles pour l'equipe.",
+    "offer": {"title": "Stage DevOps Docker Kubernetes", "description": "Conteneuriser les applications avec Docker, administrer Kubernetes et maintenir des serveurs Linux. Contribuer aux pipelines CI/CD.", "requiredSkills": ["Docker", "Kubernetes", "Linux"], "optionalSkills": ["CI/CD", "AWS"]},
+    "expected_score_min": 75, "expected_score_max": 90, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["Docker", "Kubernetes", "Linux"], "expected_missing_required_skills": []
+  },
+  {
+    "name": "poor_cv_complete_offer",
+    "cv_text": "Etudiant React debutant.",
+    "offer": {"title": "Stage React Node.js", "description": "Developper une plateforme web avec React, Node.js, PostgreSQL et API REST. Les competences doivent etre utilisees dans des projets documentes.", "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
+    "expected_score_min": 15, "expected_score_max": 45, "expected_decision_label": "LOW_MATCH", "expected_confidence": "LOW",
+    "expected_matched_skills": ["React"], "expected_missing_required_skills": ["Node.js", "PostgreSQL", "REST API"]
+  },
+  {
+    "name": "poor_offer_rich_cv",
+    "cv_text": "Developpeur fullstack junior avec plusieurs projets React, Node.js, PostgreSQL, Docker et Git. J'ai construit des API REST, documente les choix techniques et automatise des tests. Mon portfolio contient une application e-commerce et un outil de gestion deploye dans des conteneurs.",
+    "offer": {"title": "Stage informatique", "description": "Participer aux activites de l'equipe.", "requiredSkills": [], "optionalSkills": []},
+    "expected_score_min": 0, "expected_score_max": 0, "expected_decision_label": "INSUFFICIENT_DATA", "expected_confidence": "LOW",
+    "expected_matched_skills": [], "expected_missing_required_skills": []
+  },
+  {
+    "name": "docker_only_vs_fullstack",
+    "cv_text": "Etudiant ayant suivi un atelier DevOps et realise un petit projet conteneurise avec Docker. J'ai cree une image, lance plusieurs conteneurs et documente les commandes principales. Je ne dispose pas encore de projet React, Node.js ou PostgreSQL, mais je souhaite progresser dans le developpement web.",
+    "offer": {"title": "Stage React Node.js", "description": "Developper une application fullstack React Node.js avec PostgreSQL. Docker est apprecie pour le deploiement.", "requiredSkills": ["React", "Node.js", "PostgreSQL"], "optionalSkills": ["Docker"]},
+    "expected_score_min": 15, "expected_score_max": 35, "expected_decision_label": "VERY_LOW_MATCH",
+    "expected_matched_skills": [], "expected_missing_required_skills": ["React", "Node.js", "PostgreSQL"]
+  },
+  {
+    "name": "angular_typescript_vs_react_typescript",
+    "cv_text": "Developpeur frontend junior ayant realise un projet avec Angular, TypeScript, HTML et CSS. J'ai construit des composants, gere les formulaires et structure une application modulaire. Le projet a ete teste et documente avec Git. Je connais les principes des frameworks frontend mais je n'ai pas encore utilise React en projet.",
+    "offer": {"title": "Stage React TypeScript", "description": "Developper des composants React et TypeScript pour une interface web moderne. HTML et CSS sont egalement demandes.", "requiredSkills": ["React", "TypeScript", "HTML", "CSS"], "optionalSkills": ["Jest"]},
+    "expected_score_min": 55, "expected_score_max": 72, "expected_decision_label": "GOOD_MATCH",
+    "expected_matched_skills": ["TypeScript", "HTML", "CSS"], "expected_missing_required_skills": ["React"]
+  },
+  {
+    "name": "python_fastapi_vs_node_backend",
+    "cv_text": "Developpeur backend junior. J'ai realise une API REST avec Python, FastAPI et PostgreSQL pour un projet de gestion. J'ai defini les routes, valide les donnees, ecrit des tests d'integration et documente l'API avec Postman. Le projet a ete versionne avec Git et deploye dans Docker.",
+    "offer": {"title": "Stage backend Node.js", "description": "Developper des API REST avec Node.js et PostgreSQL. Participer aux tests et a la documentation technique.", "requiredSkills": ["Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
+    "expected_score_min": 50, "expected_score_max": 72, "expected_decision_label": "PARTIAL_MATCH",
+    "expected_matched_skills": ["PostgreSQL", "REST API"], "expected_missing_required_skills": ["Node.js"]
+  },
+  {
+    "name": "flutter_mobile",
+    "cv_text": "Developpeur mobile junior ayant cree une application Flutter avec Dart pour Android. Le projet gere une API, des formulaires et un stockage local. J'ai structure les ecrans, teste les parcours principaux et publie le code sur Git. Une seconde application academique a permis de consolider les widgets et la navigation.",
+    "offer": {"title": "Stage mobile Flutter", "description": "Developper une application mobile Flutter en Dart pour Android et participer aux tests de l'application.", "requiredSkills": ["Flutter", "Dart", "Android"], "optionalSkills": ["Git"]},
+    "expected_score_min": 75, "expected_score_max": 90, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["Flutter", "Dart", "Android"], "expected_missing_required_skills": []
+  },
+  {
+    "name": "ai_rag_langgraph",
+    "cv_text": "Etudiant en intelligence artificielle ayant realise un assistant documentaire avec Python, RAG et LangGraph. Le projet utilise une base vectorielle pgvector pour rechercher des documents et construire un contexte. J'ai travaille sur le NLP, evalue les reponses et documente les limites du systeme. Le code est versionne avec Git.",
+    "offer": {"title": "Stage IA RAG LangGraph", "description": "Construire un assistant RAG en Python avec LangGraph, NLP et une base vectorielle. Evaluer la qualite des reponses.", "requiredSkills": ["RAG", "LangGraph", "Python", "NLP"], "optionalSkills": ["Vector Database", "AWS"]},
+    "expected_score_min": 75, "expected_score_max": 92, "expected_decision_label": "STRONG_MATCH",
+    "expected_matched_skills": ["RAG", "LangGraph", "Python", "NLP"], "expected_missing_required_skills": []
+  }
+]

@@ -24,6 +24,7 @@ class CVAnalysisResponse(BaseModel):
     languages: List[str] = []
     tools: List[str] = []
     rawTextQuality: Dict[str, Any] = {}
+    evidenceProfile: Dict[str, Any] = {}
 
 
 class OfferAnalysisRequest(BaseModel):
@@ -35,6 +36,7 @@ class OfferAnalysisRequest(BaseModel):
 
 class OfferAnalysisResponse(BaseModel):
     title: str
+    description: Optional[str] = None
     requiredSkills: List[str]
     optionalSkills: List[str]
     domain: str
@@ -45,6 +47,8 @@ class OfferAnalysisResponse(BaseModel):
     keywords: List[str] = []
     criticalSkills: List[str] = []
     niceToHaveSkills: List[str] = []
+    requirementItems: List[Dict[str, Any]] = []
+    offerQuality: Dict[str, Any] = {}
 
 
 class MatchingRequest(BaseModel):
@@ -53,6 +57,9 @@ class MatchingRequest(BaseModel):
     optionalSkills: Optional[List[str]] = []
     candidateAnalysis: Optional[Dict[str, Any]] = None
     offerAnalysis: Optional[Dict[str, Any]] = None
+    candidateText: Optional[str] = None
+    offerText: Optional[str] = None
+    debug: bool = False
 
 
 class MatchingResponse(BaseModel):
@@ -72,6 +79,7 @@ class MatchingResponse(BaseModel):
     strengths: List[str] = []
     risks: List[str] = []
     recommendations: List[str] = []
+    v3: Dict[str, Any] = {}
 
 
 class MatchingWorkflowRequest(BaseModel):
@@ -80,6 +88,9 @@ class MatchingWorkflowRequest(BaseModel):
     optionalSkills: Optional[List[str]] = []
     candidateAnalysis: Optional[Dict[str, Any]] = None
     offerAnalysis: Optional[Dict[str, Any]] = None
+    candidateText: Optional[str] = None
+    offerText: Optional[str] = None
+    debug: bool = False
 
 
 class LetterStudent(BaseModel):

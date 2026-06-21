@@ -2,10 +2,10 @@ from pydantic import ValidationError
 
 from app.agents.base_agent import BaseAgent
 from app.agents.career_assistant_agent import CareerAssistantAgent
-from app.agents.cv_analysis_agent_v2 import CVAnalysisAgentV2
-from app.agents.matching_agent_v2 import MatchingAgentV2
+from app.agents.cv_analysis_agent_v3 import CVAnalysisAgentV3
+from app.agents.matching_agent_v3 import MatchingAgentV3
 from app.agents.motivation_letter_agent import MotivationLetterAgent
-from app.agents.offer_analysis_agent_v2 import OfferAnalysisAgentV2
+from app.agents.offer_analysis_agent_v3 import OfferAnalysisAgentV3
 from app.models.schemas import CareerAdviceRequest, MotivationLetterRequest
 
 
@@ -14,9 +14,9 @@ class AgentOrchestrator(BaseAgent):
     description = "Routes simple AI intents to specialized agents"
 
     def __init__(self):
-        self.cv_analysis_agent = CVAnalysisAgentV2()
-        self.offer_analysis_agent = OfferAnalysisAgentV2()
-        self.matching_agent = MatchingAgentV2()
+        self.cv_analysis_agent = CVAnalysisAgentV3()
+        self.offer_analysis_agent = OfferAnalysisAgentV3()
+        self.matching_agent = MatchingAgentV3()
         self.motivation_letter_agent = MotivationLetterAgent()
         self.career_assistant_agent = CareerAssistantAgent()
 
@@ -58,6 +58,9 @@ class AgentOrchestrator(BaseAgent):
                 "optionalSkills": payload.get("optionalSkills", []),
                 "candidateAnalysis": payload.get("candidateAnalysis", {}),
                 "offerAnalysis": payload.get("offerAnalysis", {}),
+                "candidateText": payload.get("candidateText"),
+                "offerText": payload.get("offerText"),
+                "debug": payload.get("debug", False),
             }
         )
 

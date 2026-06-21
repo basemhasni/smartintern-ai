@@ -77,7 +77,7 @@ SKILL_TAXONOMY: tuple[SkillDefinition, ...] = (
     SkillDefinition("Selenium", ("selenium", "selenium webdriver"), "Testing / QA", ("Integration Testing",), 1.0),
     SkillDefinition("Postman", ("postman",), "Testing / QA", ("REST API", "Integration Testing"), 0.8),
     SkillDefinition("Unit Testing", ("unit testing", "unit tests", "tests unitaires", "test unitaire"), "Testing / QA", ("Integration Testing", "Jest"), 0.9),
-    SkillDefinition("Integration Testing", ("integration testing", "integration tests", "tests integration", "test integration"), "Testing / QA", ("Unit Testing", "Cypress", "Playwright"), 0.9),
+    SkillDefinition("Integration Testing", ("integration testing", "integration tests", "tests integration", "test integration", "tests d integration", "test d integration"), "Testing / QA", ("Unit Testing", "Cypress", "Playwright"), 0.9),
 
     SkillDefinition("Git", ("git", "version control", "gestion de versions"), "Tools", ("GitHub",), 0.8),
     SkillDefinition("GitHub", ("github", "git hub"), "Tools", ("Git", "GitHub Actions"), 0.8),

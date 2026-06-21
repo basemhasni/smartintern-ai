@@ -1,0 +1,5 @@
+# Optional matching backends. The service remains functional without them.
+rapidfuzz
+scikit-learn
+sentence-transformers
+
