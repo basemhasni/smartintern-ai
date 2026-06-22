@@ -282,3 +282,22 @@ class RAGAnswerResponse(BaseModel):
     answer: str
     usedDocuments: List[RAGUsedDocument]
 
+
+class RAGV2DocumentRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+    documentType: str = "DOCUMENT"
+    metadata: Dict[str, Any] = {}
+
+
+class RAGV2RetrieveRequest(BaseModel):
+    query: str = Field(..., min_length=1)
+    documents: List[Dict[str, Any]] = []
+    filters: Dict[str, Any] = {}
+    options: Dict[str, Any] = {}
+
+
+class RAGV2AnswerRequest(BaseModel):
+    question: str = Field(..., min_length=1)
+    contexts: List[Dict[str, Any]] = []
+    answerMode: str = "GENERAL"
+

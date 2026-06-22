@@ -11,6 +11,8 @@ router.post('/ask', protect, authorizeRoles('STUDENT', 'COMPANY', 'ADMIN'), ragC
 
 router.use(protect, authorizeRoles('ADMIN'));
 
+router.post('/reindex', ragController.reindexAll);
+router.post('/reindex/:ownerType/:ownerId', ragController.reindexOne);
 router.get('/documents', ragController.getDocuments);
 router.get('/documents/:id', ragController.getDocumentById);
 

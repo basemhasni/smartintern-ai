@@ -346,6 +346,19 @@ def generate_motivation_letter_v2(input_data: Any) -> dict:
     evidence = extract_letter_evidence(cv_analysis, matching, _as_list(payload.get("candidateSkills")))
     used_skills = _select_letter_skills(evidence, offer)
     rag_documents = _as_list(payload.get("ragContextDocuments"))
+    rag_citations = [
+        {
+            "sourceId": document.get("id"),
+            "title": document.get("title") or "Document indexe",
+            "sourceType": _as_dict(document.get("metadata")).get("sourceType") or document.get("ownerType") or "DOCUMENT",
+            "ownerType": document.get("ownerType"),
+            "chunkIndex": _as_dict(document.get("metadata")).get("chunkIndex", 0),
+            "score": float(document.get("score") or 0),
+            "snippet": str(document.get("contentPreview") or "")[:240],
+        }
+        for document in rag_documents[:5]
+        if isinstance(document, dict)
+    ]
     rag_context = _extract_safe_rag_context(rag_documents)
     company_context = dict(company)
     rag_used = False
@@ -406,5 +419,7 @@ def generate_motivation_letter_v2(input_data: Any) -> dict:
             "warnings": warnings,
             "personalizationScore": personalization,
             "ragContextUsed": rag_used,
+            "usedRagContext": rag_used,
+            "ragCitations": rag_citations if rag_used else [],
         },
     }

@@ -1,6 +1,6 @@
 const prisma = require('../config/prisma');
 const { generateMotivationLetter, matchCandidateWithOffer } = require('./ai.service');
-const { searchVectorDocuments } = require('./rag.service');
+const { indexMotivationLetter, searchVectorDocuments } = require('./rag.service');
 
 const TONES = ['PROFESSIONAL', 'DYNAMIC', 'SIMPLE'];
 
@@ -134,14 +134,14 @@ const formatLetter = (letter, generationDetails = null) => ({
   ...(generationDetails ? { v2: generationDetails } : {}),
 });
 
-const buildLetterRagContext = async (application, missingSkills) => {
+const buildLetterRagContext = async (application, missingSkills, userId) => {
   try {
     const query = [
       `Lettre de motivation pour ${application.offer.title}.`,
       application.offer.company.companyName,
       missingSkills.length ? `Competences a traiter prudemment: ${missingSkills.join(', ')}.` : null,
     ].filter(Boolean).join(' ');
-    const documents = await searchVectorDocuments(query, { topK: 3 });
+    const documents = await searchVectorDocuments(query, { topK: 3, accessContext: { id: userId, role: 'STUDENT' } });
     return documents.filter((document) => document.score > 0).map((document) => ({
       id: document.id,
       ownerType: document.ownerType,
@@ -195,7 +195,8 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
   const matchingContext = refreshedMatching.success ? refreshedMatching.data : legacyMatching;
   const ragContextDocuments = await buildLetterRagContext(
     application,
-    matchingContext?.v3?.missingRequiredSkills || matchingContext?.missingSkills || []
+    matchingContext?.v3?.missingRequiredSkills || matchingContext?.missingSkills || [],
+    userId,
   );
 
   const aiResult = await generateMotivationLetter({
@@ -257,12 +258,18 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
     },
   });
 
+  try {
+    await indexMotivationLetter(letter, { ...application, student });
+  } catch (error) {
+    console.error('Motivation letter RAG indexing failed:', error.message);
+  }
+
   return formatLetter(letter, aiResult.data.v2 || null);
 };
 
 const getLetterForApplication = async (userId, applicationId) => {
   const student = await getStudentByUserId(userId);
-  await getOwnedApplication(student.id, applicationId);
+  const application = await getOwnedApplication(student.id, applicationId);
 
   const letter = await prisma.motivationLetter.findUnique({
     where: {
@@ -283,7 +290,7 @@ const updateLetterForApplication = async (userId, applicationId, payload) => {
   }
 
   const student = await getStudentByUserId(userId);
-  await getOwnedApplication(student.id, applicationId);
+  const application = await getOwnedApplication(student.id, applicationId);
 
   const existingLetter = await prisma.motivationLetter.findUnique({
     where: {
@@ -303,6 +310,12 @@ const updateLetterForApplication = async (userId, applicationId, payload) => {
       content: payload.content.trim(),
     },
   });
+
+  try {
+    await indexMotivationLetter(letter, { ...application, student });
+  } catch (error) {
+    console.error('Motivation letter RAG indexing failed:', error.message);
+  }
 
   return formatLetter(letter);
 };

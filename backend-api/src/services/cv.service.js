@@ -4,7 +4,7 @@ const path = require('path');
 const prisma = require('../config/prisma');
 const { analyzeCV } = require('./ai.service');
 const { extractTextFromCV } = require('./cv-text.service');
-const { indexCVDocument } = require('./rag.service');
+const { deleteDocumentChunks, indexCVDocument } = require('./rag.service');
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -139,6 +139,12 @@ const deleteStudentCV = async (userId, cvId) => {
       id: cv.id,
     },
   });
+
+  try {
+    await deleteDocumentChunks('CV', cv.id);
+  } catch (error) {
+    console.error('CV RAG cleanup failed:', error.message);
+  }
 };
 
 module.exports = {

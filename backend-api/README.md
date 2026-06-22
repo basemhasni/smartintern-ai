@@ -36,11 +36,7 @@ Les migrations presentes couvrent :
 - offres de stage ;
 - candidatures.
 
-Une migration supplementaire sera necessaire pour la preparation RAG :
-
-```bash
-npx prisma migrate dev --name add_vector_documents
-```
+La migration `20260603150314_add_vector_documents` couvre deja le stockage RAG actuel. Aucune nouvelle migration n est necessaire pour RAG V2.
 
 Le modele `VectorDocument` prepare l'indexation future des contenus utiles au RAG : CV, offres, conseils carriere et lettres de motivation. Pour ce MVP, l'embedding est stocke dans `embeddingJson` avec un vecteur JSON simple. La prochaine etape consistera a remplacer progressivement ce stockage par un vrai type `vector` pgvector.
 
@@ -70,9 +66,9 @@ Authorization: Bearer <admin_token>
 
 La liste retourne volontairement des champs reduits : `id`, `ownerType`, `ownerId`, `title`, `metadataJson`, `createdAt` et `updatedAt`.
 
-## Recherche RAG MVP
+## Recherche RAG V1 (contrat historique)
 
-La recherche RAG MVP compare l'embedding d'une requete avec les embeddings stockes dans `VectorDocument`. Elle ne genere pas encore de reponse conversationnelle et n'utilise pas de LLM externe.
+Ce contrat reste disponible, mais son implementation utilise maintenant la recherche hybride RAG V2 documentee en fin de fichier.
 
 Route protegee accessible aux roles `STUDENT`, `COMPANY` et `ADMIN` :
 
@@ -129,7 +125,7 @@ Reponse :
 
 Si `ai-service` est arrete, la route retourne `503` avec le message `AI service is currently unavailable.`
 
-## Assistant RAG MVP
+## Assistant RAG V1 (contrat historique)
 
 L'assistant RAG MVP repond a une question en deux etapes :
 
@@ -978,3 +974,54 @@ Les champs historiques restent enregistres dans `MatchingResult`; les details V3
 `POST /api/applications/:applicationId/generate-letter` transmet maintenant au service IA le profil etudiant, `CV.analysisJson`, `CV.parsedText`, l offre structuree, le message de candidature, un Matching V3 recalcule et jusqu a trois documents RAG pertinents. Si le recalcul du matching echoue, le matching historique est utilise avec une confiance faible.
 
 La lettre continue d etre sauvegardee dans `MotivationLetter.content` avec son ton. Les metadonnees `v2` sont renvoyees lors de la generation mais ne sont pas persistees. `GET` et `PUT /api/applications/:applicationId/motivation-letter` conservent leur contrat. Aucune migration Prisma n est necessaire.
+
+## RAG V2
+
+RAG V2 remplace en interne le pipeline MVP tout en conservant `POST /api/rag/search`, `POST /api/rag/ask` et les anciennes routes IA. L indexation appelle `POST /ai/rag/v2/index-document`, decoupe chaque document en chunks et enregistre un `VectorDocument` par chunk. Une reindexation remplace uniquement les chunks du proprietaire concerne; elle ne vide jamais toute la table.
+
+Documents indexes automatiquement :
+
+- CV apres upload, puis suppression de ses chunks lors de la suppression du CV ;
+- offre apres creation, modification, fermeture ou archivage ;
+- lettre de motivation apres generation ou modification ;
+- sortie Career Assistant apres generation.
+
+`npm run rag:reindex` reindexe les CV, offres et lettres existants. Les erreurs sont isolees par document. Les actions metier restent disponibles lorsque `ai-service` est indisponible.
+
+### Recherche hybride et citations
+
+La recherche combine 60 % de similarite vectorielle, 25 % de similarite lexicale, 10 % de correspondance metadata et 5 % de recence. Un reranking favorise les sections `skills`, `projects`, `experience` et `required_skills`. Au maximum deux chunks d un meme document sont conserves. Les reponses `/api/rag/ask` contiennent `citations`, `confidence`, `retrievedContextCount` et `warnings`; aucun embedding brut n est renvoye.
+
+Payload de recherche :
+
+```json
+{
+  "query": "Quelles offres correspondent a React et Node.js ?",
+  "filters": { "ownerTypes": ["OFFER", "CV"], "offerId": "optional-id" },
+  "topK": 5,
+  "minScore": 0.08
+}
+```
+
+### Scopes de securite
+
+- `STUDENT` : ses CV, lettres et conseils, plus les offres publiees ;
+- `COMPANY` : ses offres et les documents des candidatures recues sur ses offres ;
+- `ADMIN` : acces de diagnostic global.
+
+Les scopes sont appliques avant le calcul et le reranking. `GET /api/rag/documents`, `GET /api/rag/documents/:id` et les routes de reindexation restent `ADMIN` uniquement. Les routes `POST /api/rag/reindex` et `POST /api/rag/reindex/:ownerType/:ownerId` ne retournent jamais les embeddings.
+
+### Stockage et pgvector
+
+RAG V2 conserve `embeddingJson` pour rester compatible avec PostgreSQL et la migration existante. L environnement Docker ne declare pas actuellement une image pgvector ni une extension `vector` garantie; aucune migration risquee n a donc ete ajoutee. `embeddingBackend` et la dimension stable sont conserves dans les metadonnees pour preparer une migration future vers `Unsupported("vector")` et des requetes SQL vectorielles.
+
+### Tests Postman RAG V2
+
+1. Demarrer `ai-service` puis `backend-api`.
+2. Executer `npm run rag:reindex` dans `backend-api`.
+3. Tester `/api/rag/search` avec un token STUDENT, COMPANY puis ADMIN.
+4. Verifier qu un etudiant ne voit pas le CV d un autre etudiant.
+5. Verifier qu une entreprise ne voit pas un CV sans candidature sur une de ses offres.
+6. Tester `/api/rag/ask` avec une question precise puis une question hors contexte.
+7. Verifier les citations, les snippets courts et l absence de `embeddingJson`.
+8. Tester les routes documents et reindex avec un role non ADMIN : elles doivent retourner `403`.

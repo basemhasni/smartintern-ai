@@ -514,7 +514,7 @@ python scripts/evaluate_career_assistant_v2.py
 python -m unittest discover -s tests -v
 ```
 
-## RAG MVP
+## RAG V1 (compatibilite historique)
 
 Objectif :
 
@@ -522,7 +522,7 @@ Objectif :
 - generer un embedding simple et deterministe base sur des mots-cles techniques ;
 - tester le chunking et une recherche cosine en memoire avant de brancher PostgreSQL/pgvector.
 
-Le futur RAG remplacera cet embedding MVP par de vrais embeddings et utilisera PostgreSQL avec l'extension `pgvector`.
+Ces routes restent disponibles pour compatibilite et deleguent maintenant aux services RAG V2 documentes plus bas.
 
 Le backend `backend-api` utilise actuellement `POST /ai/rag/embed` pour indexer automatiquement les CV uploades et les offres de stage dans le modele Prisma `VectorDocument`, puis pour calculer l'embedding des requetes de recherche RAG MVP.
 
@@ -1191,3 +1191,51 @@ python -m unittest discover -s tests -v
 - le RAG n est utilise que lorsqu il apporte un fait structure absent du payload ;
 - la lettre reste une base a relire et modifier par l etudiant ;
 - le systeme ne doit jamais ajouter une competence ou une experience non prouvee.
+
+## RAG V2
+
+RAG V2 suit le pipeline : normalisation, chunking par sections et phrases, enrichissement metadata, embedding, recherche hybride, reranking, contexte borne, reponse fondee et citations. Les anciennes routes `/ai/rag/embed`, `/chunk`, `/search-demo` et `/answer` restent compatibles et deleguent aux services V2.
+
+Nouvelles routes :
+
+```http
+POST /ai/rag/v2/index-document
+POST /ai/rag/v2/embed
+POST /ai/rag/v2/chunk
+POST /ai/rag/v2/retrieve
+POST /ai/rag/v2/answer
+```
+
+### Chunking et metadata
+
+Les chunks visent 500 a 900 caracteres avec environ 100 caracteres de recouvrement. Les limites de phrase sont conservees et les petits chunks sont fusionnes. Les sections CV (`skills`, `projects`, `experience`, `education`) et offre (`missions`, `required_skills`, `optional_skills`) sont reconnues. Chaque chunk contient `chunkIndex`, `section`, `tokenEstimate`, langue, domaine, skills, sourceType et scope transmis par le backend.
+
+### Embeddings et fallback
+
+`embedding_service_v2.py` charge paresseusement `all-MiniLM-L6-v2` si `sentence-transformers` et le modele local sont disponibles. Par defaut, aucun telechargement reseau n est tente. Le fallback `hashing-v2` produit un vecteur deterministe normalise de dimension 384 a partir des tokens et bigrams. `RAG_ALLOW_MODEL_DOWNLOAD=true` autorise explicitement le chargement distant du modele.
+
+### Retrieval, reranking et grounded answer
+
+Le score hybride utilise 60 % vectoriel, 25 % lexical, 10 % metadata et 5 % recence. Le reranking ajoute des signaux de skills, de section et d identifiants (`offerId`, `applicationId`, `studentId`, `companyId`). Les chunks faibles sont filtres et deux chunks maximum sont gardes par document.
+
+`grounded_answer_service_v2.py` construit une synthese extractive seulement depuis les contextes fournis. Si le contexte est insuffisant, il le dit explicitement. Chaque citation fournit `sourceId`, `title`, `sourceType`, `ownerType`, `chunkIndex`, `score` et un snippet court. Aucun embedding ni document complet n est expose.
+
+Career Assistant V2 recoit maintenant `ragCitations` et `ragWarnings`; Matching V3 reste sa source principale. Motivation Letter V2 expose `usedRagContext` et `ragCitations`, mais son controle anti-invention reste prioritaire. Les deux fonctions continuent sans RAG en cas d indisponibilite.
+
+### Evaluation
+
+```bash
+python scripts/evaluate_rag_v2.py
+python -m unittest tests.test_rag_v2 -v
+python -m unittest discover -s tests -v
+```
+
+L evaluation couvre React/Node.js, Docker/CI-CD, contexte CV plus offre, hors contexte, scopes etudiant/entreprise, deduplication et reranking QA.
+
+### Limites actuelles
+
+- le stockage backend reste en JSON; pgvector est une evolution preparee mais non activee ;
+- le fallback hashing reconnait surtout les recouvrements lexicaux et techniques ;
+- la reponse fondee est extractive et deterministe sans LLM externe ;
+- la pertinence depend de la qualite des documents et de leurs metadonnees ;
+- RAG enrichit Matching V3, Career Assistant V2 et Motivation Letter V2 sans remplacer leurs controles metier.

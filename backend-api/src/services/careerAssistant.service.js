@@ -1,6 +1,6 @@
 const prisma = require('../config/prisma');
 const { generateCareerAdvice, matchCandidateWithOffer } = require('./ai.service');
-const { searchVectorDocuments } = require('./rag.service');
+const { indexCareerAdvice, searchVectorDocuments } = require('./rag.service');
 
 const DEFAULT_QUESTION = "Analyse mon profil et propose un plan d'amélioration pour cette offre.";
 
@@ -181,12 +181,13 @@ const buildRagQuery = (offer, requiredSkills, missingSkills) => [
   missingSkills.length > 0 ? `Competences manquantes : ${missingSkills.join(', ')}.` : null,
 ].filter(Boolean).join(' ');
 
-const buildRagContext = async (offer, requiredSkills, missingSkills) => {
+const buildRagContext = async (offer, requiredSkills, missingSkills, userId) => {
   const ragQuery = buildRagQuery(offer, requiredSkills, missingSkills);
 
   try {
     const documents = await searchVectorDocuments(ragQuery, {
       topK: 5,
+      accessContext: { id: userId, role: 'STUDENT' },
     });
     const relevantDocuments = documents.filter((document) => document.score > 0);
 
@@ -243,7 +244,7 @@ const generateAdvice = async (userId, payload) => {
     requiredSkills,
     optionalSkills,
   });
-  const ragContext = await buildRagContext(offer, requiredSkills, matching.missingSkills);
+  const ragContext = await buildRagContext(offer, requiredSkills, matching.missingSkills, userId);
 
   const adviceResult = await generateCareerAdvice({
     student: {
@@ -281,6 +282,12 @@ const generateAdvice = async (userId, payload) => {
 
   if (!adviceResult.success) {
     throw createHttpError(503, 'AI service is currently unavailable.');
+  }
+
+  try {
+    await indexCareerAdvice(adviceResult.data, student, offer);
+  } catch (error) {
+    console.error('Career advice RAG indexing failed:', error.message);
   }
 
   return {

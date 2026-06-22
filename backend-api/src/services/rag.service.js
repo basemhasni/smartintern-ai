@@ -419,3 +419,6 @@ module.exports = {
   parseJsonValue,
   toStringArray,
 };
+
+// RAG V2 keeps this historical import path stable for all existing callers.
+module.exports = require('./ragV2.service');

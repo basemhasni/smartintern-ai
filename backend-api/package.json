@@ -26,7 +26,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "db:check": "node src/config/check-db.js"
+    "db:check": "node src/config/check-db.js",
+    "rag:reindex": "node scripts/reindex-rag.js"
   },
   "keywords": [],
   "author": "",
