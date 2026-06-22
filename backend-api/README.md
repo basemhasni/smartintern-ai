@@ -973,3 +973,8 @@ La route modifie uniquement le statut de l entreprise et journalise l action san
 `POST /api/students/career-assistant` recalcule un contexte Hybrid Matching V3 pour l'offre cible en utilisant `CV.parsedText`, `CV.analysisJson` et les competences structurees de l'offre. Le payload transmis a `POST /ai/career-advice` contient les champs historiques du matching ainsi que `confidence`, `decisionLabel` et l'objet `v3` complet.
 
 Les champs historiques restent enregistres dans `MatchingResult`; les details V3 servent uniquement a la generation courante des conseils. Aucune migration Prisma n'est requise. Si le recalcul V3 echoue mais qu'un matching historique existe, le service utilise ce resultat avec une confiance faible et signale des donnees insuffisantes.
+## Motivation Letter V2
+
+`POST /api/applications/:applicationId/generate-letter` transmet maintenant au service IA le profil etudiant, `CV.analysisJson`, `CV.parsedText`, l offre structuree, le message de candidature, un Matching V3 recalcule et jusqu a trois documents RAG pertinents. Si le recalcul du matching echoue, le matching historique est utilise avec une confiance faible.
+
+La lettre continue d etre sauvegardee dans `MotivationLetter.content` avec son ton. Les metadonnees `v2` sont renvoyees lors de la generation mais ne sont pas persistees. `GET` et `PUT /api/applications/:applicationId/motivation-letter` conservent leur contrat. Aucune migration Prisma n est necessaire.

@@ -4,7 +4,7 @@ from app.agents.base_agent import BaseAgent
 from app.agents.career_assistant_agent import CareerAssistantAgent
 from app.agents.cv_analysis_agent_v3 import CVAnalysisAgentV3
 from app.agents.matching_agent_v3 import MatchingAgentV3
-from app.agents.motivation_letter_agent import MotivationLetterAgent
+from app.agents.motivation_letter_agent_v2 import MotivationLetterAgentV2
 from app.agents.offer_analysis_agent_v3 import OfferAnalysisAgentV3
 from app.models.schemas import CareerAdviceRequest, MotivationLetterRequest
 
@@ -17,7 +17,7 @@ class AgentOrchestrator(BaseAgent):
         self.cv_analysis_agent = CVAnalysisAgentV3()
         self.offer_analysis_agent = OfferAnalysisAgentV3()
         self.matching_agent = MatchingAgentV3()
-        self.motivation_letter_agent = MotivationLetterAgent()
+        self.motivation_letter_agent = MotivationLetterAgentV2()
         self.career_assistant_agent = CareerAssistantAgent()
 
     def detect_intent(self, input_data):

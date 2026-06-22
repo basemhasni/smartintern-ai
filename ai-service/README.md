@@ -1130,3 +1130,64 @@ Le classement aide le recruteur a lire les preuves techniques. Il ne remplace pa
 - Les preuves sont limitees par la qualite du texte extrait du PDF ou DOCX.
 - Le backend actuel continue de transmettre principalement des listes de competences ; les meilleurs resultats semantiques sont obtenus avec `candidateAnalysis`, `candidateText`, `offerAnalysis` et `offerText`.
 
+## Motivation Letter V2
+
+`POST /ai/generate-letter` utilise maintenant `MotivationLetterAgentV2` et le service deterministe `motivation_letter_v2_service.py`. Les champs historiques restent disponibles (`content`, `letter`, `generatedLetter`, `tone`) et l objet `v2` ajoute la structure, les preuves, les controles et le score de personnalisation.
+
+### Entrees exploitees
+
+- profil etudiant et formation ;
+- analyse CV V3, competences detectees, domaines et projets ;
+- offre, entreprise et competences structurees ;
+- resultat Hybrid Matching V3 et matrice de couverture ;
+- message de candidature lorsqu il existe ;
+- contexte RAG limite aux faits structures utilisables ;
+- ton `PROFESSIONAL`, `DYNAMIC` ou `SIMPLE`.
+
+Un ton inconnu utilise `PROFESSIONAL` et produit un warning. Les tons professionnel et dynamique visent 180 a 280 mots. Le ton simple vise 130 a 220 mots.
+
+### Structure et anti-invention
+
+La lettre contient cinq blocs: ouverture, adequation du profil, motivation, progression et conclusion. Les competences citees proviennent des competences detectees et confirmees par le matching ou le CV. Une competence manquante ne peut pas etre revendiquee comme maitrisee; au maximum une competence importante est traitee sobrement comme axe de progression.
+
+`v2.qualityChecks` expose notamment:
+
+- `mentionsCompany` et `mentionsOffer` ;
+- `usesOnlyVerifiedSkills` ;
+- `doesNotClaimMissingSkills` ;
+- `hasProfessionalTone` et `hasClearStructure` ;
+- `lengthOk`, `wordCount` et la plage attendue.
+
+`v2.personalizationScore` est compris entre 0 et 1. Il tient compte de l offre, de l entreprise, des competences verifiees, du projet professionnel, de la formation et des preuves. Ce score mesure la personnalisation du texte, pas la qualite du candidat.
+
+### Workflow LangGraph V2
+
+`POST /ai/workflows/generate-letter` utilise les nodes suivants:
+
+1. `validate_input`
+2. `normalize_tone`
+3. `extract_letter_evidence`
+4. `plan_letter_structure`
+5. `draft_opening`
+6. `draft_fit_paragraph`
+7. `draft_motivation_paragraph`
+8. `handle_missing_skills`
+9. `draft_closing`
+10. `validate_claims`
+11. `quality_check`
+12. `format_response`
+
+### Evaluation
+
+```bash
+python scripts/evaluate_motivation_letter_v2.py
+python -m unittest discover -s tests -v
+```
+
+### Limites actuelles
+
+- la generation reste deterministe sans LLM externe ;
+- la personnalisation depend de la qualite du CV et des donnees de l offre ;
+- le RAG n est utilise que lorsqu il apporte un fait structure absent du payload ;
+- la lettre reste une base a relire et modifier par l etudiant ;
+- le systeme ne doit jamais ajouter une competence ou une experience non prouvee.

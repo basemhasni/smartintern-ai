@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
-const { generateMotivationLetter } = require('./ai.service');
+const { generateMotivationLetter, matchCandidateWithOffer } = require('./ai.service');
+const { searchVectorDocuments } = require('./rag.service');
 
 const TONES = ['PROFESSIONAL', 'DYNAMIC', 'SIMPLE'];
 
@@ -114,10 +115,15 @@ const buildMatchingPayload = (matchingResult) => {
     score: matchingResult.score,
     matchedSkills: toArray(matchingResult.matchedSkillsJson),
     missingSkills: toArray(matchingResult.missingSkillsJson),
+    optionalMatchedSkills: toArray(matchingResult.optionalMatchedSkillsJson),
+    explanation: matchingResult.explanation || null,
+    confidence: 'LOW',
+    decisionLabel: 'INSUFFICIENT_DATA',
+    v3: {},
   };
 };
 
-const formatLetter = (letter) => ({
+const formatLetter = (letter, generationDetails = null) => ({
   id: letter.id,
   applicationId: letter.applicationId,
   tone: letter.tone,
@@ -125,14 +131,41 @@ const formatLetter = (letter) => ({
   generatedByAI: letter.generatedByAI,
   createdAt: letter.createdAt,
   updatedAt: letter.updatedAt,
+  ...(generationDetails ? { v2: generationDetails } : {}),
 });
+
+const buildLetterRagContext = async (application, missingSkills) => {
+  try {
+    const query = [
+      `Lettre de motivation pour ${application.offer.title}.`,
+      application.offer.company.companyName,
+      missingSkills.length ? `Competences a traiter prudemment: ${missingSkills.join(', ')}.` : null,
+    ].filter(Boolean).join(' ');
+    const documents = await searchVectorDocuments(query, { topK: 3 });
+    return documents.filter((document) => document.score > 0).map((document) => ({
+      id: document.id,
+      ownerType: document.ownerType,
+      title: document.title,
+      score: document.score,
+      contentPreview: document.contentPreview,
+      metadata: document.metadata,
+    }));
+  } catch (error) {
+    console.error('Motivation letter RAG search failed:', error.message);
+    return [];
+  }
+};
 
 const generateLetterForApplication = async (userId, applicationId, payload = {}) => {
   const tone = normalizeTone(payload.tone);
   const student = await getStudentByUserId(userId);
   const application = await getOwnedApplication(student.id, applicationId);
   const cv = await getLatestAnalyzedCV(student.id);
-  const candidateSkills = toArray(cv.analysisJson.skills);
+  const candidateSkills = toArray(cv.analysisJson.detectedSkills).length
+    ? toArray(cv.analysisJson.detectedSkills)
+    : toArray(cv.analysisJson.skills);
+  const requiredSkills = toArray(application.offer.requiredSkillsJson);
+  const optionalSkills = toArray(application.offer.optionalSkillsJson);
 
   const matchingResult = await prisma.matchingResult.findUnique({
     where: {
@@ -143,6 +176,28 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
     },
   });
 
+  const legacyMatching = buildMatchingPayload(matchingResult);
+  const refreshedMatching = await matchCandidateWithOffer({
+    candidateSkills,
+    requiredSkills,
+    optionalSkills,
+    candidateAnalysis: cv.analysisJson || {},
+    offerAnalysis: {
+      title: application.offer.title,
+      description: application.offer.description,
+      requiredSkills,
+      optionalSkills,
+    },
+    candidateText: cv.parsedText || null,
+    offerText: `${application.offer.title}. ${application.offer.description || ''}`,
+    debug: true,
+  });
+  const matchingContext = refreshedMatching.success ? refreshedMatching.data : legacyMatching;
+  const ragContextDocuments = await buildLetterRagContext(
+    application,
+    matchingContext?.v3?.missingRequiredSkills || matchingContext?.missingSkills || []
+  );
+
   const aiResult = await generateMotivationLetter({
     student: {
       firstName: student.user.firstName,
@@ -150,20 +205,32 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
       educationLevel: student.educationLevel,
       targetJob: student.targetJob,
       bio: student.bio,
+      location: student.location,
     },
     candidateSkills,
+    cvAnalysis: cv.analysisJson || {},
     offer: {
       title: application.offer.title,
       description: application.offer.description,
       location: application.offer.location,
       duration: application.offer.duration,
-      requiredSkills: toArray(application.offer.requiredSkillsJson),
+      requiredSkills,
+      optionalSkills,
+    },
+    offerAnalysis: {
+      title: application.offer.title,
+      description: application.offer.description,
+      requiredSkills,
+      optionalSkills,
     },
     company: {
       companyName: application.offer.company.companyName,
       sector: application.offer.company.sector,
     },
-    matching: buildMatchingPayload(matchingResult),
+    matching: legacyMatching,
+    matchingResult: matchingContext || {},
+    applicationMessage: application.message || null,
+    ragContextDocuments,
     tone,
   });
 
@@ -190,7 +257,7 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
     },
   });
 
-  return formatLetter(letter);
+  return formatLetter(letter, aiResult.data.v2 || null);
 };
 
 const getLetterForApplication = async (userId, applicationId) => {

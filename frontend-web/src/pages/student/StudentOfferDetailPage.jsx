@@ -2,15 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { applyToOffer, getStudentApplications } from '../../api/applicationsApi.js';
+import { generateMotivationLetter, getMotivationLetter, updateMotivationLetter } from '../../api/motivationLettersApi.js';
 import { getOfferById, getOfferMatching } from '../../api/offersApi.js';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton.jsx';
 import ApplyDialog from '../../components/student/offers/ApplyDialog.jsx';
 import MatchingExplanation from '../../components/student/offers/MatchingExplanation.jsx';
+import MotivationLetterDialog from '../../components/student/applications/MotivationLetterDialog.jsx';
 import OfferDescription from '../../components/student/offers/OfferDescription.jsx';
 import OfferDetailHeader from '../../components/student/offers/OfferDetailHeader.jsx';
 import OfferSkills from '../../components/student/offers/OfferSkills.jsx';
 import { getApplicationForOffer, normalizeMatching, normalizeOffer } from '../../utils/offers.js';
+import { getLetterErrorMessage, normalizeApplication, normalizeApplications } from '../../utils/applications.js';
 
 const getReadableError = (error) => {
   if (error.response?.status === 403) return 'FORBIDDEN';
@@ -46,6 +49,14 @@ function StudentOfferDetailPage() {
   const [isApplying, setIsApplying] = useState(false);
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
   const [shouldRedirectDenied, setShouldRedirectDenied] = useState(false);
+  const [letterApplication, setLetterApplication] = useState(null);
+  const [letter, setLetter] = useState(null);
+  const [letterStatus, setLetterStatus] = useState('idle');
+  const [letterError, setLetterError] = useState('');
+  const [letterMessage, setLetterMessage] = useState('');
+  const [tone, setTone] = useState('PROFESSIONAL');
+  const [isGeneratingLetter, setIsGeneratingLetter] = useState(false);
+  const [isSavingLetter, setIsSavingLetter] = useState(false);
 
   const loadDetail = useCallback(async () => {
     setIsLoading(true);
@@ -74,7 +85,7 @@ function StudentOfferDetailPage() {
     }
 
     if (applicationsResult.status === 'fulfilled') {
-      setApplications(applicationsResult.value);
+      setApplications(normalizeApplications(applicationsResult.value));
     }
 
     setIsLoading(false);
@@ -90,6 +101,12 @@ function StudentOfferDetailPage() {
     return () => window.clearTimeout(timeout);
   }, [successMessage]);
 
+  useEffect(() => {
+    if (!letterMessage) return undefined;
+    const timeout = window.setTimeout(() => setLetterMessage(''), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [letterMessage]);
+
   const application = useMemo(() => getApplicationForOffer(applications, offer?.id), [applications, offer?.id]);
   const hasApplied = Boolean(application);
 
@@ -99,12 +116,16 @@ function StudentOfferDetailPage() {
 
     try {
       const createdApplication = await applyToOffer(offer.id, payload);
-      setApplications((current) => [{ ...createdApplication, offer }, ...current]);
+      setApplications((current) => [normalizeApplication({ ...createdApplication, offer }), ...current]);
       setIsApplyDialogOpen(false);
       setSuccessMessage('Votre candidature a ete envoyee.');
     } catch (error) {
       if (error.response?.status === 409) {
-        setApplications((current) => current.length ? current : [{ offer, status: 'SENT' }]);
+        try {
+          setApplications(normalizeApplications(await getStudentApplications()));
+        } catch {
+          setApplications((current) => current.length ? current : [{ offer, status: 'SENT' }]);
+        }
         setIsApplyDialogOpen(false);
         setSuccessMessage('Vous avez deja postule a cette offre.');
       } else if (error.response?.status === 403) {
@@ -117,6 +138,78 @@ function StudentOfferDetailPage() {
     } finally {
       setIsApplying(false);
     }
+  };
+
+  const openLetter = async () => {
+    if (!application?.id) return;
+
+    setLetterApplication(application);
+    setLetter(null);
+    setLetterError('');
+    setLetterMessage('');
+    setLetterStatus('loading');
+
+    try {
+      const nextLetter = await getMotivationLetter(application.id);
+      setLetter(nextLetter);
+      setTone(nextLetter.tone || 'PROFESSIONAL');
+      setLetterStatus('ready');
+    } catch (error) {
+      const readable = getLetterErrorMessage(error);
+      if (readable === 'NO_LETTER') {
+        setLetterStatus('empty');
+      } else {
+        setLetterStatus('error');
+        setLetterError(readable);
+      }
+    }
+  };
+
+  const generateLetter = async () => {
+    if (!letterApplication?.id) return;
+
+    setIsGeneratingLetter(true);
+    setLetterError('');
+    setLetterMessage('');
+
+    try {
+      const generated = await generateMotivationLetter(letterApplication.id, { tone });
+      setLetter(generated);
+      setLetterStatus('ready');
+      setLetterMessage('Lettre generee avec succes.');
+    } catch (error) {
+      setLetterStatus(letter ? 'ready' : 'error');
+      setLetterError(getLetterErrorMessage(error));
+    } finally {
+      setIsGeneratingLetter(false);
+    }
+  };
+
+  const saveLetter = async (content) => {
+    if (!letterApplication?.id) return;
+
+    setIsSavingLetter(true);
+    setLetterError('');
+    setLetterMessage('');
+
+    try {
+      const updated = await updateMotivationLetter(letterApplication.id, { content });
+      setLetter(updated);
+      setLetterStatus('ready');
+      setLetterMessage('Lettre mise a jour avec succes.');
+    } catch (error) {
+      setLetterError(getLetterErrorMessage(error));
+    } finally {
+      setIsSavingLetter(false);
+    }
+  };
+
+  const closeLetter = () => {
+    setLetterApplication(null);
+    setLetter(null);
+    setLetterStatus('idle');
+    setLetterError('');
+    setLetterMessage('');
   };
 
   if (shouldRedirectDenied) {
@@ -161,11 +254,16 @@ function StudentOfferDetailPage() {
               <button className="rounded-lg bg-primary px-5 py-3 text-sm font-black text-white shadow-panel disabled:bg-muted" type="button" disabled={hasApplied} onClick={() => setIsApplyDialogOpen(true)}>
                 {hasApplied ? 'Candidature envoyee' : 'Postuler'}
               </button>
-              <Link className="rounded-lg border border-line bg-white px-5 py-3 text-center text-sm font-black text-ink shadow-panel" to="/student/career-assistant">
+              <Link className="rounded-lg border border-line bg-white px-5 py-3 text-center text-sm font-black text-ink shadow-panel" to={`/student/career-assistant?offerId=${offer.id}`}>
                 Demander conseil a l’assistant carriere
               </Link>
-              <button className="rounded-lg border border-line bg-canvas px-5 py-3 text-sm font-black text-muted" type="button" disabled>
-                Generer une lettre - bientot disponible
+              <button
+                className="rounded-lg border border-primary/20 bg-primarySoft px-5 py-3 text-sm font-black text-primary shadow-panel transition hover:border-primary disabled:cursor-not-allowed disabled:border-line disabled:bg-canvas disabled:text-muted disabled:shadow-none"
+                type="button"
+                disabled={!application?.id}
+                onClick={openLetter}
+              >
+                {application?.id ? 'Lettre de motivation' : 'Postulez pour generer une lettre'}
               </button>
               <Link className="rounded-lg border border-line bg-white px-5 py-3 text-center text-sm font-black text-ink shadow-panel" to="/student/offers">
                 Retour aux offres
@@ -184,6 +282,22 @@ function StudentOfferDetailPage() {
           setApplyError('');
         }}
         onConfirm={handleApply}
+      />
+
+      <MotivationLetterDialog
+        application={letterApplication}
+        letter={letter}
+        status={letterStatus}
+        error={letterError}
+        message={letterMessage}
+        tone={tone}
+        isGenerating={isGeneratingLetter}
+        isSaving={isSavingLetter}
+        onClose={closeLetter}
+        onRetry={openLetter}
+        onToneChange={setTone}
+        onGenerate={generateLetter}
+        onSave={saveLetter}
       />
     </div>
   );

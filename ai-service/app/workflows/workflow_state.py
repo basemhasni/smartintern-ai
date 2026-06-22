@@ -27,6 +27,19 @@ class MotivationLetterWorkflowState(TypedDict):
     company: dict
     matching: dict
     tone: str
+    cvAnalysis: dict
+    offerAnalysis: dict
+    matchingResult: dict
+    careerAdvice: dict
+    applicationMessage: Optional[str]
+    ragContextDocuments: list[dict]
+    normalizedTone: Optional[str]
+    workflowWarnings: list[str]
+    letterEvidence: Optional[dict]
+    letterPlan: list[str]
+    draftStage: Optional[str]
+    letterResult: Optional[dict]
+    claimValidation: Optional[dict]
     preparedStudentProfile: Optional[dict]
     preparedOfferContext: Optional[dict]
     missingSkills: list[str]

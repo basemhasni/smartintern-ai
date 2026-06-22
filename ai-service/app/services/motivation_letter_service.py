@@ -1,6 +1,6 @@
-from app.agents.motivation_letter_agent import MotivationLetterAgent
+from app.agents.motivation_letter_agent_v2 import MotivationLetterAgentV2
 
-_agent = MotivationLetterAgent()
+_agent = MotivationLetterAgentV2()
 
 
 def generate_motivation_letter(payload) -> dict:

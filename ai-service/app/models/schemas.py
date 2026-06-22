@@ -99,6 +99,7 @@ class LetterStudent(BaseModel):
     educationLevel: Optional[str] = None
     targetJob: Optional[str] = None
     bio: Optional[str] = None
+    location: Optional[str] = None
 
 
 class LetterOffer(BaseModel):
@@ -107,10 +108,11 @@ class LetterOffer(BaseModel):
     location: Optional[str] = None
     duration: Optional[str] = None
     requiredSkills: Optional[List[str]] = []
+    optionalSkills: Optional[List[str]] = []
 
 
 class LetterCompany(BaseModel):
-    companyName: str
+    companyName: Optional[str] = None
     sector: Optional[str] = None
 
 
@@ -118,6 +120,11 @@ class LetterMatching(BaseModel):
     score: Optional[int] = None
     matchedSkills: Optional[List[str]] = []
     missingSkills: Optional[List[str]] = []
+    optionalMatchedSkills: Optional[List[str]] = []
+    explanation: Optional[str] = None
+    confidence: Optional[str] = "LOW"
+    decisionLabel: Optional[str] = "INSUFFICIENT_DATA"
+    v3: Dict[str, Any] = {}
 
 
 class MotivationLetterRequest(BaseModel):
@@ -127,6 +134,12 @@ class MotivationLetterRequest(BaseModel):
     company: LetterCompany
     matching: Optional[LetterMatching] = None
     tone: str = "PROFESSIONAL"
+    cvAnalysis: Dict[str, Any] = {}
+    offerAnalysis: Dict[str, Any] = {}
+    matchingResult: Dict[str, Any] = {}
+    careerAdvice: Dict[str, Any] = {}
+    applicationMessage: Optional[str] = None
+    ragContextDocuments: List[Dict[str, Any]] = []
 
 
 class MotivationLetterWorkflowRequest(MotivationLetterRequest):
@@ -135,6 +148,11 @@ class MotivationLetterWorkflowRequest(MotivationLetterRequest):
 
 class MotivationLetterResponse(BaseModel):
     content: str
+    letter: Optional[str] = None
+    generatedLetter: Optional[str] = None
+    tone: str = "PROFESSIONAL"
+    generatedAt: Optional[str] = None
+    v2: Dict[str, Any] = {}
 
 
 class CareerStudent(BaseModel):
