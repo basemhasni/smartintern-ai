@@ -19,6 +19,7 @@ evaluation/
     letter_evaluator.py
     rag_evaluator.py
     orchestrator_evaluator.py
+    explainability_evaluator.py
   expected/
     README.md
   reports/
@@ -35,6 +36,7 @@ python scripts/evaluate_career_assistant_v2.py
 python scripts/evaluate_motivation_letter_v2.py
 python scripts/evaluate_rag_v2.py --mode mock
 python scripts/evaluate_orchestrator_v2.py
+python scripts/evaluate_explainability.py
 python -m unittest discover -s tests -v
 ```
 
@@ -70,7 +72,8 @@ Career Assistant V2: 8/8 PASS
 Motivation Letter V2: 10/10 PASS
 RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
-Global: 49/49 PASS
+Explainability: 8/8 PASS
+Global: 57/57 PASS
 Status: PASS
 ```
 
@@ -84,6 +87,26 @@ Each case has an `id`, business inputs, and an `expected` object. Expected
 values should be calibrated against reviewed product behavior. Do not set
 unrealistically narrow score ranges; the purpose is to detect regressions, not
 to freeze every internal score.
+
+## Explainability Cases
+
+`evaluation/cases/explainability_cases.json` verifies the Evidence Checker,
+Career Signal Map, and AI Decision Trace returned by Matching V3.
+
+The evaluator checks that:
+
+- `skillEvidenceMap` exists and classifies skills as `STRONG`, `MEDIUM`, `WEAK`, or `MISSING`;
+- `careerSignalMap.categories` exposes category scores between 0 and 100;
+- `globalSignals` contains coherent dominant and weak domains;
+- `decisionTrace` contains readable decision steps;
+- snippets stay short and no sensitive fields are exposed.
+
+Examples:
+
+- a concrete React project should produce `React = STRONG`;
+- Docker mentioned only as learning should stay `WEAK`;
+- an absent required skill should stay `MISSING`;
+- realistic frontend, mobile, QA, DevOps, and Data / AI cases should produce coherent domain signals.
 
 ## Status
 

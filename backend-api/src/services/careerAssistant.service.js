@@ -140,6 +140,7 @@ const getOrCreateMatching = async ({
         confidence: 'LOW',
         decisionLabel: 'INSUFFICIENT_DATA',
         v3: {},
+        explainability: {},
       };
     }
     throw createHttpError(503, 'AI service is currently unavailable.');
@@ -275,6 +276,7 @@ const generateAdvice = async (userId, payload) => {
       risks: matching.risks || [],
       recommendations: matching.recommendations || [],
       v3: matching.v3 || {},
+      explainability: matching.explainability || {},
     },
     question,
     ragContextDocuments: ragContext.documents,

@@ -8,6 +8,9 @@ from difflib import SequenceMatcher
 from typing import Any
 
 from app.knowledge.skill_taxonomy import SKILLS_BY_NAME, get_related_skills
+from app.services.career_signal_map_service import build_career_signal_map
+from app.services.decision_trace_service import build_decision_trace
+from app.services.evidence_checker_service import evaluate_all_skills_evidence
 from app.services.evidence_extraction_service import TYPE_WEIGHTS, build_candidate_evidence_profile
 from app.services.matching_explanation_service import generate_matching_explanation
 from app.services.offer_analysis_v3 import analyze_offer_v3
@@ -397,7 +400,7 @@ class HybridMatchingEngineV3:
             v3["warnings"] = scoring["warnings"]
             v3["candidateEvidenceProfile"] = candidate_profile["evidenceProfile"]
 
-        return {
+        base_result = {
             "score": scoring["score"],
             "confidence": confidence,
             "decisionLabel": decision,
@@ -416,6 +419,24 @@ class HybridMatchingEngineV3:
             "recommendations": deduplicate_strings(recommendations),
             "v3": v3,
         }
+        explainability_skills = _explainability_skills(candidate_profile, offer_requirements, matrix)
+        evidence_result = evaluate_all_skills_evidence(
+            explainability_skills,
+            candidate_text,
+            candidate_profile,
+            {"coverageMatrix": matrix},
+        )
+        career_signal_map = build_career_signal_map(candidate_profile, offer_requirements, base_result, evidence_result)
+        explainability = {
+            "skillEvidenceMap": evidence_result["skillEvidenceMap"],
+            "evidenceSummary": evidence_result["evidenceSummary"],
+            "careerSignalMap": career_signal_map,
+            "decisionTrace": [],
+            "warnings": [],
+        }
+        explainability["decisionTrace"] = build_decision_trace(candidate_profile, offer_requirements, base_result, explainability)
+        base_result["explainability"] = explainability
+        return base_result
 
 
 def _category_scores(matrix: list[dict]) -> dict[str, int]:
@@ -423,3 +444,10 @@ def _category_scores(matrix: list[dict]) -> dict[str, int]:
     for row in matrix:
         categories.setdefault(row["category"], []).append(row["coverage"])
     return {category: round(sum(values) / len(values) * 100) for category, values in categories.items()}
+
+
+def _explainability_skills(candidate_profile: dict, offer_requirements: dict, matrix: list[dict]) -> list[str]:
+    requirement_skills = [row["requirement"] for row in matrix]
+    offer_skills = (offer_requirements.get("requiredSkills") or []) + (offer_requirements.get("optionalSkills") or [])
+    candidate_skills = candidate_profile.get("skills") or candidate_profile.get("detectedSkills") or []
+    return deduplicate_strings(canonicalize_skill_list(requirement_skills + offer_skills + candidate_skills))

@@ -202,6 +202,10 @@ const buildRecommendation = async (studentId, candidateSkills, offer) => {
     missingSkills: matchingResult.data.missingSkills || [],
     optionalMatchedSkills: matchingResult.data.optionalMatchedSkills || [],
     explanation: matchingResult.data.explanation || null,
+    confidence: matchingResult.data.confidence || 'LOW',
+    decisionLabel: matchingResult.data.decisionLabel || 'INSUFFICIENT_DATA',
+    v3: matchingResult.data.v3 || {},
+    explainability: matchingResult.data.explainability || {},
   };
 
   await saveMatchingResult(studentId, offer.id, matching);

@@ -168,6 +168,10 @@ const calculateOfferMatch = async (userId, offerId) => {
     missingSkills: matching.missingSkills || [],
     optionalMatchedSkills: matching.optionalMatchedSkills || [],
     explanation: matching.explanation || null,
+    confidence: matching.confidence || 'LOW',
+    decisionLabel: matching.decisionLabel || 'INSUFFICIENT_DATA',
+    v3: matching.v3 || {},
+    explainability: matching.explainability || {},
   };
 };
 

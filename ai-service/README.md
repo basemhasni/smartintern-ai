@@ -1452,6 +1452,69 @@ python -m unittest discover -s tests -v
 - La generation reste deterministic-first sans LLM externe.
 - `PARTIAL_SUCCESS` est frequent lorsque RAG est demande mais aucun contexte n est fourni.
 
+## Evidence Checker & Career Signal Map
+
+Matching V3 retourne maintenant un objet `explainability` en plus des champs historiques (`score`, `matchedSkills`, `missingSkills`, `optionalMatchedSkills`, `explanation`, `confidence`, `decisionLabel`, `v3`).
+
+```json
+{
+  "explainability": {
+    "skillEvidenceMap": {},
+    "evidenceSummary": {},
+    "careerSignalMap": {
+      "categories": [],
+      "globalSignals": {}
+    },
+    "decisionTrace": []
+  }
+}
+```
+
+### Evidence Checker
+
+`evidence_checker_service.py` classe chaque competence en quatre niveaux :
+
+- `STRONG` : preuve dans un projet ou une experience concrete.
+- `MEDIUM` : preuve utile mais moins contextualisee, par exemple une section competences.
+- `WEAK` : mention vague, apprentissage en cours, correspondance partielle ou related skill.
+- `MISSING` : aucune preuve exploitable.
+
+Chaque entree contient `evidenceType`, `confidence`, snippets courts, raison et recommandation. Les snippets sont limites pour eviter d exposer tout le CV.
+
+### Career Signal Map
+
+`career_signal_map_service.py` regroupe les signaux par domaine : Frontend, Backend, Database, DevOps, Cloud, Data / AI, Mobile, QA / Testing, Tools et Soft Skills. Le score de categorie combine couverture des exigences, qualite des preuves et competences manquantes. `globalSignals` expose les domaines dominants, les domaines faibles, le type de profil et la confiance du signal.
+
+### AI Decision Trace
+
+`decision_trace_service.py` produit une trace lisible :
+
+- analyse du CV ;
+- analyse de l offre ;
+- verification des preuves ;
+- couverture des exigences ;
+- calcul du score.
+
+La trace est destinee au frontend, a un jury ou a un recruteur. Elle explique le score sans exposer de JSON technique brut.
+
+### Integrations
+
+- Career Assistant V2 lit `explainability` pour recommander des actions sur les preuves faibles et les domaines a renforcer.
+- Orchestrator V2 propage `explainability` dans `results.matching`.
+- Quality Control V2 verifie la presence de `skillEvidenceMap`, `careerSignalMap` et `decisionTrace` quand un matching est calcule.
+- Le backend relaie les nouveaux champs quand un matching frais revient de l AI service, sans migration Prisma.
+
+### Frontend Usage Recommendation
+
+Le frontend pourra afficher :
+
+- badges de preuve `STRONG`, `MEDIUM`, `WEAK`, `MISSING` ;
+- barres ou radar par domaine a partir de `careerSignalMap.categories` ;
+- domaines dominants/faibles depuis `globalSignals` ;
+- trace de decision et recommandations CV.
+
+Ces donnees doivent rester presentees comme une aide a la decision, pas comme une decision automatique.
+
 ## AI Evaluation Suite
 
 La suite d evaluation IA centralise les tests fonctionnels de qualite pour :
@@ -1470,13 +1533,14 @@ Commande principale :
 python scripts/evaluate_ai_suite.py
 ```
 
-La commande lance les cinq evaluateurs :
+La commande lance les six evaluateurs :
 
 1. `matching_evaluator.py`
 2. `career_evaluator.py`
 3. `letter_evaluator.py`
 4. `rag_evaluator.py`
 5. `orchestrator_evaluator.py`
+6. `explainability_evaluator.py`
 
 Elle genere automatiquement :
 
@@ -1495,6 +1559,7 @@ evaluation/
     motivation_letter_cases.json
     rag_cases.json
     orchestrator_cases.json
+    explainability_cases.json
   evaluators/
     quality_metrics.py
     matching_evaluator.py
@@ -1502,6 +1567,7 @@ evaluation/
     letter_evaluator.py
     rag_evaluator.py
     orchestrator_evaluator.py
+    explainability_evaluator.py
   reports/
   run_all_evaluations.py
 ```
@@ -1516,7 +1582,8 @@ Le rapport global expose :
 - taux de quality checks lettre ;
 - taux de readiness coherent ;
 - taux de reponses RAG avec citations ;
-- taux de succes Orchestrator V2.
+- taux de succes Orchestrator V2 ;
+- taux de passage Explainability.
 
 Les checks communs sont dans `evaluation/evaluators/quality_metrics.py` :
 
@@ -1544,6 +1611,7 @@ python scripts/evaluate_career_assistant_v2.py
 python scripts/evaluate_motivation_letter_v2.py
 python scripts/evaluate_rag_v2.py --mode mock
 python scripts/evaluate_orchestrator_v2.py
+python scripts/evaluate_explainability.py
 python -m unittest tests.test_ai_quality_rules -v
 python -m unittest discover -s tests -v
 ```
@@ -1574,7 +1642,8 @@ Career Assistant V2: 8/8 PASS
 Motivation Letter V2: 10/10 PASS
 RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
-Global: 49/49 PASS
+Explainability: 8/8 PASS
+Global: 57/57 PASS
 Status: PASS
 ```
 

@@ -80,6 +80,7 @@ class MatchingResponse(BaseModel):
     risks: List[str] = []
     recommendations: List[str] = []
     v3: Dict[str, Any] = {}
+    explainability: Dict[str, Any] = {}
 
 
 class MatchingWorkflowRequest(BaseModel):
@@ -125,6 +126,7 @@ class LetterMatching(BaseModel):
     confidence: Optional[str] = "LOW"
     decisionLabel: Optional[str] = "INSUFFICIENT_DATA"
     v3: Dict[str, Any] = {}
+    explainability: Dict[str, Any] = {}
 
 
 class MotivationLetterRequest(BaseModel):
@@ -184,6 +186,7 @@ class CareerMatching(BaseModel):
     risks: List[str] = []
     recommendations: List[str] = []
     v3: Dict[str, Any] = {}
+    explainability: Dict[str, Any] = {}
 
 
 class CareerAdviceRequest(BaseModel):

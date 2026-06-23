@@ -157,6 +157,8 @@ def _actions_for_gap(skill: str, gap_type: str) -> list[str]:
 def prioritize_skill_gaps(matching_result: dict) -> list[dict]:
     matching = _as_dict(matching_result)
     v3 = _as_dict(matching.get("v3"))
+    explainability = _as_dict(matching.get("explainability"))
+    skill_evidence = _as_dict(explainability.get("skillEvidenceMap"))
     matrix = _as_list(v3.get("coverageMatrix"))
     rows = {_skill_key(str(row.get("requirement", ""))): row for row in matrix if isinstance(row, dict)}
     critical = _unique_skills(v3.get("criticalMissingSkills") or [])
@@ -202,16 +204,35 @@ def prioritize_skill_gaps(matching_result: dict) -> list[dict]:
         if not isinstance(row, dict) or row.get("coverage", 0) < 0.75 or row.get("evidence"):
             continue
         add(str(row.get("requirement", "")), "EVIDENCE_WEAK", "MEDIUM", "Le skill est reconnu, mais la qualite de preuve limite la confiance.")
+    for skill, evidence in skill_evidence.items():
+        if _as_dict(evidence).get("evidenceLevel") == "WEAK" and _skill_key(skill) in rows:
+            add(str(skill), "EVIDENCE_WEAK", "MEDIUM", "La competence apparait, mais la preuve reste trop faible pour soutenir fortement le dossier.")
     for skill in optional:
         add(skill, "OPTIONAL", "LOW", "Bonus modere apres traitement des lacunes critiques et obligatoires.")
     return gaps[:5]
 
 
 def build_evidence_based_strengths(matching_result: dict) -> list[dict]:
-    matrix = _as_list(_as_dict(_as_dict(matching_result).get("v3")).get("coverageMatrix"))
+    matching = _as_dict(matching_result)
+    matrix = _as_list(_as_dict(matching.get("v3")).get("coverageMatrix"))
+    skill_evidence = _as_dict(_as_dict(matching.get("explainability")).get("skillEvidenceMap"))
     strengths = []
     for row in matrix:
         if not isinstance(row, dict) or float(row.get("coverage") or 0) < 0.75:
+            continue
+        evidence_detail = _as_dict(skill_evidence.get(row.get("requirement")))
+        if evidence_detail:
+            level_map = {"STRONG": "STRONG_EVIDENCE", "MEDIUM": "MEDIUM_EVIDENCE", "WEAK": "WEAK_EVIDENCE"}
+            level = level_map.get(evidence_detail.get("evidenceLevel"), "WEAK_EVIDENCE")
+            statement = evidence_detail.get("reason") or f"{row['requirement']} dispose d'une preuve analysee."
+            strengths.append(
+                {
+                    "skill": row["requirement"],
+                    "evidenceLevel": level,
+                    "statement": statement,
+                    "evidence": _as_list(evidence_detail.get("evidenceSnippets"))[:2],
+                }
+            )
             continue
         evidence = _as_list(row.get("evidence"))
         confidence = float(row.get("confidence") or 0)
@@ -368,6 +389,9 @@ def generate_career_advice_v2(input_data: Any) -> dict:
     student = _as_dict(payload.get("student"))
     offer = _as_dict(payload.get("offer"))
     matching = _as_dict(payload.get("matching"))
+    explainability = _as_dict(matching.get("explainability"))
+    career_signal_map = _as_dict(explainability.get("careerSignalMap"))
+    global_signals = _as_dict(career_signal_map.get("globalSignals"))
     if not student:
         raise ValueError("student is required")
     if not offer:
@@ -428,7 +452,12 @@ def generate_career_advice_v2(input_data: Any) -> dict:
     if str(matching.get("confidence") or "LOW").upper() == "LOW":
         warnings.insert(0, "La confiance du matching est faible; enrichissez le CV et verifiez les exigences de l'offre avant d'agir.")
 
-    profile_summary = f"Compatibilite {score}/100 pour {offer.get('title', 'l offre cible')}. Niveau de preparation: {readiness}. {focus}"
+    signal_notes = []
+    if global_signals.get("dominantDomains"):
+        signal_notes.append(f"Domaines solides: {', '.join(global_signals['dominantDomains'][:2])}.")
+    if global_signals.get("weakDomains"):
+        signal_notes.append(f"Domaines a renforcer: {', '.join(global_signals['weakDomains'][:2])}.")
+    profile_summary = f"Compatibilite {score}/100 pour {offer.get('title', 'l offre cible')}. Niveau de preparation: {readiness}. {focus} {' '.join(signal_notes)}"
     legacy_strengths = [item["statement"] for item in evidence_strengths]
     if not legacy_strengths:
         legacy_strengths = _unique_skills(matching.get("strengths") or [])
@@ -532,6 +561,9 @@ def generate_career_advice_v2(input_data: Any) -> dict:
             "directAnswer": direct_answer,
             "specificSkillAnalysis": question_requirement or None,
             "analysisSummary": analysis_summary,
+            "skillEvidenceMap": _as_dict(explainability.get("skillEvidenceMap")),
+            "careerSignalMap": career_signal_map,
+            "decisionTrace": _as_list(explainability.get("decisionTrace")),
             "decisionLabel": matching.get("decisionLabel") or "INSUFFICIENT_DATA",
             "confidence": matching.get("confidence") or "LOW",
             "readinessLevel": readiness,

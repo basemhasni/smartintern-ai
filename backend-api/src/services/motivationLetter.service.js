@@ -120,6 +120,7 @@ const buildMatchingPayload = (matchingResult) => {
     confidence: 'LOW',
     decisionLabel: 'INSUFFICIENT_DATA',
     v3: {},
+    explainability: {},
   };
 };
 

@@ -36,11 +36,23 @@ def run_global_quality_control(context) -> dict[str, Any]:
 
     if matching:
         v3 = _as_dict(matching.get("v3"))
+        explainability = _as_dict(matching.get("explainability"))
+        signal_map = _as_dict(explainability.get("careerSignalMap"))
+        categories = _as_list(signal_map.get("categories"))
+        decision_trace = _as_list(explainability.get("decisionTrace"))
+        skill_evidence = _as_dict(explainability.get("skillEvidenceMap"))
         matrix = _as_list(v3.get("coverageMatrix"))
         required = _as_list(_as_dict(context.offerAnalysis).get("requiredSkills")) or _as_list(offer.get("requiredSkills"))
         checks.append(_check("MATCHING_SCORE_BOUNDS", _score_ok(matching), "BLOCKING", "Le score matching doit etre entre 0 et 100."))
         checks.append(_check("MATCHING_DECISION_LABEL", bool(matching.get("decisionLabel")), "WARNING", "Le matching doit exposer decisionLabel."))
         checks.append(_check("MATCHING_COVERAGE_MATRIX", not required or bool(matrix), "WARNING", "coverageMatrix est attendue si des competences requises existent."))
+        checks.append(_check("EXPLAINABILITY_PRESENT", bool(explainability), "WARNING", "Le matching doit exposer explainability."))
+        checks.append(_check("EXPLAINABILITY_SKILL_EVIDENCE", not required or bool(skill_evidence), "WARNING", "skillEvidenceMap doit couvrir les competences requises."))
+        checks.append(_check("EXPLAINABILITY_SIGNAL_MAP", bool(categories), "WARNING", "careerSignalMap doit contenir des categories."))
+        checks.append(_check("EXPLAINABILITY_DECISION_TRACE", len(decision_trace) >= 3, "WARNING", "decisionTrace doit contenir au moins trois etapes."))
+        for category in categories:
+            score = _as_dict(category).get("score")
+            checks.append(_check("SIGNAL_MAP_SCORE_BOUNDS", isinstance(score, int) and 0 <= score <= 100, "WARNING", "Les scores de categorie doivent etre entre 0 et 100."))
         if _as_list(v3.get("criticalMissingSkills")) and int(matching.get("score") or 0) > 72:
             checks.append(_check("CRITICAL_MISSING_CAP", False, "BLOCKING", "Une competence critique manquante doit plafonner le score."))
     else:

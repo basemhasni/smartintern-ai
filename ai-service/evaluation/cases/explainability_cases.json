@@ -1,0 +1,123 @@
+[
+  {
+    "id": "fullstack_strong_evidence",
+    "description": "Fullstack React Node PostgreSQL with concrete project evidence.",
+    "cvText": "Developpeur fullstack junior. Projet e-commerce developpe avec React, Node.js et PostgreSQL. API REST avec Express. Interface responsive documentee avec Git.",
+    "offer": {
+      "title": "Stage developpeur fullstack React Node.js",
+      "description": "Nous cherchons un stagiaire fullstack pour creer des interfaces React et des API REST Node.js avec PostgreSQL.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "CI/CD"]
+    },
+    "expected": {
+      "evidenceLevels": {"React": ["STRONG"], "Node.js": ["STRONG"], "PostgreSQL": ["STRONG"]},
+      "dominantDomains": ["Frontend", "Backend", "Database"],
+      "weakDomains": ["DevOps"]
+    }
+  },
+  {
+    "id": "docker_weak_mention",
+    "description": "Docker is only mentioned as learning, not proved.",
+    "cvText": "Developpeur web junior. Projet universitaire avec React et Node.js. Docker mentionne comme competence en cours d'apprentissage.",
+    "offer": {
+      "title": "Stage fullstack avec Docker",
+      "description": "Developpement React Node.js avec dockerisation simple.",
+      "requiredSkills": ["React", "Node.js", "Docker"],
+      "optionalSkills": ["CI/CD"]
+    },
+    "expected": {
+      "evidenceLevels": {"Docker": ["WEAK"]},
+      "weakDomains": ["DevOps"]
+    }
+  },
+  {
+    "id": "react_missing_angular_related",
+    "description": "Angular frontend profile for a React offer.",
+    "cvText": "Projet dashboard developpe avec Angular et TypeScript. Integration d'une API REST et tests avec Postman.",
+    "offer": {
+      "title": "Stage frontend React TypeScript",
+      "description": "Creation d'interfaces React en TypeScript.",
+      "requiredSkills": ["React", "TypeScript"],
+      "optionalSkills": ["REST API"]
+    },
+    "expected": {
+      "evidenceLevels": {"React": ["WEAK", "MISSING"], "TypeScript": ["STRONG", "MEDIUM"]},
+      "dominantDomains": ["Frontend"]
+    }
+  },
+  {
+    "id": "poor_cv_insufficient_evidence",
+    "description": "Poor CV produces insufficient explainability signals.",
+    "cvText": "Etudiant motive en informatique.",
+    "offer": {
+      "title": "Stage backend Node PostgreSQL",
+      "description": "API REST Node.js avec PostgreSQL.",
+      "requiredSkills": ["Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker"]
+    },
+    "expected": {
+      "evidenceLevels": {"Node.js": ["MISSING"], "PostgreSQL": ["MISSING"]},
+      "weakDomains": ["Backend", "Database"]
+    }
+  },
+  {
+    "id": "fullstack_devops_optional",
+    "description": "Fullstack evidence with optional DevOps not covered.",
+    "cvText": "Application de gestion de stages realisee avec React, Express.js, Prisma et PostgreSQL. API REST securisee et versionnee avec Git.",
+    "offer": {
+      "title": "Stage fullstack React Node DevOps",
+      "description": "React, Node.js, PostgreSQL requis. Docker et CI/CD sont apprecies.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL"],
+      "optionalSkills": ["Docker", "CI/CD"]
+    },
+    "expected": {
+      "evidenceLevels": {"React": ["STRONG"], "Docker": ["MISSING"], "CI/CD": ["MISSING"]},
+      "weakDomains": ["DevOps"]
+    }
+  },
+  {
+    "id": "qa_strong_evidence",
+    "description": "QA profile with Postman and Selenium evidence.",
+    "cvText": "Projet QA: creation d'une collection Postman pour tester une API REST et automatisation de scenarios web avec Selenium. Rapport de tests redige.",
+    "offer": {
+      "title": "Stage QA automation",
+      "description": "Tests API Postman et automatisation Selenium.",
+      "requiredSkills": ["Postman", "Selenium"],
+      "optionalSkills": ["Integration Testing"]
+    },
+    "expected": {
+      "evidenceLevels": {"Postman": ["STRONG"], "Selenium": ["STRONG"]},
+      "dominantDomains": ["QA / Testing"]
+    }
+  },
+  {
+    "id": "mobile_flutter_project",
+    "description": "Flutter mobile project evidence.",
+    "cvText": "Projet mobile realise avec Flutter et Dart: suivi de candidatures, navigation, formulaires et stockage local.",
+    "offer": {
+      "title": "Stage mobile Flutter",
+      "description": "Developper une application mobile Flutter en Dart.",
+      "requiredSkills": ["Flutter", "Dart"],
+      "optionalSkills": ["Android"]
+    },
+    "expected": {
+      "evidenceLevels": {"Flutter": ["STRONG"], "Dart": ["STRONG", "MEDIUM"]},
+      "dominantDomains": ["Mobile"]
+    }
+  },
+  {
+    "id": "data_ai_rag_langgraph",
+    "description": "AI/RAG profile with LangGraph evidence.",
+    "cvText": "Projet IA: pipeline RAG avec LangChain, LangGraph et base vectorielle. Extraction de contexte documentaire et generation de reponses citees en Python.",
+    "offer": {
+      "title": "Stage IA RAG",
+      "description": "Construire un assistant RAG avec LangChain, LangGraph, NLP et vector database.",
+      "requiredSkills": ["RAG", "LangGraph", "NLP"],
+      "optionalSkills": ["Vector Database", "Python"]
+    },
+    "expected": {
+      "evidenceLevels": {"RAG": ["STRONG"], "LangGraph": ["STRONG"]},
+      "dominantDomains": ["Data / AI"]
+    }
+  }
+]
