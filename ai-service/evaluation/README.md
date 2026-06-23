@@ -43,6 +43,41 @@ The suite writes:
 - `evaluation/reports/ai_evaluation_report_YYYYMMDD_HHMMSS.json`
 - `evaluation/reports/ai_evaluation_report_YYYYMMDD_HHMMSS.md`
 
+## Quality Fix Triage Workflow
+
+When working on `feature/ai-quality-fixes`, use this loop:
+
+1. Run `python scripts/evaluate_ai_suite.py`.
+2. Open the latest JSON report in `evaluation/reports`.
+3. Fix only cases with `FAIL` or important `WARNING`.
+4. Link each code change to a concrete failed case and root cause.
+5. Re-run the targeted evaluator.
+6. Re-run the full suite.
+
+Do not weaken critical checks just to make the report green:
+
+- missing skills must never be claimed in a motivation letter;
+- required skills absence must not produce a high matching score;
+- RAG scope checks must remain strict;
+- optional RAG failure should produce `PARTIAL_SUCCESS`, not `FAILED`;
+- raw embeddings and sensitive technical fields must not be exposed.
+
+Current quality baseline after the first triage run:
+
+```text
+Matching V3: 15/15 PASS
+Career Assistant V2: 8/8 PASS
+Motivation Letter V2: 10/10 PASS
+RAG V2: 8/8 PASS
+Orchestrator V2: 8/8 PASS
+Global: 49/49 PASS
+Status: PASS
+```
+
+Because no `FAIL` or `WARNING` was detected in that baseline, no service-level
+calibration change was required. Future fixes should be driven by newly failing
+reports or by newly added stricter cases.
+
 ## Case Format
 
 Each case has an `id`, business inputs, and an `expected` object. Expected

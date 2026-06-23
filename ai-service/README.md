@@ -1555,6 +1555,31 @@ python -m unittest discover -s tests -v
 3. Lancer `python scripts/evaluate_ai_suite.py`.
 4. Lire le rapport Markdown pour verifier les warnings/fails.
 
+### Workflow de correction qualite
+
+Pour une branche de correction comme `feature/ai-quality-fixes`, ne corriger que les problemes effectivement signales par le dernier rapport :
+
+1. lancer la suite complete ;
+2. lire le dernier JSON dans `evaluation/reports` ;
+3. identifier les `FAIL` et les `WARNING` importants ;
+4. relier chaque correction a une cause racine precise ;
+5. relancer l evaluateur cible ;
+6. relancer `python scripts/evaluate_ai_suite.py`.
+
+Le baseline actuel de triage qualite est :
+
+```text
+Matching V3: 15/15 PASS
+Career Assistant V2: 8/8 PASS
+Motivation Letter V2: 10/10 PASS
+RAG V2: 8/8 PASS
+Orchestrator V2: 8/8 PASS
+Global: 49/49 PASS
+Status: PASS
+```
+
+Aucune correction service n est necessaire tant que ce baseline reste sans `FAIL` ni `WARNING`.
+
 ### Limites
 
 Ces tests ne prouvent pas une precision parfaite. Ils verifient des scenarios controles et des regles de regression. Les plages de score doivent etre ajustees progressivement apres revue. Le matching depend de la qualite du CV, le RAG depend des documents indexes, et la generation reste deterministe sans LLM externe.
