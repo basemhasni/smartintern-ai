@@ -435,6 +435,22 @@ def generate_career_advice_v2(input_data: Any) -> dict:
     weak = [item for item in evidence_strengths if item["evidenceLevel"] == "WEAK_EVIDENCE"]
     score = int(matching.get("score") or 0)
     analysis_summary = _build_analysis_summary(matching, readiness)
+    skill_gap_simulation = _as_dict(payload.get("skillGapSimulation"))
+    if not skill_gap_simulation:
+        try:
+            from app.services.skill_gap_simulator_service import simulate_skill_gap_impact
+
+            skill_gap_simulation = simulate_skill_gap_impact(
+                matching,
+                options={
+                    "maxCombinations": 3,
+                    "includeProjects": True,
+                    "includeDecisionTrace": False,
+                    "simulationMode": "REALISTIC",
+                },
+            )
+        except (TypeError, ValueError):
+            skill_gap_simulation = {}
 
     focus = {
         "PROJECT_IDEAS": "La priorite est de produire une preuve pratique directement reliee aux exigences de l'offre.",
@@ -564,6 +580,15 @@ def generate_career_advice_v2(input_data: Any) -> dict:
             "skillEvidenceMap": _as_dict(explainability.get("skillEvidenceMap")),
             "careerSignalMap": career_signal_map,
             "decisionTrace": _as_list(explainability.get("decisionTrace")),
+            "skillGapSimulation": {
+                "currentScore": skill_gap_simulation.get("currentScore", score),
+                "potentialBestScore": skill_gap_simulation.get("potentialBestScore", score),
+                "scoreGain": skill_gap_simulation.get("scoreGain", 0),
+                "topSkillsToImprove": _as_list(skill_gap_simulation.get("highImpactGaps"))[:3],
+                "recommendedPath": _as_list(skill_gap_simulation.get("recommendedPath"))[:3],
+                "summary": skill_gap_simulation.get("summary"),
+                "warnings": _as_list(skill_gap_simulation.get("warnings")),
+            },
             "decisionLabel": matching.get("decisionLabel") or "INSUFFICIENT_DATA",
             "confidence": matching.get("confidence") or "LOW",
             "readinessLevel": readiness,

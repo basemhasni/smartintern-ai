@@ -19,6 +19,7 @@ from app.orchestration.quality_control_v2 import run_global_quality_control
 from app.rag.grounded_answer_service_v2 import generate_grounded_answer
 from app.services.career_assistant_v2_service import generate_career_advice_v2
 from app.services.motivation_letter_v2_service import generate_motivation_letter_v2
+from app.services.skill_gap_simulator_service import simulate_skill_gap_impact
 
 
 def _as_dict(value: Any) -> dict:
@@ -99,6 +100,8 @@ class OrchestratorV2:
             self._run_offer_analysis(context, item)
         elif step == "MATCH_V3":
             self._run_matching(context, item)
+        elif step == "SKILL_GAP_SIMULATOR":
+            self._run_skill_gap_simulation(context, item)
         elif step == "RAG_V2":
             self._run_rag(context, item)
         elif step == "CAREER_ASSISTANT_V2":
@@ -117,6 +120,9 @@ class OrchestratorV2:
 
         text = _clean(context.input.get("cvText") or context.input.get("candidateText") or context.input.get("text"))
         if not text:
+            if _as_dict(context.input.get("matchingResult")) or _as_dict(context.input.get("matching")):
+                context.add_step("CV_ANALYSIS", "SKIPPED", False, [])
+                return
             warning = "Aucun texte CV fourni; l'analyse CV n'a pas ete relancee."
             if item.get("required"):
                 raise ValueError("cvText or cvAnalysis is required")
@@ -140,6 +146,9 @@ class OrchestratorV2:
         optional = _as_list(offer.get("optionalSkills") or context.input.get("optionalSkills"))
 
         if not title and not description and not required:
+            if _as_dict(context.input.get("matchingResult")) or _as_dict(context.input.get("matching")):
+                context.add_step("OFFER_ANALYSIS", "SKIPPED", False, [])
+                return
             warning = "Aucune offre assez detaillee fournie; l'analyse offre n'a pas ete relancee."
             if item.get("required"):
                 raise ValueError("offer, offerText or offerAnalysis is required")
@@ -202,6 +211,33 @@ class OrchestratorV2:
             }
         )
         context.add_step("MATCH_V3", "SUCCESS", False, [])
+
+    def _run_skill_gap_simulation(self, context: OrchestrationContext, item: dict[str, Any]) -> None:
+        provided = _as_dict(context.input.get("skillGapSimulation"))
+        if provided and item.get("canUseCache", True):
+            context.skillGapSimulation = provided
+            context.add_step("SKILL_GAP_SIMULATOR", "SUCCESS", True, [])
+            return
+        if not context.matchingResult:
+            raise ValueError("matchingResult is required for Skill Gap Simulator")
+        options = _as_dict(context.input.get("options"))
+        context.skillGapSimulation = simulate_skill_gap_impact(
+            context.matchingResult,
+            _as_list(context.input.get("selectedSkills")),
+            {
+                "maxCombinations": options.get("maxCombinations", 3),
+                "includeProjects": options.get("includeProjects", True),
+                "includeDecisionTrace": options.get("includeDecisionTrace", True),
+                "simulationMode": options.get("simulationMode", "REALISTIC"),
+                "forceMode": options.get("forceSimulationMode", False),
+            },
+        )
+        context.add_step(
+            "SKILL_GAP_SIMULATOR",
+            "SUCCESS",
+            False,
+            _as_list(context.skillGapSimulation.get("warnings")),
+        )
 
     def _rag_documents(self, context: OrchestrationContext) -> list[dict[str, Any]]:
         docs = _as_list(context.input.get("ragContextDocuments"))
@@ -287,6 +323,7 @@ class OrchestratorV2:
                 "matching": context.matchingResult,
                 "question": context.input.get("question"),
                 "ragContextDocuments": docs,
+                "skillGapSimulation": context.skillGapSimulation,
             }
         )
         context.add_step("CAREER_ASSISTANT_V2", "SUCCESS", False, _as_list(_as_dict(context.careerAdvice.get("v2")).get("warnings")))
@@ -325,7 +362,11 @@ class OrchestratorV2:
         ]
         if required_failures:
             return "FAILED"
-        if any(step.get("status") in {"FAILED", "SKIPPED"} for step in context.stepResults if step.get("name") != "QUALITY_CONTROL"):
+        if any(
+            step.get("status") == "FAILED" or (step.get("status") == "SKIPPED" and step.get("warnings"))
+            for step in context.stepResults
+            if step.get("name") != "QUALITY_CONTROL"
+        ):
             return "PARTIAL_SUCCESS"
         if quality.get("warnings"):
             return "PARTIAL_SUCCESS"
@@ -334,6 +375,11 @@ class OrchestratorV2:
     def _summary(self, context: OrchestrationContext, status: str) -> str:
         if context.intent == "MATCH" and context.matchingResult:
             return f"Matching V3 calcule avec un score de {context.matchingResult.get('score')}/100 et une confiance {context.matchingResult.get('confidence', 'LOW')}."
+        if context.intent == "SKILL_GAP_SIMULATION" and context.skillGapSimulation:
+            return (
+                f"Simulation terminee: score actuel {context.skillGapSimulation.get('currentScore')}/100, "
+                f"potentiel estime {context.skillGapSimulation.get('potentialBestScore')}/100."
+            )
         if context.intent == "CAREER_ADVICE" and context.careerAdvice:
             readiness = _as_dict(context.careerAdvice.get("v2")).get("readinessLevel")
             return f"Conseil carriere V2 genere avec un niveau de preparation {readiness or 'UNKNOWN'}."
@@ -361,6 +407,7 @@ class OrchestratorV2:
                 "cvAnalysis": context.cvAnalysis,
                 "offerAnalysis": context.offerAnalysis,
                 "matching": context.matchingResult,
+                "skillGapSimulation": context.skillGapSimulation,
                 "rag": {
                     "used": bool(context.ragContext.get("used")),
                     "retrievedContextCount": context.ragContext.get("retrievedContextCount", 0),
@@ -385,6 +432,14 @@ class OrchestratorV2:
             direct = _as_dict(context.careerAdvice.get("v2")).get("directAnswer")
             final = context.careerAdvice.get("finalAdvice")
             return [item for item in [direct, final] if item][:2]
+        if context.skillGapSimulation:
+            return [
+                context.skillGapSimulation.get("summary"),
+                *[
+                    f"Prioriser {item.get('skill')}: gain estime {item.get('expectedGain')} point(s)."
+                    for item in _as_list(context.skillGapSimulation.get("recommendedPath"))[:2]
+                ],
+            ][:3]
         if context.matchingResult:
             return _as_list(context.matchingResult.get("recommendations"))[:3]
         return []
@@ -405,6 +460,7 @@ class OrchestratorV2:
             "qualityControl": quality,
             "recommendations": [
                 "Precisez intent=MATCH pour calculer un score.",
+                "Precisez intent=SKILL_GAP_SIMULATION pour estimer l'impact de competences a renforcer.",
                 "Precisez intent=CAREER_ADVICE pour obtenir un plan d'action.",
                 "Precisez intent=FULL_APPLICATION_ASSISTANCE pour coordonner matching, conseils et lettre.",
             ],

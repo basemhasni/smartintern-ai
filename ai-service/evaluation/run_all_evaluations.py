@@ -11,6 +11,7 @@ from evaluation.evaluators.letter_evaluator import evaluate_letter_cases
 from evaluation.evaluators.matching_evaluator import evaluate_matching_cases
 from evaluation.evaluators.orchestrator_evaluator import evaluate_orchestrator_cases
 from evaluation.evaluators.rag_evaluator import evaluate_rag_cases
+from evaluation.evaluators.skill_gap_simulator_evaluator import evaluate_skill_gap_simulator_cases
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +43,7 @@ def _global_summary(summaries: list[dict[str, Any]]) -> dict[str, Any]:
         "ragCitationRate": next((summary.get("citationRate") for summary in summaries if summary.get("suite") == "RAG V2"), 0),
         "orchestratorSuccessRate": next((summary.get("successRate") for summary in summaries if summary.get("suite") == "Orchestrator V2"), 0),
         "explainabilityPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Explainability"), 0),
+        "skillGapSimulatorPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Skill Gap Simulator"), 0),
     }
 
 
@@ -70,6 +72,7 @@ def _markdown(report: dict[str, Any]) -> str:
             f"- RAG citation rate: `{report['global']['ragCitationRate']}`",
             f"- Orchestrator success rate: `{report['global']['orchestratorSuccessRate']}`",
             f"- Explainability pass rate: `{report['global']['explainabilityPassRate']}`",
+            f"- Skill Gap Simulator pass rate: `{report['global']['skillGapSimulatorPassRate']}`",
             "",
             "## Failures And Warnings",
             "",
@@ -97,6 +100,7 @@ def run_all_evaluations(write_reports: bool = True, rag_mode: str = "mock") -> d
         evaluate_rag_cases(mode=rag_mode),
         evaluate_orchestrator_cases(),
         evaluate_explainability_cases(),
+        evaluate_skill_gap_simulator_cases(),
     ]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report = {

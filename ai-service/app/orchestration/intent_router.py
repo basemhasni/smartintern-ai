@@ -11,6 +11,7 @@ SUPPORTED_INTENTS = {
     "ANALYZE_CV",
     "ANALYZE_OFFER",
     "MATCH",
+    "SKILL_GAP_SIMULATION",
     "CAREER_ADVICE",
     "GENERATE_LETTER",
     "FULL_APPLICATION_ASSISTANCE",
@@ -28,6 +29,9 @@ INTENT_ALIASES = {
     "analyse_offer": "ANALYZE_OFFER",
     "match": "MATCH",
     "matching": "MATCH",
+    "skill_gap_simulation": "SKILL_GAP_SIMULATION",
+    "skill_gap_simulator": "SKILL_GAP_SIMULATION",
+    "gap_simulation": "SKILL_GAP_SIMULATION",
     "career_advice": "CAREER_ADVICE",
     "career": "CAREER_ADVICE",
     "generate_letter": "GENERATE_LETTER",
@@ -63,6 +67,20 @@ def detect_intent_from_question(question: str | None) -> str:
     normalized = normalize_text(question or "")
     if not normalized:
         return "UNKNOWN"
+    if any(
+        token in normalized
+        for token in (
+            "si j apprends",
+            "impact",
+            "ameliorer mon score",
+            "competence a ajouter",
+            "skill gap",
+            "simulateur",
+            "simulation",
+            "score potentiel",
+        )
+    ):
+        return "SKILL_GAP_SIMULATION"
     if any(token in normalized for token in ("lettre", "motivation", "candidature ecrite")):
         return "GENERATE_LETTER"
     if any(token in normalized for token in ("postuler", "dossier", "aide moi pour cette offre", "preparer ma candidature")):
@@ -93,6 +111,7 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
     include_career = _bool_option(opts, "includeCareerAdvice", True)
     include_letter = _bool_option(opts, "includeMotivationLetter", True)
     include_rag = _bool_option(opts, "includeRag", True)
+    include_skill_gap = _bool_option(opts, "includeSkillGapSimulation", False)
 
     plan: list[dict[str, Any]] = []
 
@@ -108,6 +127,11 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
         add("ANALYZE_CV", False)
         add("ANALYZE_OFFER", False)
         add("MATCH_V3", True)
+    elif intent == "SKILL_GAP_SIMULATION":
+        add("ANALYZE_CV", False)
+        add("ANALYZE_OFFER", False)
+        add("MATCH_V3", True)
+        add("SKILL_GAP_SIMULATOR", True)
     elif intent == "CAREER_ADVICE":
         if include_matching:
             add("ANALYZE_CV", False)
@@ -131,6 +155,8 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
         add("ANALYZE_OFFER", True)
         if include_matching:
             add("MATCH_V3", True)
+        if include_skill_gap:
+            add("SKILL_GAP_SIMULATOR", False)
         if include_rag:
             add("RAG_V2", False)
         if include_career:

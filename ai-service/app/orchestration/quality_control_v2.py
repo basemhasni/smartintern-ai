@@ -29,6 +29,7 @@ def run_global_quality_control(context) -> dict[str, Any]:
     warnings: list[str] = []
     blocking: list[str] = []
     matching = _as_dict(context.matchingResult)
+    simulation = _as_dict(context.skillGapSimulation)
     career = _as_dict(context.careerAdvice)
     letter = _as_dict(context.motivationLetter)
     rag = _as_dict(context.ragContext)
@@ -56,7 +57,21 @@ def run_global_quality_control(context) -> dict[str, Any]:
         if _as_list(v3.get("criticalMissingSkills")) and int(matching.get("score") or 0) > 72:
             checks.append(_check("CRITICAL_MISSING_CAP", False, "BLOCKING", "Une competence critique manquante doit plafonner le score."))
     else:
-        checks.append(_check("MATCHING_AVAILABLE", context.intent not in {"MATCH", "FULL_APPLICATION_ASSISTANCE", "CAREER_ADVICE", "GENERATE_LETTER"}, "WARNING", "Aucun matching disponible."))
+        checks.append(_check("MATCHING_AVAILABLE", context.intent not in {"MATCH", "SKILL_GAP_SIMULATION", "FULL_APPLICATION_ASSISTANCE", "CAREER_ADVICE", "GENERATE_LETTER"}, "WARNING", "Aucun matching disponible."))
+
+    if simulation:
+        current = simulation.get("currentScore")
+        potential = simulation.get("potentialBestScore")
+        gain = simulation.get("scoreGain")
+        gaps = _as_list(simulation.get("highImpactGaps"))
+        path = _as_list(simulation.get("recommendedPath"))
+        required_missing = _as_list(_as_dict(matching.get("v3")).get("missingRequiredSkills"))
+        checks.append(_check("SIMULATION_CURRENT_SCORE_BOUNDS", isinstance(current, int) and 0 <= current <= 100, "BLOCKING", "Le score actuel simule doit etre entre 0 et 100."))
+        checks.append(_check("SIMULATION_POTENTIAL_SCORE_BOUNDS", isinstance(potential, int) and 0 <= potential <= 100, "BLOCKING", "Le score potentiel doit etre entre 0 et 100."))
+        checks.append(_check("SIMULATION_NON_NEGATIVE_GAIN", isinstance(gain, int) and gain >= 0 and potential >= current, "BLOCKING", "La simulation ne doit pas produire un gain negatif."))
+        checks.append(_check("SIMULATION_HIGH_IMPACT_GAPS", not required_missing or bool(gaps), "WARNING", "Les gaps obligatoires doivent produire des priorites de simulation."))
+        checks.append(_check("SIMULATION_RECOMMENDED_PATH", not gaps or bool(path), "WARNING", "Le chemin recommande doit suivre les gaps prioritaires."))
+        checks.append(_check("SIMULATION_NO_STRONG_PRIORITY", not any(str(_as_dict(gap).get("currentEvidenceLevel") or "").upper() == "STRONG" for gap in gaps), "WARNING", "Une competence deja fortement prouvee ne doit pas etre priorisee."))
 
     if career:
         v2 = _as_dict(career.get("v2"))

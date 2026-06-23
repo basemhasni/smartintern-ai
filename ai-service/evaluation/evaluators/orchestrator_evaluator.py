@@ -38,6 +38,8 @@ def evaluate_orchestrator_cases(cases_path: Path | None = None) -> dict:
             checks.append(check_result("matching_present", bool(result.get("results", {}).get("matching")), "matching result expected"))
         if expected.get("needsCareerAdvice"):
             checks.append(check_result("career_present", bool(result.get("results", {}).get("careerAdvice")), "career advice expected"))
+        if expected.get("needsSkillGapSimulation"):
+            checks.append(check_result("skill_gap_simulation_present", bool(result.get("results", {}).get("skillGapSimulation")), "skill gap simulation expected"))
         if expected.get("needsLetter"):
             checks.append(check_result("letter_present", bool(result.get("results", {}).get("motivationLetter")), "motivation letter expected"))
         if expected.get("lowConfidence"):

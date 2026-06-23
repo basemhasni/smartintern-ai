@@ -11,6 +11,7 @@ from app.api import (
     offer_routes,
     orchestrator_routes,
     rag_routes,
+    skill_gap_routes,
     workflow_routes,
 )
 from app.core.config import settings
@@ -29,6 +30,7 @@ app.include_router(career_routes.router)
 app.include_router(orchestrator_routes.router)
 app.include_router(workflow_routes.router)
 app.include_router(rag_routes.router)
+app.include_router(skill_gap_routes.router)
 
 
 @app.exception_handler(RequestValidationError)

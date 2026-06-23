@@ -16,6 +16,7 @@ class OrchestrationContext:
     cvAnalysis: dict[str, Any] = field(default_factory=dict)
     offerAnalysis: dict[str, Any] = field(default_factory=dict)
     matchingResult: dict[str, Any] = field(default_factory=dict)
+    skillGapSimulation: dict[str, Any] = field(default_factory=dict)
     ragContext: dict[str, Any] = field(default_factory=dict)
     careerAdvice: dict[str, Any] = field(default_factory=dict)
     motivationLetter: dict[str, Any] = field(default_factory=dict)

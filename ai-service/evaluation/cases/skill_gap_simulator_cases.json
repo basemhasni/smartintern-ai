@@ -1,0 +1,141 @@
+[
+  {
+    "id": "docker_required_missing",
+    "description": "Docker is required while the rest of the fullstack profile is well documented.",
+    "cvText": "Developpeur fullstack junior. Projet de gestion de stages developpe avec React, Node.js, PostgreSQL et API REST. J'ai cree les interfaces, les filtres, le backend Express et les migrations. Le projet est versionne avec Git, teste avec Postman et documente dans un README detaille.",
+    "offer": {
+      "title": "Stage developpeur fullstack React Node.js",
+      "description": "Developpement React, Node.js, PostgreSQL et API REST. Docker est obligatoire pour preparer l'environnement.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API", "Docker"],
+      "optionalSkills": ["CI/CD", "AWS"]
+    },
+    "expected": {
+      "topSkill": "Docker",
+      "priority": "HIGH",
+      "singleGainMin": 5,
+      "singleGainMax": 12,
+      "projectContains": "Docker"
+    }
+  },
+  {
+    "id": "docker_optional_missing",
+    "description": "An optional Docker gap should have a modest impact.",
+    "cvText": "Projet fullstack universitaire realise avec React, Node.js, PostgreSQL et API REST. Les interfaces, routes backend, migrations et tests API sont decrits dans le depot Git avec plusieurs captures.",
+    "offer": {
+      "title": "Stage fullstack React Node.js",
+      "description": "React, Node.js, PostgreSQL et REST API requis. Docker est apprecie.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker"]
+    },
+    "expected": {
+      "topSkill": "Docker",
+      "priority": "LOW",
+      "singleGainMin": 1,
+      "singleGainMax": 5,
+      "potentialMax": 95
+    }
+  },
+  {
+    "id": "react_critical_missing",
+    "description": "React is critical in the title and missing from an Angular profile.",
+    "cvText": "Developpeur frontend junior. Projet dashboard realise avec Angular et TypeScript, consommation d'une API REST, formulaires, filtres, tests avec Postman et documentation complete du projet.",
+    "offer": {
+      "title": "Stage developpeur React",
+      "description": "Creation d'interfaces React en TypeScript avec integration API REST.",
+      "requiredSkills": ["React", "TypeScript", "REST API"],
+      "optionalSkills": ["Docker"]
+    },
+    "expected": {
+      "topSkill": "React",
+      "priority": "HIGH",
+      "gapType": "CRITICAL",
+      "singleGainMin": 8,
+      "potentialMax": 95,
+      "notEquivalentSkill": "Angular"
+    }
+  },
+  {
+    "id": "cicd_weak_evidence",
+    "description": "CI/CD is mentioned as learning and needs a project proof.",
+    "cvText": "Developpeur backend junior. API Node.js et PostgreSQL dockerisee dans un projet universitaire. Git est utilise pour le versionnement. CI/CD est actuellement une notion en cours d'apprentissage, sans pipeline realise.",
+    "offer": {
+      "title": "Stage backend Node.js",
+      "description": "Node.js, PostgreSQL, Docker et CI/CD sont demandes.",
+      "requiredSkills": ["Node.js", "PostgreSQL", "Docker", "CI/CD"],
+      "optionalSkills": []
+    },
+    "expected": {
+      "topSkillsInclude": ["CI/CD"],
+      "allowedGapTypes": ["WEAK_EVIDENCE", "PARTIAL", "REQUIRED"],
+      "singleGainMin": 1,
+      "projectContains": "CI/CD"
+    }
+  },
+  {
+    "id": "already_strong_profile",
+    "description": "A strongly aligned profile should have little remaining potential.",
+    "cvText": "Developpeur fullstack junior. Projet e-commerce realise avec React, Node.js, PostgreSQL et API REST. Pour ce projet, j'ai cree un environnement Docker Compose complet et un pipeline CI/CD GitHub Actions qui execute les tests et le build. Le depot contient le Dockerfile, le workflow et une documentation detaillee.",
+    "offer": {
+      "title": "Stage fullstack React Node.js",
+      "description": "React, Node.js, PostgreSQL et API REST requis. Docker et CI/CD apprecies.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "CI/CD"]
+    },
+    "expected": {
+      "scoreGainMax": 3,
+      "notPrioritySkills": ["React", "Node.js", "PostgreSQL"],
+      "potentialMax": 95
+    }
+  },
+  {
+    "id": "poor_cv_cap",
+    "description": "A poor CV keeps the conservative quality cap.",
+    "cvText": "Etudiant motive en informatique.",
+    "offer": {
+      "title": "Stage fullstack React Node.js",
+      "description": "React, Node.js, PostgreSQL, REST API et Docker requis.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API", "Docker"],
+      "optionalSkills": ["CI/CD"]
+    },
+    "expected": {
+      "simulationMode": "CONSERVATIVE",
+      "potentialMax": 60,
+      "requiresCap": 60
+    }
+  },
+  {
+    "id": "multiple_required_gaps",
+    "description": "Combining two required skills should outperform either single simulation.",
+    "cvText": "Developpeur frontend junior. Projet React et TypeScript connecte a une API REST. Les composants, formulaires, filtres et tests principaux sont documentes avec Git.",
+    "offer": {
+      "title": "Stage fullstack React Node.js",
+      "description": "React, TypeScript, Node.js, PostgreSQL et Docker requis.",
+      "requiredSkills": ["React", "TypeScript", "Node.js", "PostgreSQL", "Docker"],
+      "optionalSkills": ["CI/CD"]
+    },
+    "expected": {
+      "topSkillsInclude": ["Node.js", "PostgreSQL", "Docker"],
+      "combinationGainPositive": true,
+      "combinationBeatsSingle": true,
+      "potentialMax": 95
+    }
+  },
+  {
+    "id": "angular_present_react_missing",
+    "description": "Angular remains related evidence and must not be treated as React mastery.",
+    "cvText": "Projet frontend realise avec Angular et TypeScript. Mise en place des composants, formulaires, routage, integration API REST et tests d'interface. Le depot documente uniquement cette stack Angular.",
+    "offer": {
+      "title": "Stage frontend React",
+      "description": "React et TypeScript sont requis pour construire les interfaces.",
+      "requiredSkills": ["React", "TypeScript"],
+      "optionalSkills": ["Docker"]
+    },
+    "expected": {
+      "topSkill": "React",
+      "gapType": "CRITICAL",
+      "notEquivalentSkill": "Angular",
+      "singleGainMin": 5,
+      "potentialMax": 95
+    }
+  }
+]

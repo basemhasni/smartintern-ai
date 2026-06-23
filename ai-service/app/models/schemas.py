@@ -83,6 +83,31 @@ class MatchingResponse(BaseModel):
     explainability: Dict[str, Any] = {}
 
 
+class SkillGapSimulationRequest(BaseModel):
+    matchingResult: Dict[str, Any]
+    selectedSkills: List[str] = []
+    options: Dict[str, Any] = {}
+
+
+class SkillGapSimulationResponse(BaseModel):
+    currentScore: int
+    currentDecisionLabel: str
+    potentialBestScore: int
+    potentialDecisionLabel: str
+    scoreGain: int
+    simulationMode: str
+    highImpactGaps: List[Dict[str, Any]] = []
+    singleSkillSimulations: List[Dict[str, Any]] = []
+    combinationSimulations: List[Dict[str, Any]] = []
+    recommendedPath: List[Dict[str, Any]] = []
+    recommendedProjects: List[Dict[str, Any]] = []
+    scoreCapsApplied: List[Dict[str, Any]] = []
+    decisionTrace: List[Dict[str, Any]] = []
+    summary: str
+    warnings: List[str] = []
+    assumptions: List[str] = []
+
+
 class MatchingWorkflowRequest(BaseModel):
     candidateSkills: List[str]
     requiredSkills: List[str]
@@ -252,6 +277,7 @@ class OrchestratorV2Request(BaseModel):
     ragContextDocuments: List[Dict[str, Any]] = []
     contexts: List[Dict[str, Any]] = []
     applicationMessage: Optional[str] = None
+    selectedSkills: List[str] = []
     options: Dict[str, Any] = {}
 
 

@@ -1533,7 +1533,7 @@ Commande principale :
 python scripts/evaluate_ai_suite.py
 ```
 
-La commande lance les six evaluateurs :
+La commande lance les sept evaluateurs :
 
 1. `matching_evaluator.py`
 2. `career_evaluator.py`
@@ -1541,6 +1541,7 @@ La commande lance les six evaluateurs :
 4. `rag_evaluator.py`
 5. `orchestrator_evaluator.py`
 6. `explainability_evaluator.py`
+7. `skill_gap_simulator_evaluator.py`
 
 Elle genere automatiquement :
 
@@ -1643,11 +1644,81 @@ Motivation Letter V2: 10/10 PASS
 RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
 Explainability: 8/8 PASS
-Global: 57/57 PASS
+Skill Gap Simulator: 8/8 PASS
+Global: 66/66 PASS
 Status: PASS
 ```
 
 Aucune correction service n est necessaire tant que ce baseline reste sans `FAIL` ni `WARNING`.
+
+## Skill Gap Simulator
+
+`POST /ai/skill-gap-simulator` estime comment une competence ou une combinaison
+de competences pourrait faire evoluer un matching deja calcule.
+
+Le simulateur reutilise :
+
+- `v3.coverageMatrix` et `v3.scoreBreakdown` ;
+- les gaps critiques, obligatoires et optionnels ;
+- les correspondances partielles ;
+- `explainability.skillEvidenceMap` ;
+- la confiance et la qualite du CV.
+
+Il ne modifie pas Matching V3 et ne pretend pas recalculer un futur profil
+complet. Il projette une couverture avec preuve `PROJECT` puis reapplique les
+plafonds de Matching V3.
+
+### Payload
+
+```json
+{
+  "matchingResult": {},
+  "selectedSkills": ["Docker", "CI/CD"],
+  "options": {
+    "maxCombinations": 3,
+    "includeProjects": true,
+    "includeDecisionTrace": true,
+    "simulationMode": "REALISTIC"
+  }
+}
+```
+
+Modes :
+
+- `CONSERVATIVE` : gains limites; recommande si la confiance est faible.
+- `REALISTIC` : hypothese prudente avec une preuve projet reelle.
+- `OPTIMISTIC` : preuve forte et bien documentee, sans depasser les plafonds.
+
+La reponse expose `highImpactGaps`, les simulations unitaires et combinees,
+`recommendedPath`, `recommendedProjects`, `scoreCapsApplied` et une trace de
+decision. Le score potentiel ne depasse jamais 95.
+
+Plafonds reappliques :
+
+- 72 si une competence critique reste manquante ;
+- 55 si plus de la moitie des exigences restent manquantes ;
+- 35 si aucune exigence n est couverte ;
+- 60 si le CV reste pauvre.
+
+Career Assistant V2 expose une synthese dans
+`v2.skillGapSimulation`. Orchestrator V2 accepte
+`SKILL_GAP_SIMULATION`; `FULL_APPLICATION_ASSISTANCE` peut l activer avec
+`options.includeSkillGapSimulation=true`.
+
+### Exemple direct
+
+```bash
+curl -X POST http://localhost:8000/ai/skill-gap-simulator \
+  -H "Content-Type: application/json" \
+  -d '{"matchingResult":{"score":64,"confidence":"MEDIUM","decisionLabel":"PARTIAL_MATCH","missingSkills":["Docker"],"v3":{"missingRequiredSkills":["Docker"],"coverageMatrix":[{"requirement":"Docker","importance":"REQUIRED","category":"DevOps / Cloud","coverage":0,"evidence":[],"evidenceType":"NONE"}],"scoreBreakdown":{"rawTotal":64,"cvQuality":1.3}},"explainability":{"skillEvidenceMap":{"Docker":{"evidenceLevel":"MISSING"}}}},"selectedSkills":["Docker"],"options":{"simulationMode":"REALISTIC"}}'
+```
+
+### Important Limitation
+
+Le score est une estimation, pas une garantie. Apprendre une competence ne
+change pas automatiquement le matching : une utilisation reelle et une preuve
+verifiable dans le CV ou le portfolio sont necessaires. Une nouvelle analyse
+complete peut aussi changer la confiance, le domaine et la qualite des preuves.
 
 ### Limites
 

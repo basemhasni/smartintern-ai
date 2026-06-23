@@ -12,6 +12,7 @@ evaluation/
     motivation_letter_cases.json
     rag_cases.json
     orchestrator_cases.json
+    skill_gap_simulator_cases.json
   evaluators/
     quality_metrics.py
     matching_evaluator.py
@@ -20,6 +21,7 @@ evaluation/
     rag_evaluator.py
     orchestrator_evaluator.py
     explainability_evaluator.py
+    skill_gap_simulator_evaluator.py
   expected/
     README.md
   reports/
@@ -37,6 +39,7 @@ python scripts/evaluate_motivation_letter_v2.py
 python scripts/evaluate_rag_v2.py --mode mock
 python scripts/evaluate_orchestrator_v2.py
 python scripts/evaluate_explainability.py
+python scripts/evaluate_skill_gap_simulator.py
 python -m unittest discover -s tests -v
 ```
 
@@ -73,7 +76,8 @@ Motivation Letter V2: 10/10 PASS
 RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
 Explainability: 8/8 PASS
-Global: 57/57 PASS
+Skill Gap Simulator: 8/8 PASS
+Global: 66/66 PASS
 Status: PASS
 ```
 
@@ -107,6 +111,21 @@ Examples:
 - Docker mentioned only as learning should stay `WEAK`;
 - an absent required skill should stay `MISSING`;
 - realistic frontend, mobile, QA, DevOps, and Data / AI cases should produce coherent domain signals.
+
+## Skill Gap Simulator Cases
+
+`skill_gap_simulator_cases.json` couvre huit comportements :
+
+- Docker obligatoire ou optionnel ;
+- React critique manquant avec Angular present ;
+- CI/CD avec preuve faible ;
+- profil deja fortement aligne ;
+- CV pauvre et plafond de qualite ;
+- combinaison de plusieurs gaps obligatoires.
+
+L evaluateur verifie les gains positifs, la priorite des gaps, les plafonds,
+les projets proposes, le chemin recommande, l absence de priorite sur une
+competence deja forte et la limite generale de 95.
 
 ## Status
 
