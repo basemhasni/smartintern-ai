@@ -1,0 +1,4608 @@
+{
+  "generatedAt": "2026-06-23T19:36:08",
+  "global": {
+    "totalCases": 49,
+    "pass": 49,
+    "warning": 0,
+    "fail": 0,
+    "status": "PASS",
+    "matchingAverageScore": 49.73,
+    "letterQualityChecksRate": 1.0,
+    "careerReadinessCoherenceRate": 1.0,
+    "ragCitationRate": 0.88,
+    "orchestratorSuccessRate": 0.88
+  },
+  "suites": [
+    {
+      "suite": "Matching V3",
+      "total": 15,
+      "pass": 15,
+      "warning": 0,
+      "fail": 0,
+      "averageScore": 49.73,
+      "results": [
+        {
+          "id": "fullstack_react_node_good_match",
+          "description": "Fullstack React Node PostgreSQL vs offre fullstack React Node",
+          "severity": "PASS",
+          "passed": true,
+          "score": 90,
+          "decisionLabel": "STRONG_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "React",
+            "Node.js",
+            "PostgreSQL",
+            "REST API"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=90.0 expected=78-94",
+              "details": {
+                "actual": 90.0,
+                "min": 78,
+                "max": 94
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=STRONG_MATCH expected=['STRONG_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postgresql",
+                  "react",
+                  "node js",
+                  "rest api"
+                ],
+                "actual": [
+                  "postgresql",
+                  "react",
+                  "node js",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "frontend_react_typescript",
+          "description": "Frontend React TypeScript vs offre frontend React",
+          "severity": "PASS",
+          "passed": true,
+          "score": 90,
+          "decisionLabel": "STRONG_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "React",
+            "TypeScript",
+            "JavaScript",
+            "HTML",
+            "CSS"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=90.0 expected=74-92",
+              "details": {
+                "actual": 90.0,
+                "min": 74,
+                "max": 92
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=STRONG_MATCH expected=['STRONG_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "typescript",
+                  "react",
+                  "javascript"
+                ],
+                "actual": [
+                  "typescript",
+                  "javascript",
+                  "html",
+                  "react",
+                  "css"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "java_spring_vs_react_node",
+          "description": "Java Spring MySQL vs offre React Node",
+          "severity": "PASS",
+          "passed": true,
+          "score": 27,
+          "decisionLabel": "VERY_LOW_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [],
+          "missingRequiredSkills": [
+            "React",
+            "Node.js",
+            "PostgreSQL",
+            "REST API"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=27.0 expected=15-55",
+              "details": {
+                "actual": 27.0,
+                "min": 15,
+                "max": 55
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=VERY_LOW_MATCH expected=['VERY_LOW_MATCH', 'LOW_MATCH', 'PARTIAL_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "react",
+                  "node js"
+                ],
+                "actual": [
+                  "postgresql",
+                  "react",
+                  "node js",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "react",
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "qa_postman_selenium",
+          "description": "QA Postman Selenium vs offre QA",
+          "severity": "PASS",
+          "passed": true,
+          "score": 85,
+          "decisionLabel": "STRONG_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "Postman",
+            "Selenium",
+            "Integration Testing"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=85.0 expected=72-94",
+              "details": {
+                "actual": 85.0,
+                "min": 72,
+                "max": 94
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=STRONG_MATCH expected=['STRONG_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postman",
+                  "selenium"
+                ],
+                "actual": [
+                  "integration testing",
+                  "postman",
+                  "selenium"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "devops_docker_kubernetes",
+          "description": "DevOps Docker Kubernetes Jenkins vs offre DevOps",
+          "severity": "PASS",
+          "passed": true,
+          "score": 90,
+          "decisionLabel": "STRONG_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "Docker",
+            "Kubernetes",
+            "Linux"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=90.0 expected=72-94",
+              "details": {
+                "actual": 90.0,
+                "min": 72,
+                "max": 94
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=STRONG_MATCH expected=['STRONG_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "linux",
+                  "docker",
+                  "kubernetes"
+                ],
+                "actual": [
+                  "linux",
+                  "docker",
+                  "kubernetes"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "poor_cv_complete_offer",
+          "description": "CV pauvre vs offre complete",
+          "severity": "PASS",
+          "passed": true,
+          "score": 2,
+          "decisionLabel": "VERY_LOW_MATCH",
+          "confidence": "LOW",
+          "matchedSkills": [],
+          "missingRequiredSkills": [
+            "React",
+            "Node.js",
+            "PostgreSQL",
+            "REST API"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=2.0 expected=0-45",
+              "details": {
+                "actual": 2.0,
+                "min": 0,
+                "max": 45
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=VERY_LOW_MATCH expected=['VERY_LOW_MATCH', 'LOW_MATCH', 'INSUFFICIENT_DATA']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "react",
+                  "node js"
+                ],
+                "actual": [
+                  "postgresql",
+                  "react",
+                  "node js",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "react",
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            },
+            {
+              "name": "confidence",
+              "passed": true,
+              "severity": "PASS",
+              "message": "confidence=LOW expected=LOW",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "poor_offer_rich_cv",
+          "description": "Offre pauvre vs CV riche",
+          "severity": "PASS",
+          "passed": true,
+          "score": 0,
+          "decisionLabel": "INSUFFICIENT_DATA",
+          "confidence": "LOW",
+          "matchedSkills": [],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=0.0 expected=0-10",
+              "details": {
+                "actual": 0.0,
+                "min": 0,
+                "max": 10
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=INSUFFICIENT_DATA expected=['INSUFFICIENT_DATA']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            },
+            {
+              "name": "confidence",
+              "passed": true,
+              "severity": "PASS",
+              "message": "confidence=LOW expected=LOW",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "docker_only_vs_fullstack",
+          "description": "Docker only vs offre fullstack React Node",
+          "severity": "PASS",
+          "passed": true,
+          "score": 15,
+          "decisionLabel": "VERY_LOW_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [],
+          "missingRequiredSkills": [
+            "React",
+            "Node.js",
+            "PostgreSQL"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=15.0 expected=0-40",
+              "details": {
+                "actual": 15.0,
+                "min": 0,
+                "max": 40
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=VERY_LOW_MATCH expected=['VERY_LOW_MATCH', 'LOW_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postgresql",
+                  "react",
+                  "node js"
+                ],
+                "actual": [
+                  "postgresql",
+                  "react",
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "react",
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "angular_typescript_vs_react_typescript",
+          "description": "Angular TypeScript vs offre React TypeScript",
+          "severity": "PASS",
+          "passed": true,
+          "score": 72,
+          "decisionLabel": "GOOD_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "TypeScript",
+            "HTML",
+            "CSS"
+          ],
+          "missingRequiredSkills": [
+            "React"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=72.0 expected=45-78",
+              "details": {
+                "actual": 72.0,
+                "min": 45,
+                "max": 78
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=GOOD_MATCH expected=['PARTIAL_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "typescript"
+                ],
+                "actual": [
+                  "typescript",
+                  "html",
+                  "css"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "react"
+                ],
+                "actual": [
+                  "react"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "react"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "python_fastapi_vs_node_backend",
+          "description": "Python FastAPI PostgreSQL vs offre backend Node PostgreSQL",
+          "severity": "PASS",
+          "passed": true,
+          "score": 44,
+          "decisionLabel": "LOW_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "PostgreSQL",
+            "REST API"
+          ],
+          "missingRequiredSkills": [
+            "Node.js"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=44.0 expected=42-76",
+              "details": {
+                "actual": 44.0,
+                "min": 42,
+                "max": 76
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=LOW_MATCH expected=['LOW_MATCH', 'PARTIAL_MATCH', 'GOOD_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postgresql",
+                  "rest api"
+                ],
+                "actual": [
+                  "postgresql",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "node js"
+                ],
+                "actual": [
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "node js"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "flutter_mobile",
+          "description": "Flutter mobile vs offre Flutter",
+          "severity": "PASS",
+          "passed": true,
+          "score": 60,
+          "decisionLabel": "PARTIAL_MATCH",
+          "confidence": "LOW",
+          "matchedSkills": [
+            "Flutter",
+            "Dart",
+            "Android"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=60.0 expected=55-82",
+              "details": {
+                "actual": 60.0,
+                "min": 55,
+                "max": 82
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=PARTIAL_MATCH expected=['PARTIAL_MATCH', 'GOOD_MATCH', 'STRONG_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "dart",
+                  "flutter",
+                  "android"
+                ],
+                "actual": [
+                  "dart",
+                  "flutter",
+                  "android"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "ai_rag_langgraph",
+          "description": "IA/RAG/LangGraph vs offre IA RAG",
+          "severity": "PASS",
+          "passed": true,
+          "score": 60,
+          "decisionLabel": "PARTIAL_MATCH",
+          "confidence": "LOW",
+          "matchedSkills": [
+            "RAG",
+            "LangGraph",
+            "Python",
+            "NLP"
+          ],
+          "missingRequiredSkills": [],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=60.0 expected=55-82",
+              "details": {
+                "actual": 60.0,
+                "min": 55,
+                "max": 82
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=PARTIAL_MATCH expected=['PARTIAL_MATCH', 'GOOD_MATCH', 'STRONG_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "nlp",
+                  "python",
+                  "langgraph",
+                  "rag"
+                ],
+                "actual": [
+                  "nlp",
+                  "python",
+                  "langgraph",
+                  "rag"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "sql_postgresql_only_vs_backend_complete",
+          "description": "SQL PostgreSQL only vs offre backend complete",
+          "severity": "PASS",
+          "passed": true,
+          "score": 55,
+          "decisionLabel": "PARTIAL_MATCH",
+          "confidence": "MEDIUM",
+          "matchedSkills": [
+            "PostgreSQL"
+          ],
+          "missingRequiredSkills": [
+            "Node.js",
+            "REST API"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=55.0 expected=20-58",
+              "details": {
+                "actual": 55.0,
+                "min": 20,
+                "max": 58
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=PARTIAL_MATCH expected=['LOW_MATCH', 'PARTIAL_MATCH', 'VERY_LOW_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postgresql"
+                ],
+                "actual": [
+                  "postgresql"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "node js",
+                  "rest api"
+                ],
+                "actual": [
+                  "node js",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "react_only_vs_fullstack",
+          "description": "React seulement vs offre fullstack React Node PostgreSQL",
+          "severity": "PASS",
+          "passed": true,
+          "score": 44,
+          "decisionLabel": "LOW_MATCH",
+          "confidence": "LOW",
+          "matchedSkills": [
+            "React"
+          ],
+          "missingRequiredSkills": [
+            "Node.js",
+            "PostgreSQL",
+            "REST API"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=44.0 expected=20-60",
+              "details": {
+                "actual": 44.0,
+                "min": 20,
+                "max": 60
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=LOW_MATCH expected=['LOW_MATCH', 'PARTIAL_MATCH']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "react"
+                ],
+                "actual": [
+                  "react"
+                ]
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "postgresql",
+                  "node js"
+                ],
+                "actual": [
+                  "postgresql",
+                  "node js",
+                  "rest api"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": [
+                  "postgresql"
+                ]
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "no_clear_technical_skill",
+          "description": "CV sans competence technique claire",
+          "severity": "PASS",
+          "passed": true,
+          "score": 12,
+          "decisionLabel": "VERY_LOW_MATCH",
+          "confidence": "LOW",
+          "matchedSkills": [],
+          "missingRequiredSkills": [
+            "React",
+            "Node.js",
+            "SQL",
+            "Git"
+          ],
+          "checks": [
+            {
+              "name": "score_in_range",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score=12.0 expected=0-35",
+              "details": {
+                "actual": 12.0,
+                "min": 0,
+                "max": 35
+              }
+            },
+            {
+              "name": "decision_label",
+              "passed": true,
+              "severity": "PASS",
+              "message": "decision=VERY_LOW_MATCH expected=['VERY_LOW_MATCH', 'LOW_MATCH', 'INSUFFICIENT_DATA']",
+              "details": {}
+            },
+            {
+              "name": "matched_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "missing_required_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [
+                  "react",
+                  "node js"
+                ],
+                "actual": [
+                  "git",
+                  "react",
+                  "node js",
+                  "sql"
+                ]
+              }
+            },
+            {
+              "name": "critical_missing_skills",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing expected items: []",
+              "details": {
+                "missing": [],
+                "expected": [],
+                "actual": []
+              }
+            },
+            {
+              "name": "coverage_matrix_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "coverageMatrix expected when required skills exist",
+              "details": {}
+            },
+            {
+              "name": "score_bounds",
+              "passed": true,
+              "severity": "PASS",
+              "message": "score must be 0..100",
+              "details": {}
+            },
+            {
+              "name": "confidence",
+              "passed": true,
+              "severity": "PASS",
+              "message": "confidence=LOW expected=LOW",
+              "details": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Career Assistant V2",
+      "total": 8,
+      "pass": 8,
+      "warning": 0,
+      "fail": 0,
+      "readinessCoherenceRate": 1.0,
+      "results": [
+        {
+          "id": "ready_profile",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "READY",
+          "questionIntent": "FULL_ANALYSIS",
+          "priorityFocus": [],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=READY expected=READY",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_ANALYSIS expected=None",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 23
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "docker_missing",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "ALMOST_READY",
+          "questionIntent": "SKILL_GAPS",
+          "priorityFocus": [
+            "Docker"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=ALMOST_READY expected=ALMOST_READY",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=SKILL_GAPS expected=None",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 23
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            },
+            {
+              "name": "priority_focus",
+              "passed": true,
+              "severity": "PASS",
+              "message": "priority=['Docker'] expected=['Docker']",
+              "details": {}
+            },
+            {
+              "name": "recommended_projects",
+              "passed": true,
+              "severity": "PASS",
+              "message": "projectSkills=['Docker'] expected=['Docker']",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "react_critical_missing",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "NEEDS_MAJOR_WORK",
+          "questionIntent": "READINESS",
+          "priorityFocus": [
+            "React"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=NEEDS_MAJOR_WORK expected=NEEDS_MAJOR_WORK",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=READINESS expected=None",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 22
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            },
+            {
+              "name": "critical_gaps",
+              "passed": true,
+              "severity": "PASS",
+              "message": "critical=['React'] expected=['React']",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "poor_cv",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "INSUFFICIENT_DATA",
+          "questionIntent": "FULL_ANALYSIS",
+          "priorityFocus": [
+            "React"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=INSUFFICIENT_DATA expected=INSUFFICIENT_DATA",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_ANALYSIS expected=None",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 24
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "project_question",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "ALMOST_READY",
+          "questionIntent": "PROJECT_IDEAS",
+          "priorityFocus": [
+            "Docker"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=ALMOST_READY expected=None",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=PROJECT_IDEAS expected=PROJECT_IDEAS",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 26
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            },
+            {
+              "name": "needs_projects",
+              "passed": true,
+              "severity": "PASS",
+              "message": "project-oriented question should return projects",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "cv_question",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "ALMOST_READY",
+          "questionIntent": "CV_IMPROVEMENT",
+          "priorityFocus": [
+            "Docker"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=ALMOST_READY expected=None",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=CV_IMPROVEMENT expected=CV_IMPROVEMENT",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 28
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            },
+            {
+              "name": "needs_cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "CV question should return CV tips",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "interview_question",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "READY",
+          "questionIntent": "INTERVIEW_PREP",
+          "priorityFocus": [],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=READY expected=None",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=INTERVIEW_PREP expected=INTERVIEW_PREP",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 19
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            },
+            {
+              "name": "needs_interview_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "interview question should return interview tips",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "rag_unavailable",
+          "severity": "PASS",
+          "passed": true,
+          "readinessLevel": "ALMOST_READY",
+          "questionIntent": "FULL_ANALYSIS",
+          "priorityFocus": [
+            "Docker"
+          ],
+          "checks": [
+            {
+              "name": "readiness_level",
+              "passed": true,
+              "severity": "PASS",
+              "message": "readiness=ALMOST_READY expected=None",
+              "details": {}
+            },
+            {
+              "name": "question_intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_ANALYSIS expected=None",
+              "details": {}
+            },
+            {
+              "name": "final_advice_non_generic",
+              "passed": true,
+              "severity": "PASS",
+              "message": "text should be specific and long enough",
+              "details": {
+                "wordCount": 23
+              }
+            },
+            {
+              "name": "learning_roadmap",
+              "passed": true,
+              "severity": "PASS",
+              "message": "learningRoadmap should not be empty",
+              "details": {}
+            },
+            {
+              "name": "cv_tips",
+              "passed": true,
+              "severity": "PASS",
+              "message": "cvImprovementTips should not be empty",
+              "details": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Motivation Letter V2",
+      "total": 10,
+      "pass": 10,
+      "warning": 0,
+      "fail": 0,
+      "qualityChecksRate": 1.0,
+      "noMissingSkillClaimed": true,
+      "results": [
+        {
+          "id": "strong_fullstack_professional",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 1.0,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 208,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 208,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            },
+            {
+              "name": "mentions_company",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention company when provided",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "docker_missing_required",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.8,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 199,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 199,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            },
+            {
+              "name": "avoided_claims",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing/critical skills should produce avoidedClaims",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "java_spring_vs_react",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.6,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 204,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 204,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "poor_cv_letter",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.35,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 192,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 192,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            },
+            {
+              "name": "warnings",
+              "passed": true,
+              "severity": "PASS",
+              "message": "insufficient data should add warnings",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "tone_professional",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 1.0,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 208,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 208,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "tone_dynamic",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "DYNAMIC",
+          "personalizationScore": 1.0,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 206,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=DYNAMIC expected=DYNAMIC",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 206,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "tone_simple",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "SIMPLE",
+          "personalizationScore": 1.0,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 148,
+            "expectedRange": {
+              "min": 130,
+              "max": 220
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=SIMPLE expected=SIMPLE",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 148,
+                  "expectedRange": {
+                    "min": 130,
+                    "max": 220
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "offer_without_company",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.9,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 202,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 202,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "missing_critical_skill",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.6,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 204,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 204,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            },
+            {
+              "name": "avoided_claims",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing/critical skills should produce avoidedClaims",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "partial_matching",
+          "severity": "PASS",
+          "passed": true,
+          "tone": "PROFESSIONAL",
+          "personalizationScore": 0.8,
+          "qualityChecks": {
+            "mentionsCompany": true,
+            "mentionsOffer": true,
+            "usesOnlyVerifiedSkills": true,
+            "doesNotClaimMissingSkills": true,
+            "hasProfessionalTone": true,
+            "hasClearStructure": true,
+            "lengthOk": true,
+            "wordCount": 199,
+            "expectedRange": {
+              "min": 180,
+              "max": 280
+            }
+          },
+          "checks": [
+            {
+              "name": "tone",
+              "passed": true,
+              "severity": "PASS",
+              "message": "tone=PROFESSIONAL expected=PROFESSIONAL",
+              "details": {}
+            },
+            {
+              "name": "no_undefined",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden items found: []",
+              "details": {
+                "found": []
+              }
+            },
+            {
+              "name": "no_missing_skill_claimed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing skills claimed: []",
+              "details": {
+                "claimed": []
+              }
+            },
+            {
+              "name": "quality_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "failed quality checks: []",
+              "details": {
+                "failed": [],
+                "qualityChecks": {
+                  "mentionsCompany": true,
+                  "mentionsOffer": true,
+                  "usesOnlyVerifiedSkills": true,
+                  "doesNotClaimMissingSkills": true,
+                  "hasProfessionalTone": true,
+                  "hasClearStructure": true,
+                  "lengthOk": true,
+                  "wordCount": 199,
+                  "expectedRange": {
+                    "min": 180,
+                    "max": 280
+                  }
+                }
+              }
+            },
+            {
+              "name": "mentions_offer",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should mention offer",
+              "details": {}
+            },
+            {
+              "name": "structure",
+              "passed": true,
+              "severity": "PASS",
+              "message": "letter should have clear structure",
+              "details": {}
+            },
+            {
+              "name": "personalization_score",
+              "passed": true,
+              "severity": "PASS",
+              "message": "personalizationScore must be 0..1",
+              "details": {}
+            },
+            {
+              "name": "avoided_claims",
+              "passed": true,
+              "severity": "PASS",
+              "message": "missing/critical skills should produce avoidedClaims",
+              "details": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "RAG V2",
+      "mode": "mock",
+      "total": 8,
+      "pass": 8,
+      "warning": 0,
+      "fail": 0,
+      "citationRate": 0.88,
+      "results": [
+        {
+          "id": "query_react_node",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "expected_top",
+              "passed": true,
+              "severity": "PASS",
+              "message": "top=['cv-react-1'] expected=['cv-react-1', 'offer-react']",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-react-1",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.5222,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.5633,
+                  "score": 0.6833,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.1325,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3295,
+                  "score": 0.4495,
+                  "rerankReason": "skill:Node.js, skill:React, section:required_skills, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:required_skills",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "cv-react-2",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "API REST Node.js documentee et testee.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "experience",
+                    "skills": [
+                      "Node.js",
+                      "REST API"
+                    ]
+                  },
+                  "vectorScore": 0.1741,
+                  "lexicalScore": 0.6667,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.2711,
+                  "score": 0.3261,
+                  "rerankReason": "skill:Node.js, section:experience",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "section:experience"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Projet e-commerce React Node Stage React Node API REST Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.6833,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.4495,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                },
+                {
+                  "sourceId": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.3261,
+                  "snippet": "API REST Node.js documentee et testee."
+                }
+              ],
+              "confidence": "HIGH",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "score": 0.6833
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.4495
+                },
+                {
+                  "id": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "score": 0.3261
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "query_docker_cicd",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "expected_top",
+              "passed": true,
+              "severity": "PASS",
+              "message": "top=['cv-devops'] expected=['cv-devops', 'offer-react']",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-devops",
+                  "ownerType": "CV",
+                  "ownerId": "cv2",
+                  "title": "CV DevOps",
+                  "text": "Docker Kubernetes et pipelines CI/CD avec GitHub Actions.",
+                  "metadata": {
+                    "studentId": "s2",
+                    "section": "skills",
+                    "skills": [
+                      "Docker",
+                      "Kubernetes",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.4339,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.5103,
+                  "score": 0.5903,
+                  "rerankReason": "skill:CI/CD, skill:Docker, section:skills",
+                  "matchedSignals": [
+                    "skill:CI/CD",
+                    "skill:Docker",
+                    "section:skills"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.4104,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.4962,
+                  "score": 0.5762,
+                  "rerankReason": "skill:CI/CD, skill:Docker, section:required_skills",
+                  "matchedSignals": [
+                    "skill:CI/CD",
+                    "skill:Docker",
+                    "section:required_skills"
+                  ]
+                },
+                {
+                  "id": "cv-react-2",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "API REST Node.js documentee et testee.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "experience",
+                    "skills": [
+                      "Node.js",
+                      "REST API"
+                    ]
+                  },
+                  "vectorScore": 0.1348,
+                  "lexicalScore": 0.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.0809,
+                  "score": 0.1109,
+                  "rerankReason": "section:experience",
+                  "matchedSignals": [
+                    "section:experience"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Docker Kubernetes et pipelines CI/CD avec GitHub Actions Docker et CI/CD sont demandes API REST Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-devops",
+                  "title": "CV DevOps",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.5903,
+                  "snippet": "Docker Kubernetes et pipelines CI/CD avec GitHub Actions."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.5762,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                },
+                {
+                  "sourceId": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.1109,
+                  "snippet": "API REST Node.js documentee et testee."
+                }
+              ],
+              "confidence": "MEDIUM",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-devops",
+                  "title": "CV DevOps",
+                  "score": 0.5903
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.5762
+                },
+                {
+                  "id": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "score": 0.1109
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "improve_cv_for_react_offer",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "expected_owner_types",
+              "passed": true,
+              "severity": "PASS",
+              "message": "ownerTypes={'OFFER', 'CV'} expected=['CV', 'OFFER']",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-react-1",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.3419,
+                  "lexicalScore": 0.6,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3551,
+                  "score": 0.4351,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.0,
+                  "lexicalScore": 0.6,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.15,
+                  "score": 0.23,
+                  "rerankReason": "skill:Node.js, skill:React, section:required_skills",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:required_skills"
+                  ]
+                },
+                {
+                  "id": "cv-react-2",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "API REST Node.js documentee et testee.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "experience",
+                    "skills": [
+                      "Node.js",
+                      "REST API"
+                    ]
+                  },
+                  "vectorScore": 0.114,
+                  "lexicalScore": 0.4,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.1684,
+                  "score": 0.2234,
+                  "rerankReason": "skill:Node.js, section:experience",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "section:experience"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Projet e-commerce React Node Stage React Node API REST Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.4351,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.23,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                },
+                {
+                  "sourceId": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.2234,
+                  "snippet": "API REST Node.js documentee et testee."
+                }
+              ],
+              "confidence": "MEDIUM",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "score": 0.4351
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.23
+                },
+                {
+                  "id": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "score": 0.2234
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "out_of_context",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "insufficient_context",
+              "passed": true,
+              "severity": "PASS",
+              "message": "out-of-context query should be LOW with no citations",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": false,
+                "citationCount": 0
+              }
+            }
+          ],
+          "details": {
+            "answer": {
+              "answer": "Je n ai pas assez d informations indexees pour repondre precisement. Ajoutez un document plus detaille ou selectionnez un contexte plus complet.",
+              "citations": [],
+              "confidence": "LOW",
+              "usedContextCount": 0,
+              "answerMode": "GENERAL",
+              "warnings": [
+                "Contexte insuffisant; aucune information externe n a ete inventee."
+              ],
+              "usedDocuments": []
+            }
+          }
+        },
+        {
+          "id": "student_scope",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "scope_security",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden ids returned: []",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-react-1",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.1741,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3544,
+                  "score": 0.4744,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.1325,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3295,
+                  "score": 0.4495,
+                  "rerankReason": "skill:Node.js, skill:React, section:required_skills, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:required_skills",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "cv-react-2",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "API REST Node.js documentee et testee.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "experience",
+                    "skills": [
+                      "Node.js",
+                      "REST API"
+                    ]
+                  },
+                  "vectorScore": 0.0,
+                  "lexicalScore": 0.5,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.125,
+                  "score": 0.18,
+                  "rerankReason": "skill:Node.js, section:experience",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "section:experience"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Projet e-commerce React Node Stage React Node API REST Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.4744,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.4495,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                },
+                {
+                  "sourceId": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.18,
+                  "snippet": "API REST Node.js documentee et testee."
+                }
+              ],
+              "confidence": "MEDIUM",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "score": 0.4744
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.4495
+                },
+                {
+                  "id": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "score": 0.18
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "company_scope",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "scope_security",
+              "passed": true,
+              "severity": "PASS",
+              "message": "forbidden ids returned: []",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-react-1",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.1741,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3544,
+                  "score": 0.4744,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.1325,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3295,
+                  "score": 0.4495,
+                  "rerankReason": "skill:Node.js, skill:React, section:required_skills, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:required_skills",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "cv-react-2",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "API REST Node.js documentee et testee.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "experience",
+                    "skills": [
+                      "Node.js",
+                      "REST API"
+                    ]
+                  },
+                  "vectorScore": 0.0,
+                  "lexicalScore": 0.5,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.125,
+                  "score": 0.18,
+                  "rerankReason": "skill:Node.js, section:experience",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "section:experience"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Projet e-commerce React Node Stage React Node API REST Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.4744,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.4495,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                },
+                {
+                  "sourceId": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.18,
+                  "snippet": "API REST Node.js documentee et testee."
+                }
+              ],
+              "confidence": "MEDIUM",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "score": 0.4744
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.4495
+                },
+                {
+                  "id": "cv-react-2",
+                  "title": "CV Fullstack",
+                  "score": 0.18
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "deduplication",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "deduplication",
+              "passed": true,
+              "severity": "PASS",
+              "message": "ownerId=cv1 count=2 max=2",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 3
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "cv-react-1",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.5222,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.5633,
+                  "score": 0.6833,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "dup-0",
+                  "ownerType": "CV",
+                  "ownerId": "cv1",
+                  "title": "CV Fullstack",
+                  "text": "Projet e-commerce React Node.js et PostgreSQL.",
+                  "metadata": {
+                    "studentId": "s1",
+                    "section": "projects",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "PostgreSQL"
+                    ]
+                  },
+                  "vectorScore": 0.5222,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.5633,
+                  "score": 0.6833,
+                  "rerankReason": "skill:Node.js, skill:React, section:projects, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:projects",
+                    "exact-query"
+                  ]
+                },
+                {
+                  "id": "offer-react",
+                  "ownerType": "OFFER",
+                  "ownerId": "o1",
+                  "title": "Offre Fullstack",
+                  "text": "Stage React Node.js. Docker et CI/CD sont demandes.",
+                  "metadata": {
+                    "offerId": "o1",
+                    "companyId": "c1",
+                    "status": "PUBLISHED",
+                    "section": "required_skills",
+                    "skills": [
+                      "React",
+                      "Node.js",
+                      "Docker",
+                      "CI/CD"
+                    ]
+                  },
+                  "vectorScore": 0.1325,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.3295,
+                  "score": 0.4495,
+                  "rerankReason": "skill:Node.js, skill:React, section:required_skills, exact-query",
+                  "matchedSignals": [
+                    "skill:Node.js",
+                    "skill:React",
+                    "section:required_skills",
+                    "exact-query"
+                  ]
+                }
+              ],
+              "count": 3,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Projet e-commerce React Node Projet e-commerce React Node Stage React Node Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.6833,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "dup-0",
+                  "title": "CV Fullstack",
+                  "sourceType": "CV",
+                  "ownerType": "CV",
+                  "chunkIndex": 0,
+                  "score": 0.6833,
+                  "snippet": "Projet e-commerce React Node.js et PostgreSQL."
+                },
+                {
+                  "sourceId": "offer-react",
+                  "title": "Offre Fullstack",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.4495,
+                  "snippet": "Stage React Node.js. Docker et CI/CD sont demandes."
+                }
+              ],
+              "confidence": "HIGH",
+              "usedContextCount": 3,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "cv-react-1",
+                  "title": "CV Fullstack",
+                  "score": 0.6833
+                },
+                {
+                  "id": "dup-0",
+                  "title": "CV Fullstack",
+                  "score": 0.6833
+                },
+                {
+                  "id": "offer-react",
+                  "title": "Offre Fullstack",
+                  "score": 0.4495
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "reranking_expected",
+          "mode": "mock",
+          "severity": "PASS",
+          "passed": true,
+          "checks": [
+            {
+              "name": "has_results",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval should return results",
+              "details": {}
+            },
+            {
+              "name": "expected_top",
+              "passed": true,
+              "severity": "PASS",
+              "message": "top=['offer-qa'] expected=['offer-qa']",
+              "details": {}
+            },
+            {
+              "name": "no_embeddings_exposed",
+              "passed": true,
+              "severity": "PASS",
+              "message": "retrieval results must not expose embeddings",
+              "details": {}
+            },
+            {
+              "name": "rag_citations",
+              "passed": true,
+              "severity": "PASS",
+              "message": "RAG used responses need citations or insufficient-context warning",
+              "details": {
+                "used": true,
+                "citationCount": 1
+              }
+            }
+          ],
+          "details": {
+            "search": {
+              "results": [
+                {
+                  "id": "offer-qa",
+                  "ownerType": "OFFER",
+                  "ownerId": "o2",
+                  "title": "Offre QA",
+                  "text": "Tests Selenium Postman et assurance qualite.",
+                  "metadata": {
+                    "offerId": "o2",
+                    "companyId": "c2",
+                    "status": "PUBLISHED",
+                    "skills": [
+                      "Selenium",
+                      "Postman"
+                    ]
+                  },
+                  "vectorScore": 0.5222,
+                  "lexicalScore": 1.0,
+                  "metadataBoost": 0.0,
+                  "recencyBoost": 0.0,
+                  "hybridScore": 0.5633,
+                  "score": 0.6533,
+                  "rerankReason": "skill:Postman, skill:Selenium, exact-query",
+                  "matchedSignals": [
+                    "skill:Postman",
+                    "skill:Selenium",
+                    "exact-query"
+                  ]
+                }
+              ],
+              "count": 1,
+              "retrievalMethod": "HYBRID_RAG_V2"
+            },
+            "answer": {
+              "answer": "D apres les documents indexes, Tests Selenium Postman et assurance qualite Cette synthese est limitee aux sources citees et ne complete pas les informations absentes.",
+              "citations": [
+                {
+                  "sourceId": "offer-qa",
+                  "title": "Offre QA",
+                  "sourceType": "OFFER",
+                  "ownerType": "OFFER",
+                  "chunkIndex": 0,
+                  "score": 0.6533,
+                  "snippet": "Tests Selenium Postman et assurance qualite."
+                }
+              ],
+              "confidence": "LOW",
+              "usedContextCount": 1,
+              "answerMode": "GENERAL",
+              "warnings": [],
+              "usedDocuments": [
+                {
+                  "id": "offer-qa",
+                  "title": "Offre QA",
+                  "score": 0.6533
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "suite": "Orchestrator V2",
+      "total": 8,
+      "pass": 8,
+      "warning": 0,
+      "fail": 0,
+      "successRate": 0.88,
+      "results": [
+        {
+          "id": "intent_match",
+          "severity": "PASS",
+          "passed": true,
+          "status": "SUCCESS",
+          "intent": "MATCH",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=MATCH expected=MATCH",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=SUCCESS",
+              "details": {
+                "status": "SUCCESS"
+              }
+            },
+            {
+              "name": "matching_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "matching result expected",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "intent_career_advice",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "CAREER_ADVICE",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=CAREER_ADVICE expected=CAREER_ADVICE",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "career_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "career advice expected",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "intent_generate_letter",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "GENERATE_LETTER",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "MOTIVATION_LETTER_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=GENERATE_LETTER expected=GENERATE_LETTER",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "letter_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "motivation letter expected",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "full_application_assistance",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "FULL_APPLICATION_ASSISTANCE",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "MOTIVATION_LETTER_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_APPLICATION_ASSISTANCE expected=FULL_APPLICATION_ASSISTANCE",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "matching_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "matching result expected",
+              "details": {}
+            },
+            {
+              "name": "career_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "career advice expected",
+              "details": {}
+            },
+            {
+              "name": "letter_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "motivation letter expected",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "rag_unavailable",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "FULL_APPLICATION_ASSISTANCE",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_APPLICATION_ASSISTANCE expected=None",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "allows_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "poor_cv",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "FULL_APPLICATION_ASSISTANCE",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=FULL_APPLICATION_ASSISTANCE expected=None",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "allows_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {}
+            },
+            {
+              "name": "low_confidence",
+              "passed": true,
+              "severity": "PASS",
+              "message": "poor CV should not be high confidence",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "letter_risk_qc",
+          "severity": "PASS",
+          "passed": true,
+          "status": "PARTIAL_SUCCESS",
+          "intent": "GENERATE_LETTER",
+          "steps": [
+            "CV_ANALYSIS",
+            "OFFER_ANALYSIS",
+            "MATCH_V3",
+            "RAG_V2",
+            "CAREER_ASSISTANT_V2",
+            "MOTIVATION_LETTER_V2",
+            "QUALITY_CONTROL"
+          ],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=GENERATE_LETTER expected=None",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status_success_or_partial",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=PARTIAL_SUCCESS",
+              "details": {
+                "status": "PARTIAL_SUCCESS"
+              }
+            },
+            {
+              "name": "qc_checks",
+              "passed": true,
+              "severity": "PASS",
+              "message": "quality checks expected",
+              "details": {}
+            }
+          ]
+        },
+        {
+          "id": "unknown_intent",
+          "severity": "PASS",
+          "passed": true,
+          "status": "FAILED",
+          "intent": "UNKNOWN",
+          "steps": [],
+          "checks": [
+            {
+              "name": "intent",
+              "passed": true,
+              "severity": "PASS",
+              "message": "intent=UNKNOWN expected=UNKNOWN",
+              "details": {}
+            },
+            {
+              "name": "quality_control",
+              "passed": true,
+              "severity": "PASS",
+              "message": "qualityControl should be present",
+              "details": {}
+            },
+            {
+              "name": "steps_present",
+              "passed": true,
+              "severity": "PASS",
+              "message": "steps should be present for known intents",
+              "details": {}
+            },
+            {
+              "name": "execution_plan",
+              "passed": true,
+              "severity": "PASS",
+              "message": "execution plan should be buildable",
+              "details": {}
+            },
+            {
+              "name": "status",
+              "passed": true,
+              "severity": "PASS",
+              "message": "status=FAILED expected=FAILED",
+              "details": {}
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "reports": {}
+}

@@ -1451,3 +1451,110 @@ python -m unittest discover -s tests -v
 - La detection d intent reste deterministe et volontairement prudente.
 - La generation reste deterministic-first sans LLM externe.
 - `PARTIAL_SUCCESS` est frequent lorsque RAG est demande mais aucun contexte n est fourni.
+
+## AI Evaluation Suite
+
+La suite d evaluation IA centralise les tests fonctionnels de qualite pour :
+
+- analyse CV et analyse offre via les cas Matching ;
+- Matching V3 ;
+- RAG V2 en mode mock ;
+- Career Assistant V2 ;
+- Motivation Letter V2 ;
+- Orchestrator V2 ;
+- regles anti-invention et quality control global.
+
+Commande principale :
+
+```bash
+python scripts/evaluate_ai_suite.py
+```
+
+La commande lance les cinq evaluateurs :
+
+1. `matching_evaluator.py`
+2. `career_evaluator.py`
+3. `letter_evaluator.py`
+4. `rag_evaluator.py`
+5. `orchestrator_evaluator.py`
+
+Elle genere automatiquement :
+
+```text
+evaluation/reports/ai_evaluation_report_YYYYMMDD_HHMMSS.json
+evaluation/reports/ai_evaluation_report_YYYYMMDD_HHMMSS.md
+```
+
+### Structure
+
+```text
+evaluation/
+  cases/
+    matching_cases.json
+    career_assistant_cases.json
+    motivation_letter_cases.json
+    rag_cases.json
+    orchestrator_cases.json
+  evaluators/
+    quality_metrics.py
+    matching_evaluator.py
+    career_evaluator.py
+    letter_evaluator.py
+    rag_evaluator.py
+    orchestrator_evaluator.py
+  reports/
+  run_all_evaluations.py
+```
+
+### Metriques
+
+Le rapport global expose :
+
+- nombre total de cas ;
+- `PASS`, `WARNING`, `FAIL` ;
+- score moyen Matching V3 ;
+- taux de quality checks lettre ;
+- taux de readiness coherent ;
+- taux de reponses RAG avec citations ;
+- taux de succes Orchestrator V2.
+
+Les checks communs sont dans `evaluation/evaluators/quality_metrics.py` :
+
+- score dans une plage attendue ;
+- competences attendues presentes ;
+- competence manquante non revendiquee dans une lettre ;
+- texte non generique ;
+- quality checks lettre ;
+- citations RAG si contexte utilise ;
+- statut orchestrator `SUCCESS` ou `PARTIAL_SUCCESS`.
+
+### Seuils d acceptation
+
+- Matching : au moins 80 % des cas doivent passer.
+- Career Assistant : au moins 80 % des cas doivent passer.
+- Motivation Letter : aucun cas ne doit revendiquer une competence manquante et aucune lettre ne doit contenir `undefined`.
+- RAG : au moins 75 % des cas doivent passer, sans fail de scope securite.
+- Orchestrator : au moins 80 % des cas doivent passer.
+
+### Commandes individuelles
+
+```bash
+python scripts/evaluate_matching_v3.py
+python scripts/evaluate_career_assistant_v2.py
+python scripts/evaluate_motivation_letter_v2.py
+python scripts/evaluate_rag_v2.py --mode mock
+python scripts/evaluate_orchestrator_v2.py
+python -m unittest tests.test_ai_quality_rules -v
+python -m unittest discover -s tests -v
+```
+
+### Ajouter un cas
+
+1. Ajouter un objet JSON dans le fichier de cas correspondant.
+2. Renseigner `id`, `description` si pertinent, payload metier et `expected`.
+3. Lancer `python scripts/evaluate_ai_suite.py`.
+4. Lire le rapport Markdown pour verifier les warnings/fails.
+
+### Limites
+
+Ces tests ne prouvent pas une precision parfaite. Ils verifient des scenarios controles et des regles de regression. Les plages de score doivent etre ajustees progressivement apres revue. Le matching depend de la qualite du CV, le RAG depend des documents indexes, et la generation reste deterministe sans LLM externe.

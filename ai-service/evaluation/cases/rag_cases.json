@@ -1,0 +1,10 @@
+[
+  {"id": "query_react_node", "query": "React Node.js", "expectedTopIds": ["cv-react-1", "offer-react"], "documents": "default"},
+  {"id": "query_docker_cicd", "query": "Docker CI/CD", "expectedTopIds": ["cv-devops", "offer-react"], "documents": "default"},
+  {"id": "improve_cv_for_react_offer", "query": "React Node.js offre CV", "expectedOwnerTypes": ["CV", "OFFER"], "documents": "default"},
+  {"id": "out_of_context", "question": "Fiscalite quantique", "contexts": [], "expectedInsufficient": true},
+  {"id": "student_scope", "query": "React Node", "scope": {"role": "STUDENT", "studentId": "s1"}, "forbiddenIds": ["cv-devops"], "documents": "default"},
+  {"id": "company_scope", "query": "React Node", "scope": {"role": "COMPANY", "companyId": "c1", "allowedStudentIds": ["s1"]}, "forbiddenIds": ["cv-devops"], "documents": "default"},
+  {"id": "deduplication", "query": "React Node.js", "duplicateOwnerId": "cv1", "maxPerOwner": 2, "documents": "default"},
+  {"id": "reranking_expected", "query": "Selenium Postman", "expectedTopIds": ["offer-qa"], "documents": "default"}
+]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -9,6 +10,7 @@ if str(ROOT) not in sys.path:
 
 from app.rag.grounded_answer_service_v2 import generate_grounded_answer
 from app.rag.hybrid_retrieval_service_v2 import hybrid_search
+from evaluation.evaluators.rag_evaluator import evaluate_rag_cases, print_rag_summary
 
 
 DOCUMENTS = [
@@ -30,6 +32,16 @@ def run_case(name, check):
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Evaluate RAG V2.")
+    parser.add_argument("--mode", choices=["mock", "integration"], default=None)
+    args = parser.parse_args()
+    if args.mode:
+        if args.mode == "integration":
+            print("Integration mode requires backend wiring; running mock evaluation.")
+        summary = evaluate_rag_cases(mode="mock")
+        print_rag_summary(summary)
+        return 0 if summary["fail"] == 0 else 1
+
     cases = []
     cases.append(run_case("react_node_retrieval", lambda: ((result := hybrid_search("React Node.js", DOCUMENTS))["results"][0]["id"] in {"cv-react-1", "offer-react"}, str([(item["id"], item["score"]) for item in result["results"]]))))
     cases.append(run_case("docker_cicd_retrieval", lambda: ((result := hybrid_search("Docker CI/CD", DOCUMENTS))["results"][0]["id"] in {"cv-devops", "offer-react"}, str([(item["id"], item["score"]) for item in result["results"]]))))
