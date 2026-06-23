@@ -1239,3 +1239,215 @@ L evaluation couvre React/Node.js, Docker/CI-CD, contexte CV plus offre, hors co
 - la reponse fondee est extractive et deterministe sans LLM externe ;
 - la pertinence depend de la qualite des documents et de leurs metadonnees ;
 - RAG enrichit Matching V3, Career Assistant V2 et Motivation Letter V2 sans remplacer leurs controles metier.
+
+## Orchestrator V2
+
+Orchestrator V2 est la couche de coordination multi-agents de SmartIntern AI. Il ne remplace pas les agents specialises: il decide quoi executer, reutilise les resultats deja fournis, partage un contexte commun, applique Matching V3 comme source centrale, enrichit avec RAG V2 si disponible, puis transmet les preuves a Career Assistant V2 et Motivation Letter V2.
+
+L ancien endpoint `POST /ai/orchestrate` reste disponible avec son format historique `{ intent, agent, result }`. Le nouveau endpoint complet est :
+
+```http
+POST /ai/orchestrate/v2
+```
+
+Un wrapper LangGraph est aussi expose :
+
+```http
+POST /ai/workflows/orchestrate-v2
+```
+
+### Pourquoi l orchestrateur est important
+
+- evite que les agents fonctionnent comme des briques isolees ;
+- garde les analyses CV, offre, matching, conseils et lettre coherentes ;
+- evite de relancer inutilement une analyse deja fournie ;
+- centralise les controles qualite ;
+- rend les reponses IA plus explicables pour le backend et le frontend.
+
+### Intents supportes
+
+```text
+ANALYZE_CV
+ANALYZE_OFFER
+MATCH
+CAREER_ADVICE
+GENERATE_LETTER
+FULL_APPLICATION_ASSISTANCE
+CANDIDATE_RANKING_ASSISTANCE
+RAG_QUESTION
+UNKNOWN
+```
+
+Si `intent` est absent, `intent_router.py` detecte une intention simple depuis `question` : matching, compatibilite, conseils, lettre, dossier de candidature, RAG ou source documentaire. Aucun LLM externe n est requis pour cette detection.
+
+### Payload V2
+
+```json
+{
+  "intent": "FULL_APPLICATION_ASSISTANCE",
+  "question": "Je veux postuler a cette offre, aide-moi a ameliorer mon dossier.",
+  "studentProfile": {
+    "firstName": "Nabil",
+    "lastName": "Haddad",
+    "educationLevel": "Licence Informatique",
+    "targetJob": "Developpeur Fullstack"
+  },
+  "cvText": "Projets realises avec React, Node.js, PostgreSQL, Docker et Git.",
+  "cvAnalysis": {},
+  "offer": {
+    "id": 1,
+    "title": "Stage developpeur fullstack React Node.js",
+    "companyName": "SmartTech",
+    "description": "Stage React, Node.js, API REST et PostgreSQL.",
+    "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+    "optionalSkills": ["Docker", "CI/CD"]
+  },
+  "offerAnalysis": {},
+  "matchingResult": {},
+  "careerAdvice": {},
+  "tone": "PROFESSIONAL",
+  "ragContextDocuments": [],
+  "options": {
+    "includeMatching": true,
+    "includeCareerAdvice": true,
+    "includeMotivationLetter": true,
+    "includeRag": true,
+    "debug": false
+  }
+}
+```
+
+Regles de cache :
+
+- si `cvAnalysis` existe, l analyse CV n est pas relancee ;
+- si `offerAnalysis` existe, l analyse offre n est pas relancee ;
+- si `matchingResult` V3 existe, le matching n est pas relance sauf `options.forceRecompute=true` ;
+- RAG V2 est optionnel et ne bloque pas la chaine complete ;
+- `includeMotivationLetter=false` empeche la generation de lettre.
+
+### Execution plan
+
+`execution_plan.py` produit une liste de steps avec `required` et `canUseCache`. Pour `FULL_APPLICATION_ASSISTANCE`, le plan standard est :
+
+```text
+ANALYZE_CV
+ANALYZE_OFFER
+MATCH_V3
+RAG_V2
+CAREER_ASSISTANT_V2
+MOTIVATION_LETTER_V2
+QUALITY_CONTROL
+```
+
+Une etape optionnelle en echec donne `PARTIAL_SUCCESS`. Une etape requise en echec donne `FAILED`.
+
+### Contexte partage
+
+`OrchestrationContext` transporte :
+
+- `cvAnalysis` ;
+- `offerAnalysis` ;
+- `matchingResult` ;
+- `ragContext` ;
+- `careerAdvice` ;
+- `motivationLetter` ;
+- `stepResults`, `warnings`, `errors` et `debugInfo`.
+
+Ce contexte evite de refaire le parsing dans chaque agent et permet a Motivation Letter V2 de recevoir les preuves deja produites par Matching V3 et Career Assistant V2.
+
+### Coordination des agents
+
+Matching V3 est utilise pour `MATCH`, `CAREER_ADVICE`, `GENERATE_LETTER`, `FULL_APPLICATION_ASSISTANCE` et `CANDIDATE_RANKING_ASSISTANCE`. L orchestrateur transmet notamment `coverageMatrix`, `scoreBreakdown`, `criticalMissingSkills`, `evidenceSummary`, `confidence` et `decisionLabel`.
+
+RAG V2 enrichit la reponse si `ragContextDocuments` ou `contexts` sont fournis. Il retourne `used`, `retrievedContextCount`, `citations`, `confidence`, `answer` et `warnings`. Il ne remplace jamais le matching.
+
+Career Assistant V2 recoit le matching complet, la question utilisateur, le profil, l offre et le contexte RAG. Il retourne `readinessLevel`, `priorityFocus`, `criticalGaps`, `recommendedProjects`, `cvImprovementTips`, `interviewPreparationTips` et `learningRoadmap`.
+
+Motivation Letter V2 recoit profil, CV analysis, offre, matching, career advice et RAG. L orchestrateur verifie ensuite `qualityChecks`, notamment `usesOnlyVerifiedSkills` et `doesNotClaimMissingSkills`.
+
+### Quality control global
+
+`quality_control_v2.py` verifie :
+
+- score matching entre 0 et 100 ;
+- presence de `decisionLabel` et `coverageMatrix` lorsque des competences requises existent ;
+- coherence des plafonds de score si des competences critiques manquent ;
+- presence de `readinessLevel` et de priorites dans Career Assistant V2 ;
+- lettre sans revendication de competence manquante ;
+- citations ou warning si RAG est utilise ;
+- absence d embeddings bruts dans les sources.
+
+La reponse V2 retourne :
+
+```json
+{
+  "intent": "FULL_APPLICATION_ASSISTANCE",
+  "status": "SUCCESS",
+  "summary": "...",
+  "steps": [],
+  "results": {
+    "cvAnalysis": {},
+    "offerAnalysis": {},
+    "matching": {},
+    "rag": {},
+    "careerAdvice": {},
+    "motivationLetter": {}
+  },
+  "qualityControl": {
+    "passed": true,
+    "checks": [],
+    "warnings": [],
+    "blockingIssues": []
+  },
+  "recommendations": [],
+  "warnings": []
+}
+```
+
+### Commandes de test
+
+Demarrer le service :
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+Tester MATCH :
+
+```bash
+curl -X POST http://localhost:8000/ai/orchestrate/v2 -H "Content-Type: application/json" -d "{\"intent\":\"MATCH\",\"cvText\":\"React Node.js PostgreSQL REST API\",\"offer\":{\"title\":\"Stage React Node\",\"description\":\"React Node PostgreSQL REST API\",\"requiredSkills\":[\"React\",\"Node.js\",\"PostgreSQL\",\"REST API\"]}}"
+```
+
+Tester CAREER_ADVICE :
+
+```bash
+curl -X POST http://localhost:8000/ai/orchestrate/v2 -H "Content-Type: application/json" -d "{\"intent\":\"CAREER_ADVICE\",\"question\":\"Quelles competences ameliorer ?\",\"studentProfile\":{\"firstName\":\"Nabil\",\"lastName\":\"Haddad\"},\"cvText\":\"React Node.js PostgreSQL\",\"offer\":{\"title\":\"Stage React\",\"description\":\"React Node PostgreSQL\",\"requiredSkills\":[\"React\",\"Node.js\",\"PostgreSQL\"]}}"
+```
+
+Tester GENERATE_LETTER :
+
+```bash
+curl -X POST http://localhost:8000/ai/orchestrate/v2 -H "Content-Type: application/json" -d "{\"intent\":\"GENERATE_LETTER\",\"studentProfile\":{\"firstName\":\"Nabil\",\"lastName\":\"Haddad\",\"educationLevel\":\"Licence Informatique\"},\"cvText\":\"Projet React Node.js PostgreSQL\",\"offer\":{\"title\":\"Stage React Node.js\",\"companyName\":\"SmartTech\",\"description\":\"React Node PostgreSQL\",\"requiredSkills\":[\"React\",\"Node.js\"]},\"tone\":\"PROFESSIONAL\"}"
+```
+
+Tester FULL_APPLICATION_ASSISTANCE :
+
+```bash
+curl -X POST http://localhost:8000/ai/orchestrate/v2 -H "Content-Type: application/json" -d "{\"intent\":\"FULL_APPLICATION_ASSISTANCE\",\"question\":\"Je veux postuler a cette offre\",\"studentProfile\":{\"firstName\":\"Nabil\",\"lastName\":\"Haddad\"},\"cvText\":\"React Node.js PostgreSQL Docker Git\",\"offer\":{\"title\":\"Stage fullstack React Node\",\"companyName\":\"SmartTech\",\"description\":\"React Node PostgreSQL API REST\",\"requiredSkills\":[\"React\",\"Node.js\",\"PostgreSQL\"],\"optionalSkills\":[\"Docker\"]},\"options\":{\"includeMotivationLetter\":true}}"
+```
+
+Evaluation :
+
+```bash
+python scripts/evaluate_orchestrator_v2.py
+python -m unittest tests.test_orchestrator_v2 -v
+python -m unittest discover -s tests -v
+```
+
+### Limites actuelles
+
+- Orchestrator V2 ne remplace pas les endpoints metier existants du backend ; il ajoute une couche de coordination.
+- Le RAG V2 est enrichissant uniquement si le backend transmet des contextes deja recuperes.
+- La detection d intent reste deterministe et volontairement prudente.
+- La generation reste deterministic-first sans LLM externe.
+- `PARTIAL_SUCCESS` est frequent lorsque RAG est demande mais aucun contexte n est fourni.

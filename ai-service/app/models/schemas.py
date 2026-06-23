@@ -235,6 +235,35 @@ class OrchestratorResponse(BaseModel):
     result: Dict[str, Any]
 
 
+class OrchestratorV2Request(BaseModel):
+    intent: Optional[str] = None
+    question: Optional[str] = None
+    studentProfile: Dict[str, Any] = {}
+    cvText: Optional[str] = None
+    cvAnalysis: Dict[str, Any] = {}
+    offer: Dict[str, Any] = {}
+    offerAnalysis: Dict[str, Any] = {}
+    matchingResult: Dict[str, Any] = {}
+    careerAdvice: Dict[str, Any] = {}
+    tone: str = "PROFESSIONAL"
+    ragContextDocuments: List[Dict[str, Any]] = []
+    contexts: List[Dict[str, Any]] = []
+    applicationMessage: Optional[str] = None
+    options: Dict[str, Any] = {}
+
+
+class OrchestratorV2Response(BaseModel):
+    intent: str
+    status: str
+    summary: str
+    steps: List[Dict[str, Any]]
+    results: Dict[str, Any]
+    qualityControl: Dict[str, Any]
+    recommendations: List[str] = []
+    warnings: List[str] = []
+    debug: Optional[Dict[str, Any]] = None
+
+
 class RAGEmbedRequest(BaseModel):
     text: str = Field(..., min_length=1)
 
