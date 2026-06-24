@@ -10,6 +10,7 @@ from evaluation.evaluators.explainability_evaluator import evaluate_explainabili
 from evaluation.evaluators.letter_evaluator import evaluate_letter_cases
 from evaluation.evaluators.matching_evaluator import evaluate_matching_cases
 from evaluation.evaluators.orchestrator_evaluator import evaluate_orchestrator_cases
+from evaluation.evaluators.offer_quality_evaluator import evaluate_offer_quality_cases
 from evaluation.evaluators.rag_evaluator import evaluate_rag_cases
 from evaluation.evaluators.skill_gap_simulator_evaluator import evaluate_skill_gap_simulator_cases
 
@@ -44,6 +45,7 @@ def _global_summary(summaries: list[dict[str, Any]]) -> dict[str, Any]:
         "orchestratorSuccessRate": next((summary.get("successRate") for summary in summaries if summary.get("suite") == "Orchestrator V2"), 0),
         "explainabilityPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Explainability"), 0),
         "skillGapSimulatorPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Skill Gap Simulator"), 0),
+        "offerQualityPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Offer Quality Analyzer"), 0),
     }
 
 
@@ -73,6 +75,7 @@ def _markdown(report: dict[str, Any]) -> str:
             f"- Orchestrator success rate: `{report['global']['orchestratorSuccessRate']}`",
             f"- Explainability pass rate: `{report['global']['explainabilityPassRate']}`",
             f"- Skill Gap Simulator pass rate: `{report['global']['skillGapSimulatorPassRate']}`",
+            f"- Offer Quality Analyzer pass rate: `{report['global']['offerQualityPassRate']}`",
             "",
             "## Failures And Warnings",
             "",
@@ -101,6 +104,7 @@ def run_all_evaluations(write_reports: bool = True, rag_mode: str = "mock") -> d
         evaluate_orchestrator_cases(),
         evaluate_explainability_cases(),
         evaluate_skill_gap_simulator_cases(),
+        evaluate_offer_quality_cases(),
     ]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report = {

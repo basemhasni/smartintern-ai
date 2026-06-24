@@ -10,6 +10,7 @@ from app.utils.text_normalization import normalize_text
 SUPPORTED_INTENTS = {
     "ANALYZE_CV",
     "ANALYZE_OFFER",
+    "OFFER_QUALITY_ANALYSIS",
     "MATCH",
     "SKILL_GAP_SIMULATION",
     "CAREER_ADVICE",
@@ -27,6 +28,9 @@ INTENT_ALIASES = {
     "analyze_offer": "ANALYZE_OFFER",
     "offer_analysis": "ANALYZE_OFFER",
     "analyse_offer": "ANALYZE_OFFER",
+    "offer_quality_analysis": "OFFER_QUALITY_ANALYSIS",
+    "offer_quality": "OFFER_QUALITY_ANALYSIS",
+    "analyze_offer_quality": "OFFER_QUALITY_ANALYSIS",
     "match": "MATCH",
     "matching": "MATCH",
     "skill_gap_simulation": "SKILL_GAP_SIMULATION",
@@ -67,6 +71,18 @@ def detect_intent_from_question(question: str | None) -> str:
     normalized = normalize_text(question or "")
     if not normalized:
         return "UNKNOWN"
+    if any(
+        token in normalized
+        for token in (
+            "qualite de l offre",
+            "ameliorer cette offre",
+            "offre claire",
+            "probleme dans l offre",
+            "rendre l offre meilleure",
+            "matching readiness",
+        )
+    ):
+        return "OFFER_QUALITY_ANALYSIS"
     if any(
         token in normalized
         for token in (
@@ -112,6 +128,7 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
     include_letter = _bool_option(opts, "includeMotivationLetter", True)
     include_rag = _bool_option(opts, "includeRag", True)
     include_skill_gap = _bool_option(opts, "includeSkillGapSimulation", False)
+    include_offer_quality = _bool_option(opts, "includeOfferQualityAnalysis", False)
 
     plan: list[dict[str, Any]] = []
 
@@ -123,6 +140,8 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
         add("ANALYZE_CV", True)
     elif intent == "ANALYZE_OFFER":
         add("ANALYZE_OFFER", True)
+    elif intent == "OFFER_QUALITY_ANALYSIS":
+        add("OFFER_QUALITY_ANALYZER", True)
     elif intent == "MATCH":
         add("ANALYZE_CV", False)
         add("ANALYZE_OFFER", False)
@@ -153,6 +172,8 @@ def build_execution_plan(intent: str, options: dict[str, Any] | None = None) -> 
     elif intent == "FULL_APPLICATION_ASSISTANCE":
         add("ANALYZE_CV", True)
         add("ANALYZE_OFFER", True)
+        if include_offer_quality:
+            add("OFFER_QUALITY_ANALYZER", False)
         if include_matching:
             add("MATCH_V3", True)
         if include_skill_gap:

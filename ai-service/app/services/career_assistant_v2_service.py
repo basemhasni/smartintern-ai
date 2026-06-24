@@ -465,6 +465,11 @@ def generate_career_advice_v2(input_data: Any) -> dict:
         "FULL_ANALYSIS": "L'analyse combine les ecarts, les preuves, le plan d'apprentissage et la preparation de candidature.",
     }[intent]
     warnings = list(rag_warnings)
+    offer_quality = _as_dict(payload.get("offerQualityAnalysis"))
+    if offer_quality.get("matchingReadiness") in {"LOW", "INSUFFICIENT"}:
+        warnings.append(
+            "L'offre cible est peu structuree; certaines priorites peuvent changer apres clarification des missions et competences obligatoires."
+        )
     if str(matching.get("confidence") or "LOW").upper() == "LOW":
         warnings.insert(0, "La confiance du matching est faible; enrichissez le CV et verifiez les exigences de l'offre avant d'agir.")
 

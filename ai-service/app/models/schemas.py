@@ -51,6 +51,33 @@ class OfferAnalysisResponse(BaseModel):
     offerQuality: Dict[str, Any] = {}
 
 
+class OfferQualityRequest(BaseModel):
+    title: str = ""
+    description: str = ""
+    requiredSkills: List[str] = []
+    optionalSkills: List[str] = []
+    location: Optional[str] = None
+    duration: Optional[str] = None
+    companyName: Optional[str] = None
+    domain: Optional[str] = None
+
+
+class OfferQualityResponse(BaseModel):
+    qualityScore: int
+    qualityLevel: str
+    quality: str
+    matchingReadiness: str
+    summary: str
+    dimensionScores: Dict[str, int] = {}
+    strengths: List[str] = []
+    issues: List[Dict[str, Any]] = []
+    recommendations: List[str] = []
+    improvedOfferDraft: Dict[str, Any] = {}
+    decisionTrace: List[Dict[str, Any]] = []
+    warnings: List[str] = []
+    context: Dict[str, Any] = {}
+
+
 class MatchingRequest(BaseModel):
     candidateSkills: List[str]
     requiredSkills: List[str]
@@ -271,6 +298,7 @@ class OrchestratorV2Request(BaseModel):
     cvAnalysis: Dict[str, Any] = {}
     offer: Dict[str, Any] = {}
     offerAnalysis: Dict[str, Any] = {}
+    offerQualityAnalysis: Dict[str, Any] = {}
     matchingResult: Dict[str, Any] = {}
     careerAdvice: Dict[str, Any] = {}
     tone: str = "PROFESSIONAL"

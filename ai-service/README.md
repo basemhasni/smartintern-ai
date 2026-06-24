@@ -1533,7 +1533,7 @@ Commande principale :
 python scripts/evaluate_ai_suite.py
 ```
 
-La commande lance les sept evaluateurs :
+La commande lance les huit evaluateurs :
 
 1. `matching_evaluator.py`
 2. `career_evaluator.py`
@@ -1542,6 +1542,7 @@ La commande lance les sept evaluateurs :
 5. `orchestrator_evaluator.py`
 6. `explainability_evaluator.py`
 7. `skill_gap_simulator_evaluator.py`
+8. `offer_quality_evaluator.py`
 
 Elle genere automatiquement :
 
@@ -1561,6 +1562,8 @@ evaluation/
     rag_cases.json
     orchestrator_cases.json
     explainability_cases.json
+    skill_gap_simulator_cases.json
+    offer_quality_cases.json
   evaluators/
     quality_metrics.py
     matching_evaluator.py
@@ -1569,6 +1572,8 @@ evaluation/
     rag_evaluator.py
     orchestrator_evaluator.py
     explainability_evaluator.py
+    skill_gap_simulator_evaluator.py
+    offer_quality_evaluator.py
   reports/
   run_all_evaluations.py
 ```
@@ -1645,7 +1650,8 @@ RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
 Explainability: 8/8 PASS
 Skill Gap Simulator: 8/8 PASS
-Global: 66/66 PASS
+Offer Quality Analyzer: 10/10 PASS
+Global: 77/77 PASS
 Status: PASS
 ```
 
@@ -1719,6 +1725,99 @@ Le score est une estimation, pas une garantie. Apprendre une competence ne
 change pas automatiquement le matching : une utilisation reelle et une preuve
 verifiable dans le CV ou le portfolio sont necessaires. Une nouvelle analyse
 complete peut aussi changer la confiance, le domaine et la qualite des preuves.
+
+## Offer Quality Analyzer
+
+`POST /ai/analyze-offer-quality` aide une entreprise a verifier qu'une offre
+est claire, realiste pour un stage et exploitable par Matching V3. L'analyse
+reste consultative : elle ne bloque jamais la creation ou la modification
+d'une offre.
+
+### Pourquoi c'est important
+
+Une offre vague produit un matching moins fiable parce que les competences
+obligatoires, les missions et le domaine ne peuvent pas etre priorises
+correctement. Une offre mieux structuree rend le score plus explicable et
+evite que les competences optionnelles penalisent inutilement les candidats.
+
+### Score et dimensions
+
+Le `qualityScore` est calcule sur 100 :
+
+- completude : 25 points ;
+- clarte des competences : 30 points ;
+- coherence avec un stage : 15 points ;
+- preparation au matching : 20 points ;
+- qualite redactionnelle : 10 points.
+
+Niveaux :
+
+- `EXCELLENT` : 85-100 ;
+- `GOOD` : 70-84 ;
+- `MEDIUM` : 50-69 ;
+- `LOW` : 30-49 ;
+- `VERY_LOW` : 0-29.
+
+`matchingReadiness` vaut `HIGH`, `MEDIUM`, `LOW` ou `INSUFFICIENT`. Une offre
+sans `requiredSkills` reste `LOW`, meme si elle contient une longue liste de
+competences optionnelles.
+
+### Payload
+
+```json
+{
+  "title": "Stage Developpeur Fullstack React Node.js",
+  "description": "Le stagiaire participera au developpement...",
+  "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+  "optionalSkills": ["Docker", "CI/CD"],
+  "location": "Tunis",
+  "duration": "6 mois",
+  "companyName": "SmartTech"
+}
+```
+
+La reponse expose :
+
+- `qualityScore`, `qualityLevel` et `matchingReadiness` ;
+- les scores par dimension ;
+- `strengths`, `issues` et `recommendations` ;
+- `improvedOfferDraft` ;
+- une `decisionTrace` lisible.
+
+Le service detecte notamment les descriptions courtes, l'absence de
+competences obligatoires, les listes trop longues, les overlaps
+required/optional, les attentes senior, les titres generiques et les stacks
+incoherentes.
+
+Le brouillon ameliore ne cree aucune technologie. Il conserve les competences
+fournies ou detectees dans le titre et la description, limite les exigences
+obligatoires et ajoute des structures `A completer` quand les donnees manquent.
+
+### Integrations
+
+- `/ai/analyze-offer` conserve son ancien contrat et enrichit `offerQuality`.
+- Matching V3 reduit sa confiance lorsque `offerQuality.quality` vaut `LOW` ou
+  `MEDIUM`.
+- Orchestrator V2 accepte `OFFER_QUALITY_ANALYSIS`.
+- `FULL_APPLICATION_ASSISTANCE` peut activer l'analyse avec
+  `options.includeOfferQualityAnalysis=true`.
+- Career Assistant V2 signale qu'une offre ambiguë peut limiter la precision
+  des priorites.
+
+### Exemple
+
+```bash
+curl -X POST http://localhost:8000/ai/analyze-offer-quality \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Stage informatique","description":"Nous cherchons un stagiaire motive.","requiredSkills":[],"optionalSkills":["React","Docker"]}'
+```
+
+### Limites
+
+L'analyse est deterministe et depend des informations redigees. Elle ne peut
+pas connaitre les missions internes non mentionnees, ni decider quelles
+technologies sont reellement indispensables. Le brouillon doit etre relu par
+le recruteur avant publication.
 
 ### Limites
 

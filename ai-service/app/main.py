@@ -9,6 +9,7 @@ from app.api import (
     letter_routes,
     matching_routes,
     offer_routes,
+    offer_quality_routes,
     orchestrator_routes,
     rag_routes,
     skill_gap_routes,
@@ -24,6 +25,7 @@ app = FastAPI(
 app.include_router(health_routes.router)
 app.include_router(cv_routes.router)
 app.include_router(offer_routes.router)
+app.include_router(offer_quality_routes.router)
 app.include_router(matching_routes.router)
 app.include_router(letter_routes.router)
 app.include_router(career_routes.router)

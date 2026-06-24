@@ -1,0 +1,164 @@
+[
+  {
+    "id": "complete_fullstack_offer",
+    "offer": {
+      "title": "Stage Developpeur Fullstack React Node.js",
+      "description": "Nous recherchons un stagiaire pour participer au developpement d'une application web de gestion. Les missions consistent a creer des interfaces React, developper des API REST avec Node.js, modeliser les donnees PostgreSQL, tester les parcours principaux et documenter les fonctionnalites realisees avec l'equipe.",
+      "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "CI/CD"],
+      "location": "Tunis",
+      "duration": "6 mois",
+      "companyName": "SmartTech"
+    },
+    "expected": {
+      "scoreMin": 85,
+      "scoreMax": 100,
+      "levels": ["EXCELLENT", "GOOD"],
+      "matchingReadiness": ["HIGH"],
+      "issues": []
+    }
+  },
+  {
+    "id": "description_too_short",
+    "offer": {
+      "title": "Stage React",
+      "description": "Aider sur une application React.",
+      "requiredSkills": ["React"],
+      "optionalSkills": []
+    },
+    "expected": {
+      "scoreMin": 30,
+      "scoreMax": 69,
+      "matchingReadiness": ["LOW", "MEDIUM"],
+      "issues": ["DESCRIPTION_TOO_SHORT", "UNCLEAR_MISSIONS"]
+    }
+  },
+  {
+    "id": "missing_required_skills",
+    "offer": {
+      "title": "Stage developpeur web",
+      "description": "Vous participerez au developpement d'une application web, a la creation d'interfaces et a la documentation des fonctionnalites avec l'equipe produit.",
+      "requiredSkills": [],
+      "optionalSkills": ["React", "Node.js"]
+    },
+    "expected": {
+      "scoreMin": 0,
+      "scoreMax": 49,
+      "matchingReadiness": ["LOW"],
+      "issues": ["MISSING_REQUIRED_SKILLS"]
+    }
+  },
+  {
+    "id": "too_many_required_skills",
+    "offer": {
+      "title": "Stage Developpeur Fullstack",
+      "description": "Participer au developpement complet d'une plateforme, creer les interfaces, developper les API, modeliser les donnees, automatiser les tests et documenter le projet avec l'equipe.",
+      "requiredSkills": ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Node.js", "Express.js", "PostgreSQL", "Redis", "Docker"],
+      "optionalSkills": ["CI/CD"]
+    },
+    "expected": {
+      "scoreMin": 45,
+      "scoreMax": 84,
+      "matchingReadiness": ["MEDIUM"],
+      "issues": ["TOO_MANY_REQUIRED_SKILLS"],
+      "draftRequiredMax": 6
+    }
+  },
+  {
+    "id": "required_optional_overlap",
+    "offer": {
+      "title": "Stage Backend Node.js",
+      "description": "Developper et tester des API Node.js, modeliser les donnees PostgreSQL et documenter les routes avec l'equipe technique pendant le stage.",
+      "requiredSkills": ["Node.js", "PostgreSQL", "REST API"],
+      "optionalSkills": ["Docker", "Node.js"]
+    },
+    "expected": {
+      "scoreMin": 50,
+      "scoreMax": 84,
+      "matchingReadiness": ["MEDIUM"],
+      "issues": ["REQUIRED_OPTIONAL_OVERLAP"]
+    }
+  },
+  {
+    "id": "senior_expectations_for_internship",
+    "offer": {
+      "title": "Stage Senior Backend",
+      "description": "Nous recherchons un expert confirme avec 5 ans d'experience pour definir une architecture complexe, diriger les choix techniques, developper les services Java et accompagner l'equipe.",
+      "requiredSkills": ["Java", "Spring Boot", "PostgreSQL"],
+      "optionalSkills": ["Docker"]
+    },
+    "expected": {
+      "scoreMin": 30,
+      "scoreMax": 69,
+      "matchingReadiness": ["MEDIUM", "LOW"],
+      "issues": ["SENIORITY_TOO_HIGH_FOR_INTERNSHIP"]
+    }
+  },
+  {
+    "id": "generic_title",
+    "offer": {
+      "title": "Stage informatique",
+      "description": "Participer au developpement d'interfaces React, integrer des API REST, tester les parcours utilisateurs et documenter les composants realises avec l'equipe produit.",
+      "requiredSkills": ["React", "TypeScript", "REST API"],
+      "optionalSkills": ["Figma"]
+    },
+    "expected": {
+      "scoreMin": 50,
+      "scoreMax": 84,
+      "matchingReadiness": ["MEDIUM"],
+      "issues": ["GENERIC_TITLE"],
+      "improvedTitleDifferent": true
+    }
+  },
+  {
+    "id": "technology_inconsistency",
+    "offer": {
+      "title": "Stage Developpeur React",
+      "description": "Vous participerez au developpement d'une application mobile Flutter et Dart, a la creation des ecrans, aux tests Android et a la documentation du produit.",
+      "requiredSkills": ["Java", "Spring Boot"],
+      "optionalSkills": ["Flutter", "Dart"]
+    },
+    "expected": {
+      "scoreMin": 0,
+      "scoreMax": 59,
+      "matchingReadiness": ["LOW", "MEDIUM"],
+      "issues": ["TECHNOLOGY_INCONSISTENCY"]
+    }
+  },
+  {
+    "id": "clear_qa_offer",
+    "offer": {
+      "title": "Stage QA Automatisation Postman Selenium",
+      "description": "Le stagiaire participera a la preparation des scenarios de test. Il creera des collections Postman, automatisera des parcours avec Selenium, analysera les anomalies et documentera les resultats avec l'equipe produit.",
+      "requiredSkills": ["Postman", "Selenium", "Integration Testing"],
+      "optionalSkills": ["Jira", "Playwright"],
+      "location": "Tunis",
+      "duration": "4 mois"
+    },
+    "expected": {
+      "scoreMin": 80,
+      "scoreMax": 100,
+      "levels": ["EXCELLENT", "GOOD"],
+      "matchingReadiness": ["HIGH"],
+      "issues": []
+    }
+  },
+  {
+    "id": "clear_devops_offer",
+    "offer": {
+      "title": "Stage DevOps Docker Kubernetes",
+      "description": "Le stagiaire participera a la conteneurisation des services avec Docker. Il contribuera au deploiement sur Kubernetes, a l'automatisation CI/CD, a la supervision des environnements et a la documentation des procedures.",
+      "requiredSkills": ["Docker", "Kubernetes", "CI/CD", "Linux"],
+      "optionalSkills": ["AWS", "Nginx"],
+      "location": "Tunis",
+      "duration": "6 mois"
+    },
+    "expected": {
+      "scoreMin": 80,
+      "scoreMax": 100,
+      "levels": ["EXCELLENT", "GOOD"],
+      "matchingReadiness": ["HIGH"],
+      "issues": []
+    }
+  }
+]

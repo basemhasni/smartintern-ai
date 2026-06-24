@@ -19,6 +19,7 @@ from app.orchestration.quality_control_v2 import run_global_quality_control
 from app.rag.grounded_answer_service_v2 import generate_grounded_answer
 from app.services.career_assistant_v2_service import generate_career_advice_v2
 from app.services.motivation_letter_v2_service import generate_motivation_letter_v2
+from app.services.offer_quality_analyzer_service import analyze_offer_quality
 from app.services.skill_gap_simulator_service import simulate_skill_gap_impact
 
 
@@ -98,6 +99,8 @@ class OrchestratorV2:
             self._run_cv_analysis(context, item)
         elif step == "ANALYZE_OFFER":
             self._run_offer_analysis(context, item)
+        elif step == "OFFER_QUALITY_ANALYZER":
+            self._run_offer_quality_analysis(context, item)
         elif step == "MATCH_V3":
             self._run_matching(context, item)
         elif step == "SKILL_GAP_SIMULATOR":
@@ -164,6 +167,31 @@ class OrchestratorV2:
             }
         )
         context.add_step("OFFER_ANALYSIS", "SUCCESS", False, [])
+
+    def _run_offer_quality_analysis(self, context: OrchestrationContext, item: dict[str, Any]) -> None:
+        provided = _as_dict(context.input.get("offerQualityAnalysis"))
+        if provided and item.get("canUseCache", True):
+            context.offerQualityAnalysis = provided
+            context.add_step("OFFER_QUALITY_ANALYZER", "SUCCESS", True, _as_list(provided.get("warnings")))
+            return
+
+        offer = dict(_as_dict(context.input.get("offer")))
+        analysis = context.offerAnalysis or _as_dict(context.input.get("offerAnalysis"))
+        if not offer:
+            offer = {
+                "title": analysis.get("title"),
+                "description": analysis.get("description"),
+                "requiredSkills": analysis.get("requiredSkills"),
+                "optionalSkills": analysis.get("optionalSkills"),
+                "domain": analysis.get("domain"),
+            }
+        context.offerQualityAnalysis = analyze_offer_quality(offer)
+        warnings = list(_as_list(context.offerQualityAnalysis.get("warnings")))
+        if context.offerQualityAnalysis.get("matchingReadiness") in {"LOW", "INSUFFICIENT"}:
+            warnings.append(
+                "L'offre est ambigue ou incomplete; la confiance du matching et des conseils peut etre limitee."
+            )
+        context.add_step("OFFER_QUALITY_ANALYZER", "SUCCESS", False, warnings)
 
     def _candidate_skills(self, context: OrchestrationContext) -> list[str]:
         explicit = _as_list(context.input.get("candidateSkills"))
@@ -320,6 +348,7 @@ class OrchestratorV2:
                 "student": self._student_payload(context),
                 "candidateSkills": self._candidate_skills(context),
                 "offer": self._offer_payload(context),
+                "offerQualityAnalysis": context.offerQualityAnalysis or _as_dict(context.offerAnalysis.get("offerQuality")),
                 "matching": context.matchingResult,
                 "question": context.input.get("question"),
                 "ragContextDocuments": docs,
@@ -380,6 +409,11 @@ class OrchestratorV2:
                 f"Simulation terminee: score actuel {context.skillGapSimulation.get('currentScore')}/100, "
                 f"potentiel estime {context.skillGapSimulation.get('potentialBestScore')}/100."
             )
+        if context.intent == "OFFER_QUALITY_ANALYSIS" and context.offerQualityAnalysis:
+            return (
+                f"Qualite de l'offre : {context.offerQualityAnalysis.get('qualityScore')}/100, "
+                f"niveau {context.offerQualityAnalysis.get('qualityLevel')}."
+            )
         if context.intent == "CAREER_ADVICE" and context.careerAdvice:
             readiness = _as_dict(context.careerAdvice.get("v2")).get("readinessLevel")
             return f"Conseil carriere V2 genere avec un niveau de preparation {readiness or 'UNKNOWN'}."
@@ -406,6 +440,7 @@ class OrchestratorV2:
             "results": {
                 "cvAnalysis": context.cvAnalysis,
                 "offerAnalysis": context.offerAnalysis,
+                "offerQualityAnalysis": context.offerQualityAnalysis,
                 "matching": context.matchingResult,
                 "skillGapSimulation": context.skillGapSimulation,
                 "rag": {
@@ -440,6 +475,8 @@ class OrchestratorV2:
                     for item in _as_list(context.skillGapSimulation.get("recommendedPath"))[:2]
                 ],
             ][:3]
+        if context.offerQualityAnalysis:
+            return _as_list(context.offerQualityAnalysis.get("recommendations"))[:3]
         if context.matchingResult:
             return _as_list(context.matchingResult.get("recommendations"))[:3]
         return []
@@ -461,6 +498,7 @@ class OrchestratorV2:
             "recommendations": [
                 "Precisez intent=MATCH pour calculer un score.",
                 "Precisez intent=SKILL_GAP_SIMULATION pour estimer l'impact de competences a renforcer.",
+                "Precisez intent=OFFER_QUALITY_ANALYSIS pour verifier la clarte d'une offre.",
                 "Precisez intent=CAREER_ADVICE pour obtenir un plan d'action.",
                 "Precisez intent=FULL_APPLICATION_ASSISTANCE pour coordonner matching, conseils et lettre.",
             ],

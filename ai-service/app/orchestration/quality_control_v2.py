@@ -29,6 +29,7 @@ def run_global_quality_control(context) -> dict[str, Any]:
     warnings: list[str] = []
     blocking: list[str] = []
     matching = _as_dict(context.matchingResult)
+    offer_quality = _as_dict(context.offerQualityAnalysis)
     simulation = _as_dict(context.skillGapSimulation)
     career = _as_dict(context.careerAdvice)
     letter = _as_dict(context.motivationLetter)
@@ -58,6 +59,19 @@ def run_global_quality_control(context) -> dict[str, Any]:
             checks.append(_check("CRITICAL_MISSING_CAP", False, "BLOCKING", "Une competence critique manquante doit plafonner le score."))
     else:
         checks.append(_check("MATCHING_AVAILABLE", context.intent not in {"MATCH", "SKILL_GAP_SIMULATION", "FULL_APPLICATION_ASSISTANCE", "CAREER_ADVICE", "GENERATE_LETTER"}, "WARNING", "Aucun matching disponible."))
+
+    if offer_quality:
+        quality_score = offer_quality.get("qualityScore")
+        issues = _as_list(offer_quality.get("issues"))
+        draft = _as_dict(offer_quality.get("improvedOfferDraft"))
+        trace = _as_list(offer_quality.get("decisionTrace"))
+        required = _as_list(_as_dict(offer_quality.get("context")).get("requiredSkills"))
+        issue_types = {str(_as_dict(item).get("type")) for item in issues}
+        checks.append(_check("OFFER_QUALITY_SCORE_BOUNDS", isinstance(quality_score, int) and 0 <= quality_score <= 100, "BLOCKING", "Le score de qualite de l'offre doit etre entre 0 et 100."))
+        checks.append(_check("OFFER_QUALITY_LEVEL", bool(offer_quality.get("qualityLevel")), "WARNING", "L'analyse doit exposer qualityLevel."))
+        checks.append(_check("OFFER_QUALITY_MISSING_REQUIRED", bool(required) or "MISSING_REQUIRED_SKILLS" in issue_types, "BLOCKING", "Une offre sans requiredSkills doit etre signalee."))
+        checks.append(_check("OFFER_QUALITY_DRAFT", bool(draft), "WARNING", "Une proposition d'offre amelioree est attendue."))
+        checks.append(_check("OFFER_QUALITY_TRACE", len(trace) >= 3, "WARNING", "La trace de decision doit expliquer l'analyse de l'offre."))
 
     if simulation:
         current = simulation.get("currentScore")

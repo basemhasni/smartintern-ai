@@ -1025,3 +1025,37 @@ RAG V2 conserve `embeddingJson` pour rester compatible avec PostgreSQL et la mig
 6. Tester `/api/rag/ask` avec une question precise puis une question hors contexte.
 7. Verifier les citations, les snippets courts et l absence de `embeddingJson`.
 8. Tester les routes documents et reindex avec un role non ADMIN : elles doivent retourner `403`.
+
+## Offer Quality Analyzer
+
+```http
+POST /api/ai/analyze-offer-quality
+```
+
+La route est protegee par JWT et accessible aux roles `COMPANY` et `ADMIN`.
+Elle transmet l'offre a `POST /ai/analyze-offer-quality` et retourne le score,
+les issues, les recommandations, le brouillon ameliore et la trace de decision.
+
+Cette route est volontairement separee des routes de creation et modification
+d'offres. Une analyse faible ne bloque donc pas `POST /api/companies/offers`
+ni `PUT /api/companies/offers/:id`.
+
+Exemple :
+
+```json
+{
+  "title": "Stage informatique",
+  "description": "Nous cherchons un stagiaire motive.",
+  "requiredSkills": [],
+  "optionalSkills": ["React", "Docker"]
+}
+```
+
+Tests :
+
+1. Demarrer `ai-service` puis `backend-api`.
+2. Appeler la route avec un token `COMPANY` : `200` attendu.
+3. Refaire avec un token `ADMIN` : `200` attendu.
+4. Tester avec `STUDENT` : `403` attendu.
+5. Tester sans token : `401` attendu.
+6. Arreter `ai-service` : `503` attendu sans bloquer les routes normales d'offres.

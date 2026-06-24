@@ -93,7 +93,29 @@ const generateCareerAdvice = async (payload) => {
   }
 };
 
+const analyzeOfferQuality = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/analyze-offer-quality`,
+      payload,
+      { timeout: 5000 }
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Offer quality analysis failed',
+      details: error.response?.data?.message || error.response?.data?.detail || error.message,
+    };
+  }
+};
+
 module.exports = {
+  analyzeOfferQuality,
   analyzeCV,
   generateCareerAdvice,
   generateMotivationLetter,

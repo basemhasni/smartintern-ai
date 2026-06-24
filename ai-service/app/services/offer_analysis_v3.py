@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from app.knowledge.skill_taxonomy import SKILLS_BY_NAME
 from app.services.offer_analysis_v2 import analyze_offer_v2
+from app.services.offer_quality_analyzer_service import analyze_offer_quality
 from app.utils.text_normalization import normalize_text
 
 
@@ -72,5 +73,22 @@ def analyze_offer_v3(title: str, description: str, required_skills=None, optiona
     analysis["description"] = description
     analysis["criticalSkills"] = critical_skills
     analysis["requirementItems"] = requirement_items
-    analysis["offerQuality"] = _offer_quality(analysis["requiredSkills"], title, description)
+    quality = analyze_offer_quality(
+        {
+            "title": title,
+            "description": description,
+            "requiredSkills": required_skills or [],
+            "optionalSkills": optional_skills or [],
+        }
+    )
+    legacy_quality = _offer_quality(analysis["requiredSkills"], title, description)
+    if quality["matchingReadiness"] in {"LOW", "INSUFFICIENT"} or quality["qualityLevel"] in {"LOW", "VERY_LOW"}:
+        quality["quality"] = "LOW"
+    elif quality["qualityLevel"] == "MEDIUM":
+        quality["quality"] = "MEDIUM"
+    else:
+        quality["quality"] = legacy_quality["quality"]
+    quality["hasExplicitRequirements"] = legacy_quality["hasExplicitRequirements"]
+    quality["textLength"] = legacy_quality["textLength"]
+    analysis["offerQuality"] = quality
     return analysis

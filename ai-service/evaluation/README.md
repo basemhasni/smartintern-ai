@@ -13,6 +13,7 @@ evaluation/
     rag_cases.json
     orchestrator_cases.json
     skill_gap_simulator_cases.json
+    offer_quality_cases.json
   evaluators/
     quality_metrics.py
     matching_evaluator.py
@@ -22,6 +23,7 @@ evaluation/
     orchestrator_evaluator.py
     explainability_evaluator.py
     skill_gap_simulator_evaluator.py
+    offer_quality_evaluator.py
   expected/
     README.md
   reports/
@@ -40,6 +42,7 @@ python scripts/evaluate_rag_v2.py --mode mock
 python scripts/evaluate_orchestrator_v2.py
 python scripts/evaluate_explainability.py
 python scripts/evaluate_skill_gap_simulator.py
+python scripts/evaluate_offer_quality_analyzer.py
 python -m unittest discover -s tests -v
 ```
 
@@ -77,7 +80,8 @@ RAG V2: 8/8 PASS
 Orchestrator V2: 8/8 PASS
 Explainability: 8/8 PASS
 Skill Gap Simulator: 8/8 PASS
-Global: 66/66 PASS
+Offer Quality Analyzer: 10/10 PASS
+Global: 77/77 PASS
 Status: PASS
 ```
 
@@ -126,6 +130,25 @@ Examples:
 L evaluateur verifie les gains positifs, la priorite des gaps, les plafonds,
 les projets proposes, le chemin recommande, l absence de priorite sur une
 competence deja forte et la limite generale de 95.
+
+## Offer Quality Analyzer Cases
+
+`offer_quality_cases.json` couvre dix offres :
+
+- offre fullstack complete ;
+- description trop courte ;
+- absence de `requiredSkills` ;
+- trop de competences obligatoires ;
+- overlap required/optional ;
+- exigences senior pour un stage ;
+- titre generique ;
+- incoherence React, Java/Spring et Flutter ;
+- offre QA claire ;
+- offre DevOps claire.
+
+L'evaluateur verifie les plages de score, les issues attendues, la preparation
+au matching, la trace de decision, l'absence de `undefined`, la separation des
+skills et l'absence de technologie inventee dans le brouillon.
 
 ## Status
 
