@@ -7,6 +7,10 @@ import CareerFocusedAnswer from './CareerFocusedAnswer.jsx';
 import CareerStrengths from './CareerStrengths.jsx';
 import RagInsightsPanel from './RagInsightsPanel.jsx';
 import SkillsToImprove from './SkillsToImprove.jsx';
+import CareerSignalMap from '../../ai/CareerSignalMap.jsx';
+import DecisionTraceTimeline from '../../ai/DecisionTraceTimeline.jsx';
+import SkillEvidenceMap from '../../ai/SkillEvidenceMap.jsx';
+import AiWarningsPanel from '../../ai/AiWarningsPanel.jsx';
 
 function CareerAdviceResult({ advice, offer, question, onAskAnother }) {
   if (!advice) {
@@ -32,6 +36,10 @@ function CareerAdviceResult({ advice, offer, question, onAskAnother }) {
             <CareerActionPlan actionPlan={advice.v2.learningRoadmap.length ? advice.v2.learningRoadmap : advice.actionPlan} />
             <RagInsightsPanel ragInsights={advice.ragInsights} ragContext={advice.ragContext} />
           </div>
+          <CareerSignalMap signalMap={advice.v2.careerSignalMap} />
+          <SkillEvidenceMap evidenceMap={advice.v2.skillEvidenceMap} requiredSkills={offer?.requiredSkills || []} />
+          <DecisionTraceTimeline trace={advice.v2.decisionTrace} />
+          <AiWarningsPanel warnings={advice.v2.warnings} />
         </div>
       </details>
 

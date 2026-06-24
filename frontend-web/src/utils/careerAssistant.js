@@ -1,5 +1,6 @@
 import { normalizeScore, toArray } from './formatters.js';
 import { normalizeMatching, normalizeOffer } from './offers.js';
+import { normalizeSkillGapSimulation } from './ai.js';
 
 export const promptSuggestions = [
   'Quelles competences dois-je ameliorer pour cette offre ?',
@@ -115,6 +116,10 @@ const normalizeCareerAdviceV2 = (v2) => {
     directAnswer: value.directAnswer || '',
     specificSkillAnalysis: value.specificSkillAnalysis && typeof value.specificSkillAnalysis === 'object' ? value.specificSkillAnalysis : null,
     analysisSummary: value.analysisSummary && typeof value.analysisSummary === 'object' ? value.analysisSummary : null,
+    skillEvidenceMap: value.skillEvidenceMap && typeof value.skillEvidenceMap === 'object' ? value.skillEvidenceMap : {},
+    careerSignalMap: value.careerSignalMap && typeof value.careerSignalMap === 'object' ? value.careerSignalMap : {},
+    decisionTrace: Array.isArray(value.decisionTrace) ? value.decisionTrace : [],
+    skillGapSimulation: normalizeSkillGapSimulation(value.skillGapSimulation),
     readinessLevel,
     readinessLabel: readinessLabels[readinessLevel] || readinessLevel,
     confidence: value.confidence || 'LOW',

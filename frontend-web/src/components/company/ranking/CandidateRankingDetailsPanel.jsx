@@ -5,6 +5,12 @@ import { formatRankDate } from '../../../utils/candidateRanking.js';
 import CompanyStatusCard from '../CompanyStatusCard.jsx';
 import CandidateMatchingBreakdown from './CandidateMatchingBreakdown.jsx';
 import CandidateRankBadge from './CandidateRankBadge.jsx';
+import AiScoreCard from '../../ai/AiScoreCard.jsx';
+import CareerSignalMap from '../../ai/CareerSignalMap.jsx';
+import DecisionTraceTimeline from '../../ai/DecisionTraceTimeline.jsx';
+import MissingSkillsPanel from '../../ai/MissingSkillsPanel.jsx';
+import ScoreBreakdownCard from '../../ai/ScoreBreakdownCard.jsx';
+import SkillEvidenceMap from '../../ai/SkillEvidenceMap.jsx';
 
 function CandidateRankingDetailsPanel({ candidate, onClose, onUpdateStatus }) {
   useEffect(() => {
@@ -53,6 +59,22 @@ function CandidateRankingDetailsPanel({ candidate, onClose, onUpdateStatus }) {
         <div className="mt-5 rounded-stitch border border-line bg-white p-6 shadow-panel">
           <CandidateMatchingBreakdown candidate={candidate} />
         </div>
+
+        {candidate.hasScore ? (
+          <details className="group mt-5 rounded-stitch border border-line bg-white shadow-panel">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 font-black text-ink">
+              <span>Voir l analyse IA detaillee</span><span className="text-xl text-ai transition group-open:rotate-45" aria-hidden="true">+</span>
+            </summary>
+            <div className="space-y-5 border-t border-line bg-canvas/50 p-5">
+              <AiScoreCard matching={candidate.matching} />
+              <ScoreBreakdownCard breakdown={candidate.matching.v3?.scoreBreakdown} />
+              <MissingSkillsPanel matching={candidate.matching} />
+              <CareerSignalMap signalMap={candidate.matching.explainability?.careerSignalMap} />
+              <SkillEvidenceMap evidenceMap={candidate.matching.explainability?.skillEvidenceMap} />
+              <DecisionTraceTimeline trace={candidate.matching.explainability?.decisionTrace} />
+            </div>
+          </details>
+        ) : null}
 
         <div className="mt-5 flex flex-wrap gap-2 rounded-stitch border border-line bg-white p-5 shadow-panel">
           <button className="rounded-lg bg-primary px-4 py-3 text-sm font-black text-white" type="button" onClick={() => onUpdateStatus(candidate)}>Modifier le statut</button>

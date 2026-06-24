@@ -6,7 +6,8 @@ const { authorizeRoles } = require('../middlewares/role.middleware');
 
 const router = express.Router();
 
-router.use(protect, authorizeRoles('COMPANY', 'ADMIN'));
-router.post('/analyze-offer-quality', aiController.analyzeOfferQualityEndpoint);
+router.post('/analyze-offer-quality', protect, authorizeRoles('COMPANY', 'ADMIN'), aiController.analyzeOfferQualityEndpoint);
+router.post('/skill-gap-simulator', protect, authorizeRoles('STUDENT', 'ADMIN'), aiController.simulateSkillGapsEndpoint);
+router.post('/orchestrate', protect, authorizeRoles('STUDENT', 'COMPANY', 'ADMIN'), aiController.orchestrateAiEndpoint);
 
 module.exports = router;

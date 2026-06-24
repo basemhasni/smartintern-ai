@@ -6,6 +6,12 @@ import { generateMotivationLetter, getMotivationLetter, updateMotivationLetter }
 import { getOfferById, getOfferMatching } from '../../api/offersApi.js';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton.jsx';
+import CareerSignalMap from '../../components/ai/CareerSignalMap.jsx';
+import DecisionTraceTimeline from '../../components/ai/DecisionTraceTimeline.jsx';
+import MissingSkillsPanel from '../../components/ai/MissingSkillsPanel.jsx';
+import ScoreBreakdownCard from '../../components/ai/ScoreBreakdownCard.jsx';
+import SkillEvidenceMap from '../../components/ai/SkillEvidenceMap.jsx';
+import SkillGapSimulatorPanel from '../../components/ai/SkillGapSimulatorPanel.jsx';
 import ApplyDialog from '../../components/student/offers/ApplyDialog.jsx';
 import MatchingExplanation from '../../components/student/offers/MatchingExplanation.jsx';
 import MotivationLetterDialog from '../../components/student/applications/MotivationLetterDialog.jsx';
@@ -272,6 +278,25 @@ function StudentOfferDetailPage() {
           </section>
         </div>
       </div>
+
+      {matching ? (
+        <details className="group rounded-stitch border border-line bg-white shadow-panel">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 font-black text-ink focus-visible:ring-4 focus-visible:ring-primary/15 sm:px-7">
+            <span>Voir les details et les preuves du matching IA</span>
+            <span className="text-xl text-ai transition group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+          <div className="space-y-5 border-t border-line bg-canvas/50 p-4 sm:p-6">
+            <div className="grid gap-5 xl:grid-cols-2">
+              <ScoreBreakdownCard breakdown={matching.v3?.scoreBreakdown} />
+              <MissingSkillsPanel matching={matching} />
+            </div>
+            <CareerSignalMap signalMap={matching.explainability?.careerSignalMap} />
+            <SkillEvidenceMap evidenceMap={matching.explainability?.skillEvidenceMap} requiredSkills={offer.requiredSkills} />
+            <DecisionTraceTimeline trace={matching.explainability?.decisionTrace} />
+            <SkillGapSimulatorPanel matching={matching} />
+          </div>
+        </details>
+      ) : null}
 
       <ApplyDialog
         offer={isApplyDialogOpen ? offer : null}

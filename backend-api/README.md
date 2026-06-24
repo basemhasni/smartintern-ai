@@ -1059,3 +1059,23 @@ Tests :
 4. Tester avec `STUDENT` : `403` attendu.
 5. Tester sans token : `401` attendu.
 6. Arreter `ai-service` : `503` attendu sans bloquer les routes normales d'offres.
+
+## Frontend AI Proxies
+
+Le frontend utilise uniquement le backend authentifie pour les nouvelles
+fonctions IA :
+
+```http
+POST /api/ai/skill-gap-simulator
+POST /api/ai/analyze-offer-quality
+POST /api/ai/orchestrate
+```
+
+Autorisations :
+
+- `skill-gap-simulator` : `STUDENT`, `ADMIN` ;
+- `analyze-offer-quality` : `COMPANY`, `ADMIN` ;
+- `orchestrate` : `STUDENT`, `COMPANY`, `ADMIN`.
+
+Ces routes sont de simples proxies vers ai-service. Elles ne sauvegardent
+aucune simulation et ne modifient aucune offre.

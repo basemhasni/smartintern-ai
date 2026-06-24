@@ -1,6 +1,7 @@
 import OfferFormSection from './OfferFormSection.jsx';
 import OfferStatusSelector from './OfferStatusSelector.jsx';
 import SkillsInput from './SkillsInput.jsx';
+import OfferQualityPanel from '../../ai/OfferQualityPanel.jsx';
 
 function Field({ id, label, value, error, onChange, maxLength, placeholder, type = 'text' }) {
   return (
@@ -68,6 +69,17 @@ function CompanyOfferForm({
         <SkillsInput id="requiredSkills" label="Competences requises" value={values.requiredSkills} error={errors.requiredSkills} help="Entrer ou virgule pour ajouter une competence." onChange={(skills) => onChange('requiredSkills', skills)} />
         <SkillsInput id="optionalSkills" label="Competences appreciees" value={values.optionalSkills} error={errors.optionalSkills} help="Ces competences ameliorent le matching mais restent optionnelles." onChange={(skills) => onChange('optionalSkills', skills)} />
       </OfferFormSection>
+
+      <OfferQualityPanel
+        offer={{
+          title: values.title,
+          description: values.description,
+          location: values.location,
+          duration: values.duration,
+          requiredSkills: values.requiredSkills,
+          optionalSkills: values.optionalSkills,
+        }}
+      />
 
       <OfferFormSection eyebrow="04" title="Publication" description="Le backend accepte les statuts DRAFT, PUBLISHED, CLOSED et ARCHIVED.">
         <OfferStatusSelector value={values.status} error={errors.status} onChange={(status) => onChange('status', status)} />

@@ -1,4 +1,4 @@
-import OfferMatchScore from './OfferMatchScore.jsx';
+import AiScoreCard from '../../ai/AiScoreCard.jsx';
 import OfferSkills from './OfferSkills.jsx';
 
 function MatchingExplanation({ matching, matchingError }) {
@@ -20,12 +20,7 @@ function MatchingExplanation({ matching, matchingError }) {
     <section className="rounded-stitch border border-line bg-white p-6 shadow-panel">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Matching explicable</p>
       <h2 className="mt-2 text-xl font-black text-ink">Pourquoi cette offre peut vous correspondre</h2>
-      <div className="mt-5">
-        <OfferMatchScore matching={matching} />
-      </div>
-      <p className="mt-4 text-sm leading-7 text-muted">
-        {matching.explanation || 'Le backend a calcule le score a partir des competences du CV et de l’offre.'}
-      </p>
+      <div className="mt-5"><AiScoreCard matching={matching} /></div>
       <p className="mt-2 text-xs font-bold leading-5 text-muted">
         Ce score est une estimation basee sur votre CV analyse et les competences mentionnees dans l’offre. Il ne constitue pas une decision de recrutement.
       </p>

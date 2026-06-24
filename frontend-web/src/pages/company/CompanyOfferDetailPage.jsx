@@ -4,6 +4,7 @@ import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { deleteOrArchiveCompanyOffer, getCompanyOfferById } from '../../api/companyOffersApi.js';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton.jsx';
+import OfferQualityPanel from '../../components/ai/OfferQualityPanel.jsx';
 import OfferArchiveDialog from '../../components/company/offers/OfferArchiveDialog.jsx';
 import OfferDetailSummary from '../../components/company/offers/OfferDetailSummary.jsx';
 import { getReadableOfferError, normalizeCompanyOffer } from '../../utils/companyOffers.js';
@@ -62,6 +63,7 @@ function CompanyOfferDetailPage() {
       {successMessage ? <p className="rounded-stitch border border-green-100 bg-green-50 px-5 py-4 text-sm font-bold text-success" aria-live="polite">{successMessage}</p> : null}
       {apiError ? <ErrorState title="Action indisponible" message={apiError} onRetry={loadOffer} /> : null}
       <OfferDetailSummary offer={offer} onArchive={() => setArchiveTarget(offer)} />
+      <OfferQualityPanel offer={offer} />
       <OfferArchiveDialog offer={archiveTarget} isArchiving={isArchiving} onCancel={() => setArchiveTarget(null)} onConfirm={handleArchive} />
     </div>
   );

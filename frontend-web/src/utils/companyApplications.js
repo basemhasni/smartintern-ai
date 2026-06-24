@@ -1,5 +1,6 @@
 import { applicationStatusLabels } from './companyDashboard.js';
 import { normalizeScore, toArray } from './formatters.js';
+import { normalizeAiMatchResult } from './ai.js';
 
 export const applicationStatuses = ['SENT', 'PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'];
 
@@ -21,11 +22,8 @@ export const normalizeCompanyApplication = (application, offer, rankingCandidate
     updatedAt: application.updatedAt || null,
     compatibilityScore: normalizeScore(application.compatibilityScore ?? matching.score),
     matching: {
+      ...normalizeAiMatchResult(matching),
       score: normalizeScore(matching.score ?? application.compatibilityScore),
-      matchedSkills: toArray(matching.matchedSkills),
-      missingSkills: toArray(matching.missingSkills),
-      optionalMatchedSkills: toArray(matching.optionalMatchedSkills),
-      explanation: matching.explanation || '',
     },
     student: {
       id: student.id,

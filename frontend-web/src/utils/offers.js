@@ -1,17 +1,9 @@
 import { normalizeScore, toArray } from './formatters.js';
+import { normalizeAiMatchResult } from './ai.js';
 
 export const normalizeMatching = (matching) => {
-  if (!matching) {
-    return null;
-  }
-
-  return {
-    score: normalizeScore(matching.score),
-    matchedSkills: toArray(matching.matchedSkills),
-    missingSkills: toArray(matching.missingSkills),
-    optionalMatchedSkills: toArray(matching.optionalMatchedSkills),
-    explanation: matching.explanation || null,
-  };
+  const normalized = normalizeAiMatchResult(matching);
+  return normalized ? { ...normalized, score: normalizeScore(normalized.score) } : null;
 };
 
 export const normalizeOffer = (offer, extras = {}) => {

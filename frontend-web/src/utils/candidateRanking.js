@@ -1,5 +1,6 @@
 import { applicationStatusLabels } from './companyDashboard.js';
 import { formatDate, normalizeScore, toArray } from './formatters.js';
+import { normalizeAiMatchResult } from './ai.js';
 
 const unavailableScorePatterns = [
   'no analyzed cv',
@@ -50,13 +51,7 @@ export const normalizeRankingCandidate = (candidate, fallbackOffer, index = 0) =
       id: fallbackOffer?.id || candidate.offer?.id || candidate.offerId,
       title: fallbackOffer?.title || candidate.offer?.title || 'Offre',
     },
-    matching: {
-      score,
-      matchedSkills: toArray(matching.matchedSkills),
-      missingSkills: toArray(matching.missingSkills),
-      optionalMatchedSkills: toArray(matching.optionalMatchedSkills),
-      explanation: matching.explanation || '',
-    },
+    matching: { ...normalizeAiMatchResult(matching), score },
   };
 };
 

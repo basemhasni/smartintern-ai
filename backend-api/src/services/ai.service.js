@@ -114,10 +114,48 @@ const analyzeOfferQuality = async (payload) => {
   }
 };
 
+const simulateSkillGaps = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/skill-gap-simulator`,
+      payload,
+      { timeout: 10000 }
+    );
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Skill gap simulation failed',
+      details: error.response?.data?.message || error.response?.data?.detail || error.message,
+    };
+  }
+};
+
+const orchestrateAi = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/orchestrate/v2`,
+      payload,
+      { timeout: 15000 }
+    );
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'AI orchestration failed',
+      details: error.response?.data?.message || error.response?.data?.detail || error.message,
+    };
+  }
+};
+
 module.exports = {
   analyzeOfferQuality,
   analyzeCV,
   generateCareerAdvice,
   generateMotivationLetter,
   matchCandidateWithOffer,
+  orchestrateAi,
+  simulateSkillGaps,
 };

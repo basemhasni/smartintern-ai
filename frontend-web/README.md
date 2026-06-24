@@ -1400,3 +1400,76 @@ Tests recommandes :
 9. Tester 1440px, 1024px, 768px et 390px.
 10. Verifier l absence d overflow horizontal.
 11. Lancer `npm run build`.
+# Frontend AI Insights
+
+Les donnees avancees de Matching V3 sont affichees dans les espaces etudiant et
+entreprise sans casser les anciens resultats de matching.
+
+## Composants
+
+Les composants reutilisables vivent dans `src/components/ai/` :
+
+- `AiScoreCard` : score, decision, confiance et explication ;
+- `ScoreBreakdownCard` : decomposition ponderee du score ;
+- `CareerSignalMap` : scores et competences par domaine ;
+- `SkillEvidenceMap` : preuves fortes, moyennes, faibles ou absentes ;
+- `DecisionTraceTimeline` : etapes lisibles de la decision IA ;
+- `MissingSkillsPanel` : gaps critiques, obligatoires et optionnels ;
+- `SkillGapSimulatorPanel` : score potentiel, parcours et projets ;
+- `OfferQualityPanel` : qualite d'une offre et proposition amelioree ;
+- badges, warnings, etats vides et conteneurs communs.
+
+Tous les composants acceptent les donnees absentes. Un ancien matching sans
+`v3` ou `explainability` affiche un etat vide au lieu de provoquer une erreur.
+
+## Pages integrees
+
+- detail d'offre etudiant : score detaille, signaux, preuves, trace et
+  simulateur ;
+- assistant carriere : signaux, preuves, trace et warnings dans l'analyse
+  detaillee ;
+- classement candidat entreprise : analyse complete dans le panneau lateral ;
+- creation et modification d'offre : analyse qualite manuelle ;
+- detail d'offre entreprise : analyse qualite disponible a la demande.
+
+## API
+
+`src/api/aiApi.js` utilise l'instance `axiosClient` et le JWT existant :
+
+```text
+POST /api/ai/skill-gap-simulator
+POST /api/ai/analyze-offer-quality
+POST /api/ai/orchestrate
+```
+
+Les normalisations sont centralisees dans `src/utils/ai.js`. Les utilitaires
+`offers.js`, `candidateRanking.js` et `companyApplications.js` conservent
+maintenant `confidence`, `decisionLabel`, `v3` et `explainability`.
+
+## UX et limites
+
+- Les details avances sont places dans des sections pliables.
+- La simulation indique clairement qu'il s'agit d'une estimation.
+- L'analyse qualite ne modifie et ne bloque jamais le formulaire d'offre.
+- Le brouillon ameliore peut etre copie, mais n'est jamais applique
+  automatiquement.
+- La qualite des panneaux depend des champs effectivement renvoyes par le
+  matching courant.
+
+## Verification
+
+```bash
+cd frontend-web
+npm run build
+npm run dev
+```
+
+Tests manuels recommandes :
+
+1. ouvrir un detail d'offre avec un matching V3 ;
+2. ouvrir les details IA et verifier les etats vides ;
+3. lancer le Skill Gap Simulator ;
+4. ouvrir un candidat dans le classement entreprise ;
+5. analyser une offre depuis le formulaire entreprise ;
+6. tester avec ai-service arrete et avec un role non autorise ;
+7. verifier les vues desktop et mobile.
