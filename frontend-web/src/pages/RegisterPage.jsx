@@ -107,6 +107,7 @@ function RegisterPage() {
     <AuthLayout
       title="Construisez la suite de votre parcours"
       subtitle="Creez votre espace etudiant ou entreprise et laissez SmartIntern AI transformer les candidatures en correspondances utiles."
+      variant="register"
     >
       <form className="space-y-5" noValidate onSubmit={handleSubmit}>
         <AuthFeedback message={globalError} />
@@ -176,7 +177,7 @@ function RegisterPage() {
         />
         <RoleSelector error={fieldErrors.role} onChange={updateRole} value={values.role} />
         <button
-          className="flex h-12 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-extrabold text-white shadow-panel transition hover:bg-[#0b4fc4] disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex h-12 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-extrabold text-white shadow-[0_14px_30px_rgba(15,91,215,0.22)] transition hover:-translate-y-0.5 hover:bg-[#0b4fc4] disabled:cursor-not-allowed disabled:opacity-70"
           type="submit"
           disabled={isSubmitting}
         >

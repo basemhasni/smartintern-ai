@@ -94,6 +94,38 @@ select {
   }
 }
 
+@keyframes auth-illustration-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes auth-panel-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(-16px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.auth-visual-panel {
+  animation: auth-panel-enter 700ms ease both;
+}
+
+.auth-illustration-shell {
+  animation: auth-illustration-float 7s ease-in-out infinite;
+}
+
+.auth-illustration {
+  aspect-ratio: 3 / 2;
+}
+
 @keyframes hero-card-drift {
   0%, 100% {
     transform: translate3d(0, 0, 0) rotateZ(0deg);

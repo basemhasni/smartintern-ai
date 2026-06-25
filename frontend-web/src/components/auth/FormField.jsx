@@ -35,7 +35,7 @@ function FormField({
           autoFocus={autoFocus}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`h-12 w-full rounded-lg border bg-[#f4f7fb] px-4 text-sm font-medium text-ink transition placeholder:text-muted/70 focus:border-primary focus:bg-white focus:outline focus:outline-2 focus:outline-primary/15 ${Icon ? 'pl-10' : ''} ${error ? 'border-danger' : 'border-[#d8deec]'}`}
+          className={`h-12 w-full rounded-lg border bg-[#f7f9fd] px-4 text-sm font-medium text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition placeholder:text-muted/65 hover:border-primary/35 focus:border-primary focus:bg-white focus:outline focus:outline-2 focus:outline-primary/15 ${Icon ? 'pl-10' : ''} ${error ? 'border-danger' : 'border-[#d8deec]'}`}
         />
       </div>
       {error ? (
