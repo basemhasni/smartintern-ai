@@ -117,7 +117,9 @@ function LoginPage() {
           value={values.password}
         />
         <div className="flex justify-end">
-          <span className="text-xs font-semibold text-primary">Mot de passe oublie ?</span>
+          <Link className="text-xs font-semibold text-primary hover:underline" to="/forgot-password">
+            Mot de passe oublie ?
+          </Link>
         </div>
         <button
           className="flex h-12 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-extrabold text-white shadow-[0_14px_30px_rgba(15,91,215,0.22)] transition hover:-translate-y-0.5 hover:bg-[#0b4fc4] disabled:cursor-not-allowed disabled:opacity-70"
