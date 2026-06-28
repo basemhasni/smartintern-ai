@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api import (
@@ -22,6 +23,15 @@ app = FastAPI(
     version="3.0.0",
 )
 
+if settings.allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 app.include_router(health_routes.router)
 app.include_router(cv_routes.router)
 app.include_router(offer_routes.router)
@@ -40,6 +50,6 @@ async def validation_exception_handler(request, exc):
     return JSONResponse(
         status_code=400,
         content={
-            "detail": exc.errors(),
+            "detail": exc.errors() if not settings.is_production else "Invalid request payload.",
         },
     )

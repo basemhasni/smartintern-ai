@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 
+const { getAllowedOrigins } = require('./config/env');
 const adminRoutes = require('./routes/admin.routes');
 const aiRoutes = require('./routes/ai.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -26,17 +27,31 @@ const {
 const { companyOfferRouter, publicOfferRouter } = require('./routes/offer.routes');
 
 const app = express();
+const allowedOrigins = getAllowedOrigins();
 
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    const error = new Error('Origin is not allowed by CORS');
+    error.statusCode = 403;
+    return callback(error);
+  },
+  credentials: true,
+}));
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '1mb' }));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
-app.use('/api/test', testProtectedRoutes);
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/test', testProtectedRoutes);
+}
 app.use('/api/rag', ragRoutes);
 app.use('/api/students/cv', cvRoutes);
 app.use('/api/students/applications', studentApplicationRouter);
@@ -62,10 +77,13 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
+  const message = process.env.NODE_ENV === 'production' && statusCode >= 500
+    ? 'Internal server error'
+    : err.message || 'Internal server error';
 
   res.status(statusCode).json({
     status: 'error',
-    message: err.message || 'Internal server error',
+    message,
   });
 });
 
