@@ -1,5 +1,6 @@
 export const TOKEN_STORAGE_KEY = 'smartintern_token';
 export const USER_STORAGE_KEY = 'smartintern_user';
+const LEGACY_TOKEN_KEYS = [TOKEN_STORAGE_KEY, 'token', 'authToken'];
 
 export const getDashboardPathByRole = (role) => {
   switch (role) {
@@ -14,13 +15,13 @@ export const getDashboardPathByRole = (role) => {
   }
 };
 
-export const saveSession = ({ token, user }) => {
-  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+export const saveSession = ({ user }) => {
+  LEGACY_TOKEN_KEYS.forEach((key) => localStorage.removeItem(key));
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 };
 
 export const clearSession = () => {
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  LEGACY_TOKEN_KEYS.forEach((key) => localStorage.removeItem(key));
   localStorage.removeItem(USER_STORAGE_KEY);
 };
 

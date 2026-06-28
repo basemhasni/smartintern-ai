@@ -2,41 +2,31 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useNavigate } from 'react-router-dom';
 
 import axiosClient from '../api/axiosClient.js';
-import { clearSession, getDashboardPathByRole, readStoredUser, saveSession, TOKEN_STORAGE_KEY } from '../utils/auth.js';
+import { clearSession, getDashboardPathByRole, readStoredUser, saveSession } from '../utils/auth.js';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
   const [user, setUser] = useState(() => readStoredUser());
   const [isLoading, setIsLoading] = useState(true);
 
-  const setSession = useCallback((nextToken, nextUser) => {
-    saveSession({ token: nextToken, user: nextUser });
-    setToken(nextToken);
+  const setSession = useCallback((nextUser) => {
+    saveSession({ user: nextUser });
     setUser(nextUser);
   }, []);
 
   const resetSession = useCallback(() => {
     clearSession();
-    setToken(null);
     setUser(null);
   }, []);
 
   const refreshUser = useCallback(async () => {
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-
-    if (!storedToken) {
-      resetSession();
-      return null;
-    }
-
-    const response = await axiosClient.get('/api/auth/me');
+    const response = await axiosClient.get('/api/auth/me', { skipAuthRedirect: true });
     const nextUser = response.data.user;
-    setSession(storedToken, nextUser);
+    setSession(nextUser);
     return nextUser;
-  }, [resetSession, setSession]);
+  }, [setSession]);
 
   useEffect(() => {
     let isMounted = true;
@@ -63,36 +53,40 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     const response = await axiosClient.post('/api/auth/login', { email, password });
     const nextUser = response.data.user;
-    const nextToken = response.data.token;
-    setSession(nextToken, nextUser);
+    setSession(nextUser);
     return nextUser;
   }, [setSession]);
 
   const register = useCallback(async (formData) => {
     const response = await axiosClient.post('/api/auth/register', formData);
     const nextUser = response.data.user;
-    const nextToken = response.data.token;
-    setSession(nextToken, nextUser);
+    setSession(nextUser);
     return nextUser;
   }, [setSession]);
 
-  const logout = useCallback(() => {
-    resetSession();
-    navigate('/login', { replace: true });
+  const logout = useCallback(async () => {
+    try {
+      await axiosClient.post('/api/auth/logout', null, { skipAuthRedirect: true });
+    } catch (error) {
+      // Local cleanup still happens if the backend is unreachable.
+    } finally {
+      resetSession();
+      navigate('/login', { replace: true });
+    }
   }, [navigate, resetSession]);
 
   const value = useMemo(() => ({
     user,
-    token,
+    token: null,
     role: user?.role || null,
-    isAuthenticated: Boolean(token && user),
+    isAuthenticated: Boolean(user),
     isLoading,
     login,
     register,
     logout,
     refreshUser,
     getDashboardPath: () => getDashboardPathByRole(user?.role),
-  }), [isLoading, login, logout, refreshUser, register, token, user]);
+  }), [isLoading, login, logout, refreshUser, register, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

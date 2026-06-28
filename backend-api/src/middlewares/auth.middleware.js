@@ -1,21 +1,24 @@
 const jwt = require('jsonwebtoken');
 
+const { getAuthTokenFromCookie } = require('../utils/authCookie');
+
 const protect = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
+  const cookieToken = getAuthTokenFromCookie(req);
+  let token = cookieToken;
 
-  if (!authorizationHeader) {
+  if (!token && authorizationHeader) {
+    const [scheme, bearerToken] = authorizationHeader.split(' ');
+
+    if (scheme === 'Bearer' && bearerToken) {
+      token = bearerToken;
+    }
+  }
+
+  if (!token) {
     return res.status(401).json({
       status: 'error',
       message: 'Authorization token is required',
-    });
-  }
-
-  const [scheme, token] = authorizationHeader.split(' ');
-
-  if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({
-      status: 'error',
-      message: 'Authorization header must use Bearer token format',
     });
   }
 

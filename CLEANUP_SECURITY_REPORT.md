@@ -205,7 +205,7 @@ Dependency audit:
 ## 15. Recommandations Futures
 
 - Ajouter une vraie librairie de validation payload (`zod`, `joi`, `express-validator`) pour backend si le projet accepte une dependance.
-- Migrer les tokens auth vers cookies httpOnly si l'architecture frontend/backend le permet.
+- Les tokens auth ont ete migres vers cookies HttpOnly dans la branche `security/auth-http-only-cookie`; voir `AUTH_SECURITY_NOTES.md`.
 - Ajouter tests backend automatisees auth/role/reset-password.
 - Ajouter code splitting frontend pour reduire le chunk principal.
 - Resoudre le probleme certificat npm local puis relancer `npm audit`.
