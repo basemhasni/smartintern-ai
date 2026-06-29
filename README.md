@@ -1,32 +1,87 @@
 # SmartIntern AI
 
-SmartIntern AI est une plateforme intelligente de gestion de stages et de matching IA entre étudiants et entreprises.
+SmartIntern AI est une plateforme intelligente de gestion de stages basée sur l'IA. Elle aide les étudiants à trouver des offres adaptées à leur profil et aide les entreprises à identifier des candidats pertinents avec un matching explicable.
 
-L'objectif est de construire progressivement une solution PFE claire, modulaire et maintenable, en avançant phase par phase sans générer toute la plateforme en une seule fois.
+## Objectif
+
+Le projet met en relation étudiants et entreprises avec : analyse CV, analyse d'offres, matching intelligent, recommandations, génération de lettre de motivation, assistant carrière, analyse qualité des offres, simulateur de gaps et IA explicable.
+
+## Modules
+
+| Module | Rôle |
+| --- | --- |
+| `backend-api` | API Express, auth, rôles, Prisma, PostgreSQL, proxy IA |
+| `frontend-web` | Interface React / Vite pour étudiant, entreprise et admin |
+| `ai-service` | FastAPI, matching, RAG, agents et services IA |
+| `database` | Documentation base de données |
+| `docs` | Documentation projet complète |
+| `mobile-app` | Dossier prévu pour la future application mobile |
+| `devops` | Dossier prévu pour Docker, déploiement et CI/CD |
 
 ## Stack technique
 
-- Backend : Node.js, Express.js, Prisma ORM
-- Base de donnees : PostgreSQL
-- Frontend : React.js, Vite, Tailwind CSS
-- IA : Python, FastAPI
-- Agents IA : LangGraph, plus tard
-- RAG : PostgreSQL avec pgvector, plus tard
-- Mobile : Flutter, plus tard
-- DevOps : Docker, Docker Compose, CI/CD, a la fin
+Backend : Node.js, Express, Prisma, PostgreSQL, JWT en cookie HttpOnly, CSRF, Nodemailer, Multer.
 
-## Ordre de developpement
+Frontend : React, Vite, React Router, Axios, Tailwind CSS, composants IA réutilisables.
 
-1. Backend
-2. Base de donnees
-3. Frontend
-4. IA simple
-5. Agents IA
-6. RAG
-7. Mobile
-8. DevOps
+AI-service : Python, FastAPI, Pydantic, Matching V3, RAG V2, Orchestrator V2, services IA spécialisés.
 
-## Objectif MVP
+## Fonctionnalités clés
 
-Le MVP vise a fournir une premiere version fonctionnelle permettant de gerer les profils et les offres de stage, puis de proposer un matching intelligent simple entre etudiants et entreprises.
+- authentification sécurisée ;
+- rôles `STUDENT`, `COMPANY`, `ADMIN` ;
+- profils étudiant et entreprise ;
+- offres de stage et candidatures ;
+- upload CV ;
+- matching IA ;
+- explainability ;
+- Career Signal Map ;
+- Skill Evidence Map ;
+- Decision Trace ;
+- Skill Gap Simulator ;
+- Offer Quality Analyzer ;
+- Career Assistant V2 ;
+- Motivation Letter V2 ;
+- RAG V2 ;
+- Orchestrator V2 ;
+- AI Evaluation Suite.
+
+## Quick start
+
+Backend :
+
+```bash
+cd backend-api
+npm install
+npx prisma generate
+npm run dev
+```
+
+Frontend :
+
+```bash
+cd frontend-web
+npm install
+npm run dev
+```
+
+AI-service :
+
+```bash
+cd ai-service
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+## Documentation
+
+La documentation complète est disponible dans [docs/README.md](docs/README.md).
+
+Pages importantes : [Vue d'ensemble](docs/00-overview.md), [Architecture technique](docs/02-technical-architecture.md), [Backend API](docs/03-backend-api.md), [Frontend Web](docs/04-frontend-web.md), [AI Service](docs/05-ai-service.md), [Architecture IA](docs/06-ai-architecture.md), [Sécurité](docs/07-auth-security.md), [Installation locale](docs/14-local-setup.md).
+
+## Statut du projet
+
+Le backend, le frontend web et le service IA sont fonctionnels. Les dossiers `mobile-app` et `devops` existent mais restent à compléter dans les prochaines étapes du projet.
 
