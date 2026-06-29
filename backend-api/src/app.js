@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 const { getAllowedOrigins } = require('./config/env');
+const { csrfProtection } = require('./middlewares/csrf.middleware');
 const adminRoutes = require('./routes/admin.routes');
 const aiRoutes = require('./routes/ai.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -43,6 +44,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '1mb' }));
+app.use(csrfProtection);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/health', healthRoutes);

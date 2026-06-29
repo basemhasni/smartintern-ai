@@ -37,6 +37,17 @@ const serializeCookie = (name, value, options = {}) => {
   return segments.join('; ');
 };
 
+const appendSetCookie = (res, cookie) => {
+  const current = res.getHeader('Set-Cookie');
+
+  if (!current) {
+    res.setHeader('Set-Cookie', cookie);
+    return;
+  }
+
+  res.setHeader('Set-Cookie', Array.isArray(current) ? [...current, cookie] : [current, cookie]);
+};
+
 const parseCookies = (cookieHeader = '') => cookieHeader
   .split(';')
   .map((part) => part.trim())
@@ -60,21 +71,24 @@ const getAuthTokenFromCookie = (req) => {
 };
 
 const setAuthCookie = (res, token) => {
-  res.setHeader('Set-Cookie', serializeCookie(getCookieName(), token, getCookieOptions()));
+  appendSetCookie(res, serializeCookie(getCookieName(), token, getCookieOptions()));
 };
 
 const clearAuthCookie = (res) => {
-  res.setHeader('Set-Cookie', serializeCookie(getCookieName(), '', {
+  appendSetCookie(res, serializeCookie(getCookieName(), '', {
     ...getCookieOptions(),
     maxAge: 0,
   }));
 };
 
 module.exports = {
+  appendSetCookie,
   clearAuthCookie,
   getAuthTokenFromCookie,
   getCookieName,
   getCookieOptions,
+  parseCookies,
+  serializeCookie,
   setAuthCookie,
 };
 

@@ -1,7 +1,7 @@
 # SmartIntern AI - Auth Cookie Security Notes
 
-Date: 2026-06-28
-Branch: security/auth-http-only-cookie
+Date: 2026-06-29
+Branch: security/csrf-session-hardening
 
 ## Objectif
 
@@ -70,19 +70,34 @@ Le frontend:
 - restaure la session via `/api/auth/me`;
 - logout appelle `/api/auth/logout`.
 
-## CSRF
+## CSRF Double Submit Cookie
 
-Protection minimale actuelle:
+La protection CSRF est active pour les methodes mutantes:
 
-- `SameSite=Lax`;
-- CORS strict;
-- routes sensibles toujours authentifiees;
-- pas de wildcard CORS avec credentials.
+- `POST`
+- `PUT`
+- `PATCH`
+- `DELETE`
 
-CSRF complet double-submit ou token dedie:
+Fonctionnement:
 
-- non ajoute dans cette etape pour eviter de casser toutes les requetes existantes;
-- recommande si l'application passe en contexte cross-site ou si `SameSite=None` devient necessaire.
+1. Le frontend appelle `GET /api/auth/csrf-token`.
+2. Le backend genere un token aleatoire.
+3. Le backend pose un cookie non HttpOnly `CSRF_COOKIE_NAME`.
+4. Le frontend envoie le token dans le header `X-CSRF-Token`.
+5. Le backend compare le cookie et le header avec `crypto.timingSafeEqual`.
+
+Variables:
+
+- `CSRF_COOKIE_NAME=smartintern_csrf`
+- `CSRF_HEADER_NAME=x-csrf-token`
+- `CSRF_COOKIE_MAX_AGE_MS=86400000`
+- `CSRF_COOKIE_SAME_SITE=lax`
+- `CSRF_COOKIE_SECURE=false` en dev, `true` en production
+
+Les methodes `GET`, `HEAD` et `OPTIONS` ne demandent pas de token CSRF.
+
+Le frontend recupere automatiquement le token avant les requetes mutantes et retente une fois en cas de 403 CSRF.
 
 ## Fallback Bearer Temporaire
 
@@ -103,5 +118,6 @@ Cette compatibilite pourra etre retiree quand:
 5. Logout: cookie supprime et redirection login.
 6. Register: cookie cree.
 7. Forgot/reset password: restent publics.
-8. Matching/Career/Offer Quality: routes protegees fonctionnent avec cookie.
-
+8. Verifier `GET /api/auth/csrf-token` et le cookie `smartintern_csrf`.
+9. Envoyer un POST sans `X-CSRF-Token`: attendu `403`.
+10. Matching/Career/Offer Quality: routes protegees fonctionnent avec cookie + CSRF.

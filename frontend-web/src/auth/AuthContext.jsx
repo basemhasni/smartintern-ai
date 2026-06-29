@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useNavigate } from 'react-router-dom';
 
 import axiosClient from '../api/axiosClient.js';
+import { clearCsrfToken } from '../api/csrfService.js';
 import { clearSession, getDashboardPathByRole, readStoredUser, saveSession } from '../utils/auth.js';
 
 const AuthContext = createContext(null);
@@ -18,6 +19,7 @@ export function AuthProvider({ children }) {
 
   const resetSession = useCallback(() => {
     clearSession();
+    clearCsrfToken();
     setUser(null);
   }, []);
 

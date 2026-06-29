@@ -1,5 +1,6 @@
 const authService = require('../services/auth.service');
 const { clearAuthCookie, setAuthCookie } = require('../utils/authCookie');
+const { clearCsrfCookie, generateCsrfToken, setCsrfCookie } = require('../middlewares/csrf.middleware');
 
 const register = async (req, res, next) => {
   try {
@@ -63,9 +64,23 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const getCsrfToken = async (req, res, next) => {
+  try {
+    const csrfToken = generateCsrfToken();
+    setCsrfCookie(res, csrfToken);
+
+    res.status(200).json({
+      csrfToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const logout = async (req, res, next) => {
   try {
     clearAuthCookie(res);
+    clearCsrfCookie(res);
 
     res.status(200).json({
       message: 'Deconnexion reussie.',
@@ -81,6 +96,7 @@ module.exports = {
   me,
   forgotPassword,
   resetPassword,
+  getCsrfToken,
   logout,
 };
 

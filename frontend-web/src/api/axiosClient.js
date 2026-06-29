@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import { attachCsrfHeader, clearCsrfToken, isMutatingMethod } from './csrfService.js';
 import { clearSession } from '../utils/auth.js';
 
 const axiosClient = axios.create({
@@ -8,11 +9,31 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
+axiosClient.interceptors.request.use((config) => attachCsrfHeader(config));
+
 axiosClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config || {};
+
+    if (
+      error.response?.status === 403
+      && isMutatingMethod(originalRequest.method)
+      && !originalRequest.skipCsrf
+      && !originalRequest._csrfRetry
+      && String(error.response.data?.message || '').toLowerCase().includes('csrf')
+    ) {
+      clearCsrfToken();
+      const retryRequest = await attachCsrfHeader({
+        ...originalRequest,
+        _csrfRetry: true,
+      }, { forceRefresh: true });
+      return axiosClient(retryRequest);
+    }
+
     if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
       clearSession();
+      clearCsrfToken();
 
       const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(window.location.pathname);
 
