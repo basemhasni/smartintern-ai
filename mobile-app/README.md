@@ -132,3 +132,47 @@ Les couleurs, espacements, rayons et styles typographiques sont centralisés dan
 3. **Step 4** : candidatures et suivi.
 4. **Step 5** : insights IA réels et explicables.
 5. Étapes ultérieures : CV, notifications et préparation stores.
+
+## Step 2 - Auth mobile
+
+Cette etape connecte l'application Expo au backend reel pour l'authentification.
+Les offres, candidatures, insights IA, upload CV et notifications restent hors scope.
+
+Fonctionnalites connectees :
+
+- login reel ;
+- register etudiant reel ;
+- forgot password reel ;
+- restauration de session via `/auth/me` ;
+- logout reel ;
+- stockage du token avec `expo-secure-store` ;
+- fallback Expo Web de developpement via `localStorage`.
+
+Endpoints utilises :
+
+- `POST /auth/login` ;
+- `POST /auth/register` ;
+- `POST /auth/forgot-password` ;
+- `GET /auth/me` ;
+- `POST /auth/logout`.
+
+La base URL contient deja `/api`, donc les routes mobiles commencent par `/auth`.
+Le client mobile ajoute `X-Client-Type: mobile` et `Authorization: Bearer <token>`
+quand une session existe.
+
+Strategie securite :
+
+- web : cookie JWT HttpOnly + CSRF ;
+- mobile : Bearer token retourne seulement avec `X-Client-Type: mobile` ;
+- token natif : SecureStore ;
+- fallback web : uniquement pour tester Expo Web en developpement.
+
+Commandes de validation :
+
+```bash
+cd mobile-app
+npm install
+npm run typecheck
+npm run lint
+npm run web
+```

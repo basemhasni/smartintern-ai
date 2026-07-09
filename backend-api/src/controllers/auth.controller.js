@@ -2,16 +2,28 @@ const authService = require('../services/auth.service');
 const { clearAuthCookie, setAuthCookie } = require('../utils/authCookie');
 const { clearCsrfCookie, generateCsrfToken, setCsrfCookie } = require('../middlewares/csrf.middleware');
 
+const isMobileClient = (req) => String(req.headers['x-client-type'] || '').toLowerCase() === 'mobile';
+
+const buildAuthResponse = (req, result, message) => {
+  const response = {
+    message,
+    user: result.user,
+  };
+
+  if (isMobileClient(req)) {
+    response.accessToken = result.token;
+  }
+
+  return response;
+};
+
 const register = async (req, res, next) => {
   try {
     const result = await authService.register(req.body);
 
     setAuthCookie(res, result.token);
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: result.user,
-    });
+    res.status(201).json(buildAuthResponse(req, result, 'User registered successfully'));
   } catch (error) {
     next(error);
   }
@@ -23,10 +35,7 @@ const login = async (req, res, next) => {
 
     setAuthCookie(res, result.token);
 
-    res.status(200).json({
-      message: 'User logged in successfully',
-      user: result.user,
-    });
+    res.status(200).json(buildAuthResponse(req, result, 'User logged in successfully'));
   } catch (error) {
     next(error);
   }

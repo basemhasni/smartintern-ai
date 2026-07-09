@@ -5,6 +5,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   StudentTabs: undefined;
   OfferDetail: { offerId?: string };
+  UnsupportedRole: undefined;
 };
 
 export type StudentTabParamList = {

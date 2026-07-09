@@ -136,3 +136,17 @@ Cette page documente les endpoints principaux observés dans `backend-api/src/ro
 | POST | `/ai/rag/v2/retrieve` | Retrieval V2 |
 | POST | `/ai/rag/v2/answer` | Réponse grounded V2 |
 
+
+## Note auth mobile
+
+Pour React Native / Expo :
+
+| Methode | URL | Acces mobile | Description |
+| --- | --- | --- | --- |
+| POST | `/api/auth/register` | `X-Client-Type: mobile` | Inscription etudiant, retourne `accessToken` seulement au mobile |
+| POST | `/api/auth/login` | `X-Client-Type: mobile` | Connexion, retourne `accessToken` seulement au mobile |
+| POST | `/api/auth/forgot-password` | `X-Client-Type: mobile` | Demande reset password avec message generique |
+| GET | `/api/auth/me` | `Authorization: Bearer <token>` | Restaure l'utilisateur courant |
+| POST | `/api/auth/logout` | `Authorization: Bearer <token>` | Deconnexion mobile et nettoyage local cote app |
+
+Le web garde cookie HttpOnly + CSRF. Le mobile utilise Bearer token stocke via SecureStore.

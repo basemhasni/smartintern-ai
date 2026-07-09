@@ -1,9 +1,11 @@
 import { appConfig } from '@/core/config/appConfig';
 import { ApiError } from './apiError';
 
+export { mobileApiRequest as apiRequest } from './mobileApiClient';
+
 type RequestOptions = RequestInit & { timeoutMs?: number };
 
-export async function apiRequest<T>(
+export async function legacyApiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {

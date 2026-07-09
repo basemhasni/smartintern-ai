@@ -101,3 +101,19 @@ Les réponses IA doivent rester prudentes en cas de données insuffisantes.
 - La sécurité production nécessite des secrets forts et `AUTH_COOKIE_SECURE=true`.
 - Les tests E2E navigateur restent à renforcer.
 
+
+## Auth mobile React Native
+
+L'application mobile Expo utilise une strategie stateless compatible avec l'auth web :
+
+- le mobile envoie `X-Client-Type: mobile` ;
+- `POST /api/auth/login` et `POST /api/auth/register` continuent de poser le cookie HttpOnly pour le web ;
+- ces deux routes retournent aussi `accessToken` dans le JSON uniquement quand `X-Client-Type: mobile` est present ;
+- le mobile stocke ce token avec `expo-secure-store` ;
+- les appels mobiles proteges utilisent `Authorization: Bearer <token>` ;
+- `/api/auth/me` restaure la session depuis le Bearer token.
+
+Le token Bearer n'est pas retourne par defaut aux clients web. Les requetes mobiles
+avec `X-Client-Type: mobile` ne passent pas par le double-submit CSRF, car elles
+n'utilisent pas le cookie navigateur comme mecanisme principal. Le web garde la
+protection CSRF existante.

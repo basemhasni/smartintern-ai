@@ -17,6 +17,8 @@ const getCsrfCookieOptions = () => ({
 
 const generateCsrfToken = () => crypto.randomBytes(32).toString('hex');
 
+const isMobileClient = (req) => String(req.headers['x-client-type'] || '').toLowerCase() === 'mobile';
+
 const setCsrfCookie = (res, token) => {
   appendSetCookie(res, serializeCookie(getCsrfCookieName(), token, getCsrfCookieOptions()));
 };
@@ -41,6 +43,10 @@ const tokensMatch = (left, right) => {
 
 const csrfProtection = (req, res, next) => {
   if (SAFE_METHODS.has(req.method)) {
+    return next();
+  }
+
+  if (isMobileClient(req)) {
     return next();
   }
 
