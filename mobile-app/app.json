@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "SmartIntern AI",
+    "slug": "smartintern-ai-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#050816"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smartintern.ai"
+    },
+    "android": {
+      "package": "com.smartintern.ai",
+      "adaptiveIcon": {
+        "backgroundColor": "#050816"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
