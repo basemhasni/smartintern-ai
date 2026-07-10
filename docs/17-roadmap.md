@@ -4,46 +4,34 @@
 
 ### Backend
 
-- Express API ;
-- Prisma ;
-- PostgreSQL ;
-- auth register/login/logout/me ;
-- forgot/reset password ;
-- cookies HttpOnly ;
-- CSRF ;
-- rôles ;
-- profils étudiant/entreprise ;
-- offres ;
-- candidatures ;
-- CV upload ;
-- proxy IA ;
-- routes admin.
+- Express API, Prisma et PostgreSQL ;
+- authentification, rôles et profils ;
+- offres, candidatures et CV ;
+- proxy IA et routes admin.
 
 ### Frontend web
 
 - React / Vite ;
-- pages auth ;
-- dashboards étudiant, entreprise, admin ;
-- pages offres ;
-- pages candidatures ;
-- pages CV ;
-- composants IA ;
-- Skill Gap Simulator UI ;
-- Offer Quality Analyzer UI.
+- espaces étudiant, entreprise et admin ;
+- offres, candidatures et CV ;
+- composants IA et simulateurs.
+
+### Mobile React Native
+
+- fondation Expo / TypeScript ;
+- authentification réelle et SecureStore ;
+- dashboard étudiant connecté ;
+- offres publiées, recommandations et aperçu matching ;
+- recherche et filtres simples ;
+- détail d'offre préparé.
 
 ### IA
 
-- Matching V3 ;
-- Evidence Checker ;
-- Career Signal Map ;
-- Decision Trace ;
-- Skill Gap Simulator ;
-- Offer Quality Analyzer ;
-- Career Assistant V2 ;
-- Motivation Letter V2 ;
-- RAG V2 ;
-- Orchestrator V2 ;
-- AI Evaluation Suite.
+- Matching V3 et Evidence Checker ;
+- Career Signal Map et Decision Trace ;
+- Skill Gap Simulator et Offer Quality Analyzer ;
+- Career Assistant V2 et Motivation Letter V2 ;
+- RAG V2, Orchestrator V2 et AI Evaluation Suite.
 
 ### Documentation
 
@@ -56,11 +44,12 @@
 - consolider les pages placeholder restantes ;
 - améliorer les messages d'erreur utilisateur ;
 - enrichir les seeds de démonstration ;
-- optimiser le bundle frontend.
+- optimiser le bundle frontend ;
+- connecter les candidatures mobiles.
 
 ## Moyen terme
 
-- compléter `mobile-app` ;
+- compléter le CV et les modules IA de `mobile-app` ;
 - industrialiser `devops` ;
 - préparer Docker Compose complet ;
 - ajouter monitoring backend/IA ;
@@ -68,8 +57,7 @@
 
 ## Long terme
 
-- déploiement cloud ;
-- CI/CD ;
+- déploiement cloud et CI/CD ;
 - feedback loop utilisateur ;
 - amélioration continue des scores ;
 - meilleure observabilité RAG ;
@@ -77,9 +65,9 @@
 
 ## Limites actuelles
 
-- mobile non développé ;
+- candidature et modules IA mobiles avancés non développés ;
+- offres backend non paginées ;
+- endpoint de recommandations coûteux lorsque le nombre d'offres augmente ;
 - devops non finalisé ;
 - tests E2E navigateur non intégrés ;
-- certains traitements IA restent déterministes ;
-- le scoring IA reste dépendant de la qualité des données.
-
+- scoring IA dépendant de la qualité des données.

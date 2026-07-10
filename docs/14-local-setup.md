@@ -112,3 +112,26 @@ Frontend :
 
 ouvrir `http://localhost:5173`.
 
+## 6. Application mobile Expo
+
+Avec le backend lancé sur le port `5000` :
+
+```bash
+cd mobile-app
+npm install
+npm run web
+```
+
+Expo SDK 57 requiert Node.js `>=20.19.4`. L'API utilisée par défaut est
+`http://localhost:5000/api` sur Expo Web et iOS Simulator, et
+`http://10.0.2.2:5000/api` sur Android Emulator.
+
+Pour un téléphone réel :
+
+```bash
+EXPO_PUBLIC_API_URL=http://IP_LOCALE_DU_PC:5000/api npm start
+```
+
+Après connexion avec un compte `STUDENT`, le dashboard charge le profil, le
+dernier CV, les candidatures actives, les offres publiées et les recommandations.
+

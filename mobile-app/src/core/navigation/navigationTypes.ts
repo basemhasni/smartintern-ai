@@ -4,7 +4,7 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   StudentTabs: undefined;
-  OfferDetail: { offerId?: string };
+  OfferDetail: { offerId: string };
   UnsupportedRole: undefined;
 };
 

@@ -1,178 +1,148 @@
 # SmartIntern AI Mobile
 
-## 1. Objectif
+Application React Native / Expo de SmartIntern AI. La version actuelle couvre la
+fondation mobile, l'authentification réelle et le dashboard étudiant avec les
+offres publiées et les recommandations du backend.
 
-Application mobile React Native de SmartIntern AI, la plateforme de gestion de
-stages et de matching intelligent entre étudiants et entreprises.
+## Statut
 
-Ce dossier contient uniquement la fondation mobile. Il ne consomme encore aucun
-endpoint réel et n'implémente ni authentification, ni candidature, ni upload de
-CV, ni notification.
+**Step 3 - Dashboard étudiant et offres**
 
-## 2. Statut
+- authentification mobile par Bearer token stocké dans Expo SecureStore ;
+- restauration de session avec `/auth/me` ;
+- profil étudiant, CV et indicateurs réels ;
+- offres publiées et recommandations réelles ;
+- recherche et filtres locaux ;
+- aperçu du matching lorsque le backend le fournit ;
+- détail d'offre préparé, sans candidature.
 
-**Step 1 - Foundation**
-
-- architecture TypeScript modulaire ;
-- navigation auth et étudiant ;
-- design system sombre premium ;
-- écrans alimentés par des données de démonstration ;
-- client API préparé mais non utilisé.
-
-## 3. Stack
+## Stack
 
 - Expo SDK 57 ;
 - React Native 0.86 ;
 - TypeScript strict ;
-- React Navigation (Native Stack + Bottom Tabs) ;
-- `react-native-safe-area-context` ;
-- `expo-linear-gradient` ;
-- `@expo/vector-icons`.
+- React Navigation ;
+- Expo SecureStore ;
+- design system clair/sombre centralisé.
 
-AsyncStorage n'est pas installé à cette étape. `expo-secure-store` sera ajouté
-avec l'authentification mobile à l'étape 2.
-
-## 4. Architecture
+## Architecture utile
 
 ```text
-mobile-app/
-├── App.tsx
-├── index.ts
-├── src/
-│   ├── bootstrap/           # Composition racine
-│   ├── core/
-│   │   ├── api/             # Client HTTP et erreurs
-│   │   ├── config/          # Configuration d'environnement
-│   │   ├── navigation/      # Stack et bottom tabs
-│   │   ├── storage/         # Contrat de stockage sécurisé
-│   │   └── theme/           # Tokens du design system
-│   ├── features/            # Écrans organisés par domaine
-│   └── shared/components/   # Composants UI réutilisables
-└── assets/
+src/
+|-- core/
+|   |-- api/                 # Client HTTP central et erreurs
+|   |-- config/              # URL API selon la plateforme
+|   |-- navigation/          # Stack et bottom tabs
+|   |-- storage/             # SecureStore
+|   `-- theme/               # Couleurs, espacements, typo, thèmes
+|-- features/
+|   |-- auth/                # Auth API, contexte et écrans
+|   |-- student/             # Profil, CV, statistiques et provider dashboard
+|   |-- studentHome/         # Dashboard étudiant
+|   `-- offers/              # Modèles, API, provider, liste, cartes et détail
+`-- shared/components/       # Composants UI réutilisables
 ```
 
-## 5. Installation
+## Installation et lancement
 
 ```bash
 cd mobile-app
 npm install
+npm start
 ```
 
-## 6. Lancement
+Autres cibles :
 
 ```bash
-npx expo start
 npm run android
 npm run ios
 npm run web
 ```
 
-Contrôles qualité :
+Qualité :
 
 ```bash
 npm run lint
 npm run typecheck
 ```
 
-## 7. Configuration API
+Expo SDK 57 requiert Node.js `>=20.19.4`.
 
-La configuration se trouve dans `src/core/config/appConfig.ts`.
+## Configuration API
+
+La configuration est dans `src/core/config/appConfig.ts`.
 
 | Cible | URL par défaut |
 | --- | --- |
-| Web | `http://localhost:5000/api` |
+| Expo Web | `http://localhost:5000/api` |
 | iOS Simulator | `http://localhost:5000/api` |
 | Android Emulator | `http://10.0.2.2:5000/api` |
 
-Pour un téléphone réel, utiliser l'adresse IP locale du PC :
+Pour un téléphone réel :
 
 ```bash
-EXPO_PUBLIC_API_URL=http://192.168.1.10:5000/api npm start
+EXPO_PUBLIC_API_URL=http://IP_LOCALE_DU_PC:5000/api npm start
 ```
 
-Le client central ajoute déjà `X-Client-Type: mobile`, gère un timeout et
-normalise les erreurs. Il n'est volontairement relié à aucun écran.
+Le client ajoute `X-Client-Type: mobile` et le token
+`Authorization: Bearer <token>` lorsqu'une session existe.
 
-## 8. Écrans disponibles
+## Endpoints utilisés à l'étape 3
 
-- Splash ;
-- Login ;
-- Register ;
-- Forgot Password ;
-- Student Home ;
-- Offers ;
-- Offer Detail ;
-- Applications ;
-- AI Insights ;
-- Profile.
+| Endpoint | Utilisation mobile |
+| --- | --- |
+| `GET /students/profile` | profil étudiant courant |
+| `GET /students/cv` | dernier CV, état d'analyse et compétences détectées |
+| `GET /students/applications` | nombre de candidatures actives du dashboard |
+| `GET /offers` | toutes les offres `PUBLISHED` |
+| `GET /offers/:id` | rechargement du détail d'une offre |
+| `GET /students/recommendations?limit=10` | recommandations et matching réels |
 
-Le bouton de connexion ouvre directement l'espace étudiant pour permettre la
-revue de l'interface sans authentification réelle.
+La base URL contient déjà `/api`.
 
-## 9. Design system
+## Dashboard étudiant
 
-Les couleurs, espacements, rayons et styles typographiques sont centralisés dans
-`src/core/theme`. Les composants partagés incluent :
+Le dashboard affiche uniquement des données disponibles dans les réponses du
+backend : identité, objectif, formation, localisation, état du CV, compétences
+détectées, offres publiées, recommandations analysées et candidatures actives.
 
-- `AppBackground` ;
-- `GlassCard` ;
-- `GradientButton` ;
-- `AppTextInput` ;
-- `AppBadge` ;
-- `SectionHeader` ;
-- `LoadingState` ;
-- `ErrorState` ;
-- `EmptyState` ;
-- `Screen` et `OfferCard`.
+Le pourcentage de complétion est un indicateur **local d'affichage**, calculé sur
+huit champs connus : prénom, nom, localisation, formation, objectif, bio,
+disponibilité et présence d'un CV. Il ne s'agit pas d'un score métier et il n'est
+jamais envoyé au backend.
 
-## 10. Prochaines étapes
+## Offres et recommandations
 
-1. **Step 2** : authentification API et token avec SecureStore.
-2. **Step 3** : offres réelles et recherche.
-3. **Step 4** : candidatures et suivi.
-4. **Step 5** : insights IA réels et explicables.
-5. Étapes ultérieures : CV, notifications et préparation stores.
+`GET /offers` fournit les objets offre complets. La réponse de recommandations
+contient une offre partielle avec un objet `matching`. Le provider mobile fusionne
+les deux réponses par `offer.id` et ne recalcule jamais un score.
 
-## Step 2 - Auth mobile
+Un score est affiché seulement si la réponse contient un matching exploitable.
+Sinon l'interface affiche `Analyse non disponible`, jamais `0 %` par défaut.
 
-Cette etape connecte l'application Expo au backend reel pour l'authentification.
-Les offres, candidatures, insights IA, upload CV et notifications restent hors scope.
+La recherche porte localement sur le titre, l'entreprise, le lieu et les
+compétences. Les filtres disponibles sont : toutes, analysées et
+hybride/distance.
 
-Fonctionnalites connectees :
+## États gérés
 
-- login reel ;
-- register etudiant reel ;
-- forgot password reel ;
-- restauration de session via `/auth/me` ;
-- logout reel ;
-- stockage du token avec `expo-secure-store` ;
-- fallback Expo Web de developpement via `localStorage`.
+- chargement initial ;
+- pull-to-refresh ;
+- erreur avec nouvelle tentative ;
+- liste vide ;
+- profil étudiant absent ;
+- CV absent ou analyse échouée ;
+- recommandations indisponibles avec offres publiques toujours visibles ;
+- matching partiel ;
+- entreprise ou champs d'offre manquants.
 
-Endpoints utilises :
+## Limites actuelles
 
-- `POST /auth/login` ;
-- `POST /auth/register` ;
-- `POST /auth/forgot-password` ;
-- `GET /auth/me` ;
-- `POST /auth/logout`.
-
-La base URL contient deja `/api`, donc les routes mobiles commencent par `/auth`.
-Le client mobile ajoute `X-Client-Type: mobile` et `Authorization: Bearer <token>`
-quand une session existe.
-
-Strategie securite :
-
-- web : cookie JWT HttpOnly + CSRF ;
-- mobile : Bearer token retourne seulement avec `X-Client-Type: mobile` ;
-- token natif : SecureStore ;
-- fallback web : uniquement pour tester Expo Web en developpement.
-
-Commandes de validation :
-
-```bash
-cd mobile-app
-npm install
-npm run typecheck
-npm run lint
-npm run web
-```
+- `/api/offers` ne propose pas encore de pagination ni de paramètres de recherche ;
+- la recherche et les filtres portent donc sur la liste complète reçue ;
+- l'endpoint de recommandations calcule les offres publiées avant d'appliquer
+  `limit`, ce qui devra être optimisé côté backend si le volume augmente ;
+- aucune candidature, upload CV, Career Assistant, Skill Gap Simulator ou
+  notification push n'est ajouté dans cette étape ;
+- le détail d'offre reste volontairement limité et le bouton de candidature est
+  désactivé jusqu'à l'étape suivante.

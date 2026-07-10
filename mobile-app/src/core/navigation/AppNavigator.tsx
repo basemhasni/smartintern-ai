@@ -15,9 +15,11 @@ import { UnsupportedRoleScreen } from '@/features/auth/UnsupportedRoleScreen';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import { OfferDetailScreen } from '@/features/offers/OfferDetailScreen';
 import { OffersScreen } from '@/features/offers/OffersScreen';
+import { OffersProvider } from '@/features/offers/state/OffersContext';
 import { ConnectedProfileScreen } from '@/features/profile/ConnectedProfileScreen';
 import { SplashScreen } from '@/features/splash/SplashScreen';
 import { ConnectedStudentHomeScreen } from '@/features/studentHome/ConnectedStudentHomeScreen';
+import { StudentDashboardProvider } from '@/features/student/state/StudentDashboardContext';
 import { AppBackground } from '@/shared/components/AppBackground';
 import type { RootStackParamList, StudentTabParamList } from './navigationTypes';
 
@@ -62,16 +64,35 @@ function StudentTabs() {
   );
 }
 
+function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof createStackOptions> }) {
+  return (
+    <StudentDashboardProvider>
+      <OffersProvider>
+        <Stack.Navigator screenOptions={stackOptions}>
+          <Stack.Screen component={StudentTabs} name="StudentTabs" />
+          <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
+        </Stack.Navigator>
+      </OffersProvider>
+    </StudentDashboardProvider>
+  );
+}
+
+const createStackOptions = (theme: AppTheme) => ({
+  headerShown: false,
+  animation: 'fade_from_bottom' as const,
+  contentStyle: { backgroundColor: theme.colors.background },
+});
+
 export function AppNavigator() {
   const { isAuthenticated, isRestoringSession, user } = useAuth();
   const { theme } = useAppTheme();
 
   if (isRestoringSession) return <AppBackground><View style={styles.restore}><View style={[styles.restoreLogo, { backgroundColor: theme.colors.surface }]}><Ionicons color={theme.colors.primary} name="sparkles" size={28} /></View><ActivityIndicator color={theme.colors.primary} /><Text style={[theme.typography.heading, { color: theme.colors.textPrimary }]}>SmartIntern AI</Text><Text style={[styles.restoreCopy, theme.typography.body, { color: theme.colors.textSecondary }]}>Préparation de votre espace...</Text></View></AppBackground>;
 
-  const stackOptions = { headerShown: false, animation: 'fade_from_bottom' as const, contentStyle: { backgroundColor: theme.colors.background } };
+  const stackOptions = createStackOptions(theme);
   if (!isAuthenticated) return <Stack.Navigator initialRouteName="Splash" screenOptions={stackOptions}><Stack.Screen component={SplashScreen} name="Splash" /><Stack.Screen component={ConnectedLoginScreen} name="Login" /><Stack.Screen component={ConnectedRegisterScreen} name="Register" /><Stack.Screen component={ConnectedForgotPasswordScreen} name="ForgotPassword" /></Stack.Navigator>;
   if (user?.role !== 'STUDENT') return <Stack.Navigator screenOptions={stackOptions}><Stack.Screen component={UnsupportedRoleScreen} name="UnsupportedRole" /></Stack.Navigator>;
-  return <Stack.Navigator screenOptions={stackOptions}><Stack.Screen component={StudentTabs} name="StudentTabs" /><Stack.Screen component={OfferDetailScreen} name="OfferDetail" /></Stack.Navigator>;
+  return <StudentExperience stackOptions={stackOptions} />;
 }
 
 export const getNavigationTheme = (theme: AppTheme): NavigationTheme => ({

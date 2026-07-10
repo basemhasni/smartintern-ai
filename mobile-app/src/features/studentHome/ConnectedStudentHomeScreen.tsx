@@ -1,68 +1,247 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import type { StudentTabParamList } from '@/core/navigation/navigationTypes';
+import type { RootStackParamList, StudentTabParamList } from '@/core/navigation/navigationTypes';
 import { useAppTheme } from '@/core/theme/ThemeProvider';
 import type { AppTheme } from '@/core/theme/theme';
 import { getUserDisplayName, getUserInitials } from '@/features/auth/models/userModel';
 import { useAuth } from '@/features/auth/state/AuthContext';
+import { OfferCard } from '@/features/offers/components/OfferCard';
+import { useOffers } from '@/features/offers/state/OffersContext';
+import { useStudentDashboard } from '@/features/student/state/StudentDashboardContext';
 import { AppBadge } from '@/shared/components/AppBadge';
-import { OfferCard } from '@/shared/components/OfferCard';
+import { ErrorState } from '@/shared/components/ErrorState';
+import { GlassCard } from '@/shared/components/GlassCard';
+import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/components/Screen';
 import { SectionHeader } from '@/shared/components/SectionHeader';
 
 type Props = BottomTabScreenProps<StudentTabParamList, 'StudentHome'>;
+
 const shortcuts = [
-  { icon: 'briefcase-outline', label: 'Explorer', hint: 'Offres', route: 'Offers' },
-  { icon: 'documents-outline', label: 'Suivre', hint: 'Candidatures', route: 'Applications' },
-  { icon: 'sparkles-outline', label: 'Comprendre', hint: 'Insights IA', route: 'AiInsights' },
+  { icon: 'briefcase-outline', label: 'Offres', route: 'Offers' },
+  { icon: 'documents-outline', label: 'Candidatures', route: 'Applications' },
+  { icon: 'sparkles-outline', label: 'Insights IA', route: 'AiInsights' },
+  { icon: 'person-outline', label: 'Profil et CV', route: 'Profile' },
 ] as const;
+
+const cvStatusCopy = {
+  ABSENT: 'CV absent',
+  UPLOADED: 'CV importé',
+  ANALYZED: 'CV analysé',
+  ANALYSIS_FAILED: 'Analyse CV à relancer',
+} as const;
 
 export function ConnectedStudentHomeScreen({ navigation }: Props) {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
-  const displayName = getUserDisplayName(user);
+  const rootNavigation = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
+  const {
+    profile,
+    latestCv,
+    profileCompletion,
+    activeApplicationCount,
+    isLoading: isProfileLoading,
+    isRefreshing: isProfileRefreshing,
+    error: profileError,
+    refresh: refreshProfile,
+  } = useStudentDashboard();
+  const {
+    offers,
+    recommendedOffers,
+    recommendationsMessage,
+    isLoading: areOffersLoading,
+    isRefreshing: areOffersRefreshing,
+    error: offersError,
+    refresh: refreshOffers,
+  } = useOffers();
+
+  const displayUser = profile?.user ?? user;
+  const firstName = displayUser?.firstName || getUserDisplayName(displayUser ?? null);
+  const featuredOffers = (recommendedOffers.length ? recommendedOffers : offers).slice(0, 3);
+  const isLoading = isProfileLoading || areOffersLoading;
+  const isRefreshing = isProfileRefreshing || areOffersRefreshing;
+  const refresh = async () => {
+    await Promise.all([refreshProfile(), refreshOffers()]);
+  };
+
+  if (isLoading && !profile && !offers.length) {
+    return <Screen><LoadingState label="Chargement de votre espace étudiant..." /></Screen>;
+  }
+
+  if (profileError && offersError) {
+    return <Screen><ErrorState message={profileError} onRetry={() => void refresh()} /></Screen>;
+  }
 
   return (
-    <Screen eyebrow="Votre espace" title={`Bonjour, ${displayName}`} subtitle="Voici les signaux utiles pour faire avancer votre recherche aujourd’hui." rightAccessory={<Pressable accessibilityLabel="Ouvrir le profil" onPress={() => navigation.navigate('Profile')} style={styles.avatar}><Text style={styles.avatarText}>{getUserInitials(user)}</Text></Pressable>}>
-      <LinearGradient colors={theme.gradients.premium} style={styles.scoreCard}>
-        <View style={styles.scoreTop}><AppBadge icon="sparkles" label="Score de préparation" tone="success" /><View style={styles.trend}><Ionicons color="#6EE7B7" name="trending-up" size={16} /><Text style={styles.trendText}>+6 ce mois</Text></View></View>
-        <View style={styles.scoreRow}><View><Text style={styles.score}>82<Text style={styles.scoreUnit}>/100</Text></Text><Text style={styles.scoreCopy}>Votre profil est prêt à être remarqué.</Text></View><View style={styles.ring}><Ionicons color={theme.colors.white} name="checkmark" size={25} /></View></View>
-        <View style={styles.nextStep}><View style={styles.nextIcon}><Ionicons color={theme.colors.white} name="document-text-outline" size={17} /></View><Text style={styles.nextText}>Prochaine action : enrichir vos preuves de compétences</Text><Ionicons color="rgba(255,255,255,0.7)" name="chevron-forward" size={17} /></View>
-      </LinearGradient>
+    <Screen
+      eyebrow="Votre espace"
+      refreshControl={<RefreshControl refreshing={isRefreshing} tintColor={theme.colors.primary} onRefresh={() => void refresh()} />}
+      rightAccessory={(
+        <View style={styles.headerActions}>
+          <Pressable accessibilityLabel="Notifications bientôt disponibles" style={styles.notificationButton}>
+            <Ionicons color={theme.colors.textSecondary} name="notifications-outline" size={20} />
+          </Pressable>
+          <Pressable accessibilityLabel="Ouvrir le profil" onPress={() => navigation.navigate('Profile')} style={styles.avatar}>
+            <Text style={styles.avatarText}>{getUserInitials(displayUser ?? null)}</Text>
+          </Pressable>
+        </View>
+      )}
+      subtitle="Vos informations et opportunités, mises à jour depuis SmartIntern AI."
+      title={`Bonjour, ${firstName}`}
+    >
+      {!profile ? (
+        <GlassCard accent style={styles.infoCard}>
+          <View style={styles.infoIcon}><Ionicons color={theme.colors.primary} name="person-add-outline" size={23} /></View>
+          <View style={styles.flexCopy}>
+            <Text style={styles.infoTitle}>Profil étudiant introuvable</Text>
+            <Text style={styles.infoText}>Complétez votre profil sur la plateforme pour personnaliser votre expérience mobile.</Text>
+          </View>
+        </GlassCard>
+      ) : (
+        <GlassCard accent style={styles.profileCard}>
+          <View style={styles.profileTop}>
+            <View style={styles.profileCopy}>
+              <Text style={styles.profileEyebrow}>PROFIL ÉTUDIANT</Text>
+              <Text numberOfLines={1} style={styles.profileTitle}>{profile.targetJob || 'Objectif professionnel non renseigné'}</Text>
+              <Text numberOfLines={1} style={styles.profileMeta}>{profile.educationLevel || 'Formation non renseignée'}{profile.location ? ` · ${profile.location}` : ''}</Text>
+            </View>
+            <AppBadge
+              icon={latestCv?.status === 'ANALYZED' ? 'checkmark-circle' : 'document-outline'}
+              label={latestCv ? cvStatusCopy[latestCv.status] : cvStatusCopy.ABSENT}
+              tone={latestCv?.status === 'ANALYZED' ? 'success' : 'warning'}
+            />
+          </View>
+          <View style={styles.profileIndicators}>
+            <View style={styles.profileIndicator}>
+              <Text style={styles.indicatorValue}>{latestCv?.skills.length ?? 0}</Text>
+              <Text style={styles.indicatorLabel}>Compétences CV</Text>
+            </View>
+            <View style={styles.profileDivider} />
+            <View style={styles.profileIndicator}>
+              <Text style={styles.indicatorValue}>{profileCompletion.completed}/{profileCompletion.total}</Text>
+              <Text style={styles.indicatorLabel}>Champs complétés</Text>
+            </View>
+          </View>
+          <View style={styles.completionHeader}>
+            <Text style={styles.completionLabel}>Complétion indicative du profil</Text>
+            <Text style={styles.completionValue}>{profileCompletion.percentage}%</Text>
+          </View>
+          <View style={styles.completionTrack}>
+            <View style={[styles.completionProgress, { width: `${profileCompletion.percentage}%` }]} />
+          </View>
+        </GlassCard>
+      )}
 
-      <SectionHeader title="Accès rapides" subtitle="Les actions les plus utiles" />
-      <View style={styles.shortcuts}>{shortcuts.map((item) => <Pressable accessibilityRole="button" key={item.label} onPress={() => navigation.navigate(item.route)} style={({ pressed }) => [styles.shortcut, pressed && styles.pressed]}><View style={styles.shortcutIcon}><Ionicons color={theme.colors.primary} name={item.icon} size={22} /></View><Text style={styles.shortcutLabel}>{item.label}</Text><Text style={styles.shortcutHint}>{item.hint}</Text></Pressable>)}</View>
+      {(profileCompletion.percentage < 100 || !latestCv || recommendationsMessage) ? (
+        <GlassCard variant="soft" style={styles.profilePrompt}>
+          <Ionicons color={theme.colors.warning} name="information-circle-outline" size={23} />
+          <View style={styles.flexCopy}>
+            <Text style={styles.promptTitle}>Améliorez vos recommandations</Text>
+            <Text style={styles.promptText}>{recommendationsMessage || 'Complétez les informations manquantes et ajoutez un CV analysé pour obtenir des scores plus pertinents.'}</Text>
+          </View>
+          <Pressable accessibilityRole="button" hitSlop={8} onPress={() => navigation.navigate('Profile')}>
+            <Text style={styles.promptAction}>Voir</Text>
+          </Pressable>
+        </GlassCard>
+      ) : null}
 
-      <SectionHeader action="Tout voir" onPress={() => navigation.navigate('Offers')} title="Sélection pour vous" subtitle="Basée sur votre profil actuel" />
-      <OfferCard company="Nexa Labs" location="Tunis · Hybride" match={94} skills={['React', 'TypeScript']} title="Stage Frontend Engineer" onPress={() => navigation.navigate('Offers')} />
-      <OfferCard company="DataPulse" location="Ariana · Sur site" match={88} skills={['Python', 'FastAPI']} title="Stage AI Software Engineer" onPress={() => navigation.navigate('Offers')} />
+      <SectionHeader title="Vue d’ensemble" subtitle="Données disponibles actuellement" />
+      <View style={styles.stats}>
+        <GlassCard style={styles.stat}>
+          <Ionicons color={theme.colors.primary} name="briefcase-outline" size={19} />
+          <Text style={styles.statValue}>{offers.length}</Text>
+          <Text style={styles.statLabel}>Offres publiées</Text>
+        </GlassCard>
+        <GlassCard style={styles.stat}>
+          <Ionicons color={theme.colors.emerald} name="sparkles-outline" size={19} />
+          <Text style={styles.statValue}>{recommendedOffers.length}</Text>
+          <Text style={styles.statLabel}>Analysées</Text>
+        </GlassCard>
+        <GlassCard style={styles.stat}>
+          <Ionicons color={theme.colors.info} name="documents-outline" size={19} />
+          <Text style={styles.statValue}>{activeApplicationCount ?? '—'}</Text>
+          <Text style={styles.statLabel}>Actives</Text>
+        </GlassCard>
+      </View>
+
+      <SectionHeader title="Accès rapides" />
+      <View style={styles.shortcuts}>
+        {shortcuts.map((item) => (
+          <Pressable accessibilityRole="button" key={item.label} onPress={() => navigation.navigate(item.route)} style={({ pressed }) => [styles.shortcut, pressed && styles.pressed]}>
+            <View style={styles.shortcutIcon}><Ionicons color={theme.colors.primary} name={item.icon} size={22} /></View>
+            <Text numberOfLines={2} style={styles.shortcutLabel}>{item.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <SectionHeader
+        action="Voir toutes"
+        onPress={() => navigation.navigate('Offers')}
+        subtitle={recommendedOffers.length ? 'Classées par le backend' : 'Dernières offres publiées'}
+        title={recommendedOffers.length ? 'Meilleures offres' : 'Offres disponibles'}
+      />
+      {featuredOffers.length ? featuredOffers.map((offer) => (
+        <OfferCard
+          key={offer.id}
+          offer={offer}
+          onPress={() => rootNavigation?.navigate('OfferDetail', { offerId: offer.id })}
+          variant="compact"
+        />
+      )) : (
+        <GlassCard variant="soft" style={styles.emptyOffers}>
+          <Ionicons color={theme.colors.textMuted} name="briefcase-outline" size={26} />
+          <Text style={styles.emptyTitle}>Aucune offre publiée</Text>
+          <Text style={styles.emptyText}>Les nouvelles opportunités apparaîtront ici dès leur publication.</Text>
+        </GlassCard>
+      )}
     </Screen>
   );
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
+  headerActions: { flexDirection: 'row', gap: theme.spacing.sm },
+  notificationButton: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border },
   avatar: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryStrong, ...theme.shadowSmall },
   avatarText: { color: theme.colors.white, ...theme.typography.label, fontWeight: '800' },
-  scoreCard: { borderRadius: theme.radius.xl, padding: theme.spacing.xl, gap: theme.spacing.xl, overflow: 'hidden', ...theme.shadow },
-  scoreTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.sm },
-  trend: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  trendText: { color: '#A7F3D0', ...theme.typography.caption },
-  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: theme.spacing.lg },
-  score: { color: theme.colors.white, fontSize: 46, lineHeight: 52, fontWeight: '800', letterSpacing: 0 },
-  scoreUnit: { color: 'rgba(255,255,255,0.58)', fontSize: 17, lineHeight: 23 },
-  scoreCopy: { color: 'rgba(255,255,255,0.78)', ...theme.typography.caption },
-  ring: { width: 58, height: 58, borderRadius: 29, borderWidth: 6, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.10)' },
-  nextStep: { minHeight: 46, borderRadius: theme.radius.md, paddingHorizontal: theme.spacing.md, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, backgroundColor: 'rgba(255,255,255,0.10)' },
-  nextIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.13)' },
-  nextText: { flex: 1, color: 'rgba(255,255,255,0.88)', ...theme.typography.caption },
-  shortcuts: { flexDirection: 'row', gap: theme.spacing.sm },
-  shortcut: { flex: 1, minWidth: 0, minHeight: 112, borderRadius: theme.radius.lg, padding: theme.spacing.md, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, gap: 4, ...theme.shadowSmall },
-  shortcutIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceMuted, marginBottom: 4 },
-  shortcutLabel: { color: theme.colors.textPrimary, ...theme.typography.label },
-  shortcutHint: { color: theme.colors.textMuted, ...theme.typography.caption },
+  infoCard: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+  infoIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceMuted },
+  flexCopy: { flex: 1, minWidth: 0, gap: theme.spacing.xs },
+  infoTitle: { color: theme.colors.textPrimary, ...theme.typography.subheading },
+  infoText: { color: theme.colors.textSecondary, ...theme.typography.caption },
+  profileCard: { gap: theme.spacing.lg },
+  profileTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: theme.spacing.md },
+  profileCopy: { flex: 1, minWidth: 0, gap: theme.spacing.xs },
+  profileEyebrow: { color: theme.colors.primary, ...theme.typography.overline },
+  profileTitle: { color: theme.colors.textPrimary, ...theme.typography.heading },
+  profileMeta: { color: theme.colors.textSecondary, ...theme.typography.caption },
+  profileIndicators: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, borderRadius: theme.radius.md, backgroundColor: theme.colors.surfaceMuted },
+  profileIndicator: { flex: 1, alignItems: 'center', gap: 2 },
+  profileDivider: { width: 1, height: 34, backgroundColor: theme.colors.border },
+  indicatorValue: { color: theme.colors.textPrimary, fontSize: 20, lineHeight: 25, fontWeight: '800' },
+  indicatorLabel: { color: theme.colors.textMuted, ...theme.typography.caption, textAlign: 'center' },
+  completionHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md },
+  completionLabel: { color: theme.colors.textSecondary, ...theme.typography.caption },
+  completionValue: { color: theme.colors.emerald, ...theme.typography.caption, fontWeight: '700' },
+  completionTrack: { height: 6, borderRadius: 3, overflow: 'hidden', backgroundColor: theme.colors.surfaceMuted },
+  completionProgress: { height: '100%', borderRadius: 3, backgroundColor: theme.colors.emerald },
+  profilePrompt: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+  promptTitle: { color: theme.colors.textPrimary, ...theme.typography.label },
+  promptText: { color: theme.colors.textSecondary, ...theme.typography.caption },
+  promptAction: { color: theme.colors.primary, ...theme.typography.label },
+  stats: { flexDirection: 'row', gap: theme.spacing.sm },
+  stat: { flex: 1, minWidth: 0, padding: theme.spacing.md, alignItems: 'center', gap: 3 },
+  statValue: { color: theme.colors.textPrimary, fontSize: 21, lineHeight: 26, fontWeight: '800' },
+  statLabel: { color: theme.colors.textMuted, ...theme.typography.caption, textAlign: 'center' },
+  shortcuts: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+  shortcut: { width: '48%', flexGrow: 1, minHeight: 78, borderRadius: theme.radius.lg, padding: theme.spacing.md, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, ...theme.shadowSmall },
+  shortcutIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceMuted },
+  shortcutLabel: { flex: 1, color: theme.colors.textPrimary, ...theme.typography.label },
   pressed: { opacity: 0.75, transform: [{ scale: 0.98 }] },
+  emptyOffers: { minHeight: 170, alignItems: 'center', justifyContent: 'center', gap: theme.spacing.sm },
+  emptyTitle: { color: theme.colors.textPrimary, ...theme.typography.subheading },
+  emptyText: { maxWidth: 330, color: theme.colors.textSecondary, ...theme.typography.body, textAlign: 'center' },
 });
