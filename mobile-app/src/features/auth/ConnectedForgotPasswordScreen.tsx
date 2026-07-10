@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '@/core/navigation/navigationTypes';
-import { theme } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
+import type { AppTheme } from '@/core/theme/theme';
 import { AppTextInput } from '@/shared/components/AppTextInput';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
@@ -15,6 +17,8 @@ const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 const genericMessage = 'Si un compte existe avec cet email, un lien de reinitialisation a ete envoye.';
 
 export function ConnectedForgotPasswordScreen({ navigation }: Props) {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const { forgotPassword, isLoading, errorMessage, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -39,7 +43,7 @@ export function ConnectedForgotPasswordScreen({ navigation }: Props) {
   };
 
   return (
-    <AuthShell title="Reinitialiser l'acces" subtitle="Nous preparerons un lien securise pour votre boite mail.">
+    <AuthShell title="Réinitialiser l’accès" subtitle="Recevez un lien sécurisé pour choisir un nouveau mot de passe.">
       <View style={styles.form}>
         <AppTextInput
           autoCapitalize="none"
@@ -51,10 +55,8 @@ export function ConnectedForgotPasswordScreen({ navigation }: Props) {
           placeholder="vous@exemple.com"
           value={email}
         />
-        {localError || errorMessage ? (
-          <Text style={styles.error}>{localError || errorMessage}</Text>
-        ) : null}
-        {successMessage ? <Text style={styles.success}>{successMessage}</Text> : null}
+        {localError || errorMessage ? <StatusMessage message={(localError || errorMessage)!} tone="error" /> : null}
+        {successMessage ? <StatusMessage message={successMessage} tone="success" /> : null}
         <GradientButton
           icon="send-outline"
           label="Envoyer le lien"
@@ -62,16 +64,14 @@ export function ConnectedForgotPasswordScreen({ navigation }: Props) {
           onPress={() => void handleForgotPassword()}
         />
         <Pressable onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.back}>Retour a la connexion</Text>
+          <Text style={styles.back}>Retour à la connexion</Text>
         </Pressable>
       </View>
     </AuthShell>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   form: { gap: theme.spacing.lg },
-  error: { color: theme.colors.danger, ...theme.typography.caption },
-  success: { color: theme.colors.success, ...theme.typography.caption },
-  back: { color: theme.colors.cyan, ...theme.typography.body, textAlign: 'center' },
+  back: { color: theme.colors.primary, ...theme.typography.label, textAlign: 'center' },
 });

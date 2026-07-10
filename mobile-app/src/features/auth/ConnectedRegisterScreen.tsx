@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '@/core/navigation/navigationTypes';
-import { theme } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
+import type { AppTheme } from '@/core/theme/theme';
 import { AppBadge } from '@/shared/components/AppBadge';
 import { AppTextInput } from '@/shared/components/AppTextInput';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
@@ -23,6 +25,8 @@ const splitName = (name: string) => {
 };
 
 export function ConnectedRegisterScreen({ navigation }: Props) {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const { register, isLoading, errorMessage, clearError } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -81,11 +85,11 @@ export function ConnectedRegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <AuthShell title="Creez votre profil" subtitle="Votre prochain stage commence avec un profil solide.">
+    <AuthShell title="Créez votre profil" subtitle="Quelques informations suffisent pour démarrer votre parcours.">
       <View style={styles.form}>
         <View style={styles.role}>
-          <Text style={styles.roleLabel}>Role selectionne</Text>
-          <AppBadge label="Etudiant" tone="violet" />
+          <Text style={styles.roleLabel}>Type de compte</Text>
+          <AppBadge icon="school-outline" label="Étudiant" tone="violet" />
         </View>
         <AppTextInput
           autoComplete="name"
@@ -110,7 +114,8 @@ export function ConnectedRegisterScreen({ navigation }: Props) {
           icon="lock-closed-outline"
           label="Mot de passe"
           onChangeText={setPassword}
-          placeholder="8 caracteres minimum"
+          helper="8 caractères minimum, avec une lettre et un chiffre"
+          placeholder="Votre mot de passe"
           secureTextEntry
           value={password}
         />
@@ -123,29 +128,26 @@ export function ConnectedRegisterScreen({ navigation }: Props) {
           secureTextEntry
           value={confirmPassword}
         />
-        {localError || errorMessage ? (
-          <Text style={styles.error}>{localError || errorMessage}</Text>
-        ) : null}
-        {successMessage ? <Text style={styles.success}>{successMessage}</Text> : null}
+        {localError || errorMessage ? <StatusMessage message={(localError || errorMessage)!} tone="error" /> : null}
+        {successMessage ? <StatusMessage message={successMessage} tone="success" /> : null}
         <GradientButton
-          label="Creer mon compte"
+          icon="arrow-forward"
+          label="Créer mon compte"
           loading={isLoading}
           onPress={() => void handleRegister()}
         />
         <Pressable onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.link}>Deja inscrit ? <Text style={styles.strong}>Se connecter</Text></Text>
+          <Text style={styles.link}>Déjà inscrit ? <Text style={styles.strong}>Se connecter</Text></Text>
         </Pressable>
       </View>
     </AuthShell>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   form: { gap: theme.spacing.lg },
-  role: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  roleLabel: { color: theme.colors.textSecondary, ...theme.typography.caption },
-  error: { color: theme.colors.danger, ...theme.typography.caption },
-  success: { color: theme.colors.success, ...theme.typography.caption },
+  role: { minHeight: 48, paddingHorizontal: theme.spacing.md, borderRadius: theme.radius.md, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.colors.surfaceMuted },
+  roleLabel: { color: theme.colors.textSecondary, ...theme.typography.label },
   link: { color: theme.colors.textSecondary, ...theme.typography.body, textAlign: 'center' },
-  strong: { color: theme.colors.textPrimary, fontWeight: '700' },
+  strong: { color: theme.colors.primary, fontWeight: '700' },
 });

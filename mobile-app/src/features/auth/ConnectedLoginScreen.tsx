@@ -3,15 +3,19 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '@/core/navigation/navigationTypes';
-import { theme } from '@/core/theme/theme';
+import { useAppTheme } from '@/core/theme/ThemeProvider';
+import type { AppTheme } from '@/core/theme/theme';
 import { AppTextInput } from '@/shared/components/AppTextInput';
 import { GradientButton } from '@/shared/components/GradientButton';
+import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export function ConnectedLoginScreen({ navigation }: Props) {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const { login, isLoading, errorMessage, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,7 +38,7 @@ export function ConnectedLoginScreen({ navigation }: Props) {
   };
 
   return (
-    <AuthShell title="Ravi de vous revoir" subtitle="Accedez a votre espace carriere intelligent.">
+    <AuthShell title="Ravi de vous revoir" subtitle="Retrouvez vos opportunités et vos recommandations personnalisées.">
       <View style={styles.form}>
         <AppTextInput
           autoCapitalize="none"
@@ -55,12 +59,14 @@ export function ConnectedLoginScreen({ navigation }: Props) {
           secureTextEntry
           value={password}
         />
+        <View style={styles.forgotRow}>
+          <Pressable hitSlop={8} onPress={() => navigation.navigate('ForgotPassword')}>
+            <Text style={styles.forgot}>Mot de passe oublié ?</Text>
+          </Pressable>
+        </View>
         {localError || errorMessage ? (
-          <Text style={styles.error}>{localError || errorMessage}</Text>
+          <StatusMessage message={(localError || errorMessage)!} tone="error" />
         ) : null}
-        <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.forgot}>Mot de passe oublie ?</Text>
-        </Pressable>
         <GradientButton
           icon="log-in-outline"
           label="Se connecter"
@@ -69,7 +75,7 @@ export function ConnectedLoginScreen({ navigation }: Props) {
         />
         <Pressable onPress={() => navigation.navigate('Register')}>
           <Text style={styles.link}>
-            Nouveau sur SmartIntern ? <Text style={styles.linkStrong}>Creer un compte</Text>
+            Nouveau sur SmartIntern ? <Text style={styles.linkStrong}>Créer un compte</Text>
           </Text>
         </Pressable>
       </View>
@@ -77,10 +83,10 @@ export function ConnectedLoginScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   form: { gap: theme.spacing.lg },
-  error: { color: theme.colors.danger, ...theme.typography.caption },
-  forgot: { color: theme.colors.cyan, ...theme.typography.caption, textAlign: 'right' },
+  forgotRow: { alignItems: 'flex-end', marginTop: -theme.spacing.xs },
+  forgot: { color: theme.colors.primary, ...theme.typography.label },
   link: { color: theme.colors.textSecondary, ...theme.typography.body, textAlign: 'center' },
-  linkStrong: { color: theme.colors.textPrimary, fontWeight: '700' },
+  linkStrong: { color: theme.colors.primary, fontWeight: '700' },
 });
