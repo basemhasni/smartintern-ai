@@ -109,8 +109,8 @@ export function OfferDetailScreen({ navigation, route }: Props) {
       />
 
       {detail.existingApplication ? (
-        <Text accessibilityRole="link" onPress={() => navigation.navigate('StudentTabs', { screen: 'Applications' })} style={styles.applicationsLink}>
-          Voir mes candidatures
+        <Text accessibilityRole="link" onPress={() => navigation.navigate('ApplicationDetail', { applicationId: detail.existingApplication!.id })} style={styles.applicationsLink}>
+          Voir cette candidature
         </Text>
       ) : null}
     </Screen>

@@ -1,18 +1,12 @@
 import { normalizeOffer, type Offer } from '@/features/offers/models/offer';
-
-export type ApplicationStatus =
-  | 'SENT'
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'REJECTED'
-  | 'CANCELLED'
-  | string;
+import { normalizeApplicationStatus, type ApplicationStatus } from './applicationStatus';
 
 export type StudentApplication = {
   id: string;
   studentId?: string | null;
   offerId: string;
   status: ApplicationStatus;
+  rawStatus?: string | null;
   message?: string | null;
   compatibilityScore?: number | null;
   appliedAt?: string | null;
@@ -37,7 +31,8 @@ export const normalizeApplication = (value: unknown): StudentApplication => {
     id: String(application.id ?? ''),
     studentId: asOptionalString(application.studentId),
     offerId,
-    status: String(application.status ?? 'SENT'),
+    status: normalizeApplicationStatus(application.status),
+    rawStatus: asOptionalString(application.status),
     message: asOptionalString(application.message),
     compatibilityScore: typeof application.compatibilityScore === 'number'
       ? application.compatibilityScore

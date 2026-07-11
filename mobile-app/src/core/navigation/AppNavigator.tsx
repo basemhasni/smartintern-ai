@@ -8,6 +8,7 @@ import { useAppTheme } from '@/core/theme/ThemeProvider';
 import type { AppTheme } from '@/core/theme/theme';
 import { AiInsightsScreen } from '@/features/aiInsights/AiInsightsScreen';
 import { ApplicationsScreen } from '@/features/applications/ApplicationsScreen';
+import { ApplicationDetailScreen } from '@/features/applications/screens/ApplicationDetailScreen';
 import { ApplicationsProvider } from '@/features/applications/state/ApplicationsContext';
 import { ConnectedForgotPasswordScreen } from '@/features/auth/ConnectedForgotPasswordScreen';
 import { ConnectedLoginScreen } from '@/features/auth/ConnectedLoginScreen';
@@ -73,6 +74,7 @@ function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof c
           <Stack.Navigator screenOptions={stackOptions}>
             <Stack.Screen component={StudentTabs} name="StudentTabs" />
             <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
+            <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
           </Stack.Navigator>
         </OffersProvider>
       </StudentDashboardProvider>

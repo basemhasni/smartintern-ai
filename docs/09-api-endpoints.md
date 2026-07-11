@@ -163,3 +163,14 @@ Le web garde cookie HttpOnly + CSRF. Le mobile utilise Bearer token stocke via S
   doublon ;
 - `X-Client-Type: mobile` conserve le flux Bearer mobile, tandis que le web garde
   sa protection cookie HttpOnly et CSRF.
+
+## Note mobile - suivi des candidatures
+
+`GET /api/students/applications` retourne actuellement une liste complete, sans
+pagination ni parametres de recherche ou statut. Chaque element contient les
+champs de candidature et une offre partielle avec `id`, `title`, `location`,
+`duration`, `status` et `company { id, companyName }`.
+
+Il n'existe pas de route etudiant pour lire une candidature par identifiant, ni
+d'historique de statut, ni d'endpoint de retrait. Le client mobile construit le
+detail depuis son state global et n'affiche que `appliedAt` et `updatedAt`.

@@ -22,6 +22,8 @@
 - recommandations, recherche et filtres ;
 - detail d'offre, compatibilite IA explicite et candidature reelle ;
 - verification des doublons et suivi des candidatures.
+- liste mobile avec recherche, filtres et detail de candidature ;
+- synchronisation des compteurs apres candidature.
 
 ### IA
 
@@ -34,6 +36,8 @@
 - ajouter une route de lecture seule pour les matchings enregistres ;
 - paginer et filtrer les offres cote backend ;
 - enrichir le modele d'offre avec deadline, missions, contrat et remuneration ;
+- ajouter un historique de statuts et, si le metier le valide, un retrait
+  etudiant protege ;
 - ajouter des tests mobiles et E2E.
 
 ## Moyen terme
@@ -53,5 +57,6 @@
 - schema d'offre encore minimal ;
 - endpoint de recommandations couteux lorsque le nombre d'offres augmente ;
 - pas de lecture seule du dernier matching ;
+- candidatures sans pagination, endpoint detail ou historique de statut ;
 - upload CV et modules IA mobiles avances non developpes ;
 - tests E2E navigateur non integres.

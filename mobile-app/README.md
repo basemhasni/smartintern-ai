@@ -4,7 +4,7 @@ Application React Native / Expo de SmartIntern AI pour les etudiants.
 
 ## Statut
 
-**Step 4 - Detail d'offre, matching IA et candidature**
+**Step 5 - Suivi complet des candidatures**
 
 - authentification mobile reelle avec Bearer token et Expo SecureStore ;
 - dashboard, profil, CV, offres et recommandations reels ;
@@ -12,6 +12,9 @@ Application React Native / Expo de SmartIntern AI pour les etudiants.
 - analyse de compatibilite declenchee explicitement ;
 - candidature reelle avec confirmation et protection contre les doublons ;
 - suivi reel des candidatures.
+- recherche et filtres locaux par statut ;
+- detail d'une candidature et acces a l'offre liee ;
+- synchronisation immediate apres une nouvelle candidature.
 
 ## Stack
 
@@ -104,6 +107,22 @@ Le backend actuel ne demande ni CV ni lettre de motivation pour postuler. La
 confirmation indique donc seulement que la candidature et le profil SmartIntern
 sont transmis.
 
+## Suivi des candidatures
+
+`GET /students/applications` retourne la liste complete, triee par date de
+candidature descendante. Le provider global conserve cette liste ainsi que la
+recherche et le filtre selectionne. Une candidature ajoutee depuis le detail
+d'offre apparait immediatement dans la liste et actualise le compteur dashboard.
+
+La recherche porte localement sur le titre de l'offre, l'entreprise, la
+localisation et le message. Les filtres utilisent exclusivement les statuts
+Prisma reels : `SENT`, `PENDING`, `ACCEPTED`, `REJECTED` et `CANCELLED`.
+
+Le backend ne fournit pas de route de detail et la reponse de liste contient deja
+les informations disponibles sur l'offre et l'entreprise. L'ecran detail utilise
+donc le state global, sans appel supplementaire. Il affiche `appliedAt` et
+`updatedAt`, mais ne fabrique aucune etape intermediaire.
+
 ## Etats geres
 
 - chargement, rafraichissement, erreur et nouvelle tentative ;
@@ -118,6 +137,11 @@ sont transmis.
 - le schema d'offre ne contient pas de deadline, missions structurees, type de
   contrat, remuneration, avantages ou logo d'entreprise ;
 - il n'existe pas de route de lecture seule d'un matching enregistre ;
+- il n'existe pas de pagination, recherche ou filtres serveur pour les
+  candidatures ;
+- il n'existe pas d'endpoint de detail ni d'historique des statuts ;
+- aucun endpoint de retrait etudiant n'existe, donc aucun bouton de retrait
+  n'est affiche ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
 - upload CV, lettre de motivation complete, Career Assistant, Skill Gap
   Simulator et notifications push restent hors perimetre ;
