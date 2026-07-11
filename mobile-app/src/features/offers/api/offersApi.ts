@@ -1,10 +1,11 @@
 import { apiRequest } from '@/core/api/apiClient';
 import { normalizeOffer, type Offer } from '../models/offer';
-import { normalizeOfferMatch } from '../models/offerMatch';
+import { normalizeOfferMatch, type OfferMatch } from '../models/offerMatch';
 
 type OffersResponse = { offers?: unknown[] };
 type OfferResponse = { offer?: unknown };
 type RecommendationsResponse = { recommendations?: unknown[] };
+type MatchResponse = { matching?: unknown };
 
 const asRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' ? value as Record<string, unknown> : {};
@@ -36,5 +37,13 @@ export const offersApi = {
       skipAuth: true,
     });
     return normalizeOffer(response.offer);
+  },
+
+  async analyzeOfferMatch(id: string): Promise<OfferMatch> {
+    const response = await apiRequest<MatchResponse>(
+      `/offers/${encodeURIComponent(id)}/match`,
+      { timeoutMs: 60_000 },
+    );
+    return normalizeOfferMatch(response.matching);
   },
 };

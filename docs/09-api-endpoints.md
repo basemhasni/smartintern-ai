@@ -150,3 +150,16 @@ Pour React Native / Expo :
 | POST | `/api/auth/logout` | `Authorization: Bearer <token>` | Deconnexion mobile et nettoyage local cote app |
 
 Le web garde cookie HttpOnly + CSRF. Le mobile utilise Bearer token stocke via SecureStore.
+
+## Note mobile - detail et candidature
+
+- `GET /api/offers/:id/match` calcule puis enregistre un Matching V3 ; ce n'est
+  pas une route de lecture seule du dernier resultat ;
+- `GET /api/students/applications` permet au mobile de detecter une candidature
+  existante par `offerId` ;
+- `POST /api/offers/:offerId/apply` accepte `{}` ou un champ `message` optionnel ;
+- le statut initial est `SENT` ;
+- Prisma impose l'unicite `(studentId, offerId)` et l'API retourne `409` pour un
+  doublon ;
+- `X-Client-Type: mobile` conserve le flux Bearer mobile, tandis que le web garde
+  sa protection cookie HttpOnly et CSRF.

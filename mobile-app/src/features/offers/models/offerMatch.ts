@@ -8,7 +8,9 @@ export type OfferMatch = {
   missingSkills: string[];
   optionalMatchedSkills: string[];
   explanation?: string | null;
-  scoreBreakdown?: Record<string, unknown> | null;
+  scoreBreakdown?: Record<string, number> | null;
+  criticalMissingSkills: string[];
+  warnings: string[];
   v3?: Record<string, unknown> | null;
   explainability?: Record<string, unknown> | null;
   isAvailable: boolean;
@@ -27,6 +29,13 @@ const asStringArray = (value: unknown): string[] =>
 const asOptionalString = (value: unknown) =>
   typeof value === 'string' && value.trim() ? value : null;
 
+const asNumberRecord = (value: unknown): Record<string, number> =>
+  Object.fromEntries(
+    Object.entries(asRecord(value)).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number' && Number.isFinite(entry[1]),
+    ),
+  );
+
 export const normalizeOfferMatch = (value: unknown): OfferMatch => {
   const match = asRecord(value);
   const v3 = asRecord(match.v3);
@@ -39,6 +48,8 @@ export const normalizeOfferMatch = (value: unknown): OfferMatch => {
     : undefined;
   const decisionLabel = asOptionalString(match.decisionLabel);
   const confidence = asOptionalString(match.confidence);
+  const scoreBreakdown = asNumberRecord(match.scoreBreakdown);
+  const v3ScoreBreakdown = asNumberRecord(v3.scoreBreakdown);
   const hasMatchingEvidence = Boolean(
     decisionLabel || confidence || matchedSkills.length || missingSkills.length,
   );
@@ -52,11 +63,15 @@ export const normalizeOfferMatch = (value: unknown): OfferMatch => {
     missingSkills,
     optionalMatchedSkills,
     explanation: asOptionalString(match.explanation),
-    scoreBreakdown: Object.keys(asRecord(match.scoreBreakdown)).length
-      ? asRecord(match.scoreBreakdown)
-      : Object.keys(asRecord(v3.scoreBreakdown)).length
-        ? asRecord(v3.scoreBreakdown)
+    scoreBreakdown: Object.keys(scoreBreakdown).length
+      ? scoreBreakdown
+      : Object.keys(v3ScoreBreakdown).length
+        ? v3ScoreBreakdown
         : null,
+    criticalMissingSkills: asStringArray(
+      match.criticalMissingSkills ?? v3.criticalMissingSkills,
+    ),
+    warnings: asStringArray(match.warnings ?? v3.warnings ?? explainability.warnings),
     v3: Object.keys(v3).length ? v3 : null,
     explainability: Object.keys(explainability).length ? explainability : null,
     isAvailable,

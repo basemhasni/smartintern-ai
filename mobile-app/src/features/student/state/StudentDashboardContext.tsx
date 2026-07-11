@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { ApiError, normalizeApiError } from '@/core/api/apiError';
+import { useApplications } from '@/features/applications/state/ApplicationsContext';
 import { studentApi } from '../api/studentApi';
 import {
   getProfileCompletion,
@@ -32,9 +33,9 @@ type StudentDashboardContextValue = {
 const StudentDashboardContext = createContext<StudentDashboardContextValue | null>(null);
 
 export function StudentDashboardProvider({ children }: { children: ReactNode }) {
+  const { applications, refresh: refreshApplications } = useApplications();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [latestCv, setLatestCv] = useState<StudentCvSummary | null>(null);
-  const [activeApplicationCount, setActiveApplicationCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,10 +55,9 @@ export function StudentDashboardProvider({ children }: { children: ReactNode }) 
     }
     setError(null);
 
-    const [profileResult, cvsResult, applicationsResult] = await Promise.allSettled([
+    const [profileResult, cvsResult] = await Promise.allSettled([
       studentApi.getCurrentStudentProfile(),
       studentApi.getStudentCvs(),
-      studentApi.getActiveApplicationCount(),
     ]);
 
     if (!mounted.current || currentRequest !== requestId.current) return;
@@ -71,9 +71,6 @@ export function StudentDashboardProvider({ children }: { children: ReactNode }) 
     }
 
     setLatestCv(cvsResult.status === 'fulfilled' ? cvsResult.value[0] ?? null : null);
-    setActiveApplicationCount(
-      applicationsResult.status === 'fulfilled' ? applicationsResult.value : null,
-    );
     setIsLoading(false);
     setIsRefreshing(false);
   }, []);
@@ -86,7 +83,15 @@ export function StudentDashboardProvider({ children }: { children: ReactNode }) 
     return () => clearTimeout(timer);
   }, [load]);
 
-  const refresh = useCallback(() => load(true), [load]);
+  const refresh = useCallback(async () => {
+    await Promise.all([load(true), refreshApplications()]);
+  }, [load, refreshApplications]);
+  const activeApplicationCount = useMemo(
+    () => applications.filter(
+      (application) => application.status === 'SENT' || application.status === 'PENDING',
+    ).length,
+    [applications],
+  );
   const profileCompletion = useMemo(
     () => getProfileCompletion(profile, latestCv),
     [latestCv, profile],

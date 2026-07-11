@@ -1,73 +1,57 @@
 # Roadmap
 
-## Déjà réalisé
+## Deja realise
 
 ### Backend
 
 - Express API, Prisma et PostgreSQL ;
-- authentification, rôles et profils ;
-- offres, candidatures et CV ;
-- proxy IA et routes admin.
+- authentification, roles et profils ;
+- offres, candidatures, CV et matching IA ;
+- protection web par cookie/CSRF et mobile par Bearer token.
 
 ### Frontend web
 
-- React / Vite ;
-- espaces étudiant, entreprise et admin ;
-- offres, candidatures et CV ;
-- composants IA et simulateurs.
+- espaces etudiant, entreprise et admin ;
+- offres, candidatures, CV et composants IA.
 
 ### Mobile React Native
 
-- fondation Expo / TypeScript ;
-- authentification réelle et SecureStore ;
-- dashboard étudiant connecté ;
-- offres publiées, recommandations et aperçu matching ;
-- recherche et filtres simples ;
-- détail d'offre préparé.
+- fondation Expo et TypeScript ;
+- authentification reelle et SecureStore ;
+- dashboard etudiant, profil et offres reels ;
+- recommandations, recherche et filtres ;
+- detail d'offre, compatibilite IA explicite et candidature reelle ;
+- verification des doublons et suivi des candidatures.
 
 ### IA
 
 - Matching V3 et Evidence Checker ;
 - Career Signal Map et Decision Trace ;
-- Skill Gap Simulator et Offer Quality Analyzer ;
-- Career Assistant V2 et Motivation Letter V2 ;
-- RAG V2, Orchestrator V2 et AI Evaluation Suite.
-
-### Documentation
-
-- documentation technique dans `docs/` ;
-- README par module.
+- Skill Gap Simulator, Career Assistant, Motivation Letter et RAG V2.
 
 ## Court terme
 
-- ajouter des tests E2E navigateur ;
-- consolider les pages placeholder restantes ;
-- améliorer les messages d'erreur utilisateur ;
-- enrichir les seeds de démonstration ;
-- optimiser le bundle frontend ;
-- connecter les candidatures mobiles.
+- ajouter une route de lecture seule pour les matchings enregistres ;
+- paginer et filtrer les offres cote backend ;
+- enrichir le modele d'offre avec deadline, missions, contrat et remuneration ;
+- ajouter des tests mobiles et E2E.
 
 ## Moyen terme
 
-- compléter le CV et les modules IA de `mobile-app` ;
-- industrialiser `devops` ;
-- préparer Docker Compose complet ;
-- ajouter monitoring backend/IA ;
-- ajouter tableaux de bord qualité IA.
+- connecter upload CV et modules IA avances dans `mobile-app` ;
+- optimiser les recommandations pour eviter le calcul de toutes les offres ;
+- completer Docker Compose, monitoring et qualite IA.
 
 ## Long terme
 
-- déploiement cloud et CI/CD ;
-- feedback loop utilisateur ;
-- amélioration continue des scores ;
-- meilleure observabilité RAG ;
-- intégration d'un vrai stockage vectoriel si nécessaire.
+- deploiement cloud et CI/CD ;
+- boucle de feedback utilisateur ;
+- observabilite RAG et stockage vectoriel adapte au volume.
 
 ## Limites actuelles
 
-- candidature et modules IA mobiles avancés non développés ;
-- offres backend non paginées ;
-- endpoint de recommandations coûteux lorsque le nombre d'offres augmente ;
-- devops non finalisé ;
-- tests E2E navigateur non intégrés ;
-- scoring IA dépendant de la qualité des données.
+- schema d'offre encore minimal ;
+- endpoint de recommandations couteux lorsque le nombre d'offres augmente ;
+- pas de lecture seule du dernier matching ;
+- upload CV et modules IA mobiles avances non developpes ;
+- tests E2E navigateur non integres.

@@ -25,15 +25,19 @@ export const normalizeApiError = (error: unknown): string => {
     case 400:
       return apiError.message || 'Les donnees envoyees sont invalides.';
     case 401:
-      return apiError.message === 'Invalid or expired token'
-        ? 'Votre session a expire. Reconnectez-vous.'
-        : 'Email ou mot de passe incorrect.';
+      return /credential|password|email/i.test(apiError.message)
+        ? 'Email ou mot de passe incorrect.'
+        : 'Votre session a expire. Reconnectez-vous.';
     case 403:
       return 'Acces interdit pour ce compte.';
     case 404:
       return 'Ressource introuvable.';
     case 409:
-      return 'Un compte existe deja avec ces informations.';
+      return apiError.message || 'Cette operation a deja ete effectuee.';
+    case 410:
+      return 'Cette ressource n est plus disponible.';
+    case 422:
+      return apiError.message || 'Les conditions requises ne sont pas encore remplies.';
     case 429:
       return 'Trop de tentatives. Reessayez plus tard.';
     case 500:

@@ -12,6 +12,7 @@ import {
 import { toApiError, normalizeApiError } from '@/core/api/apiError';
 import { offersApi } from '../api/offersApi';
 import type { Offer } from '../models/offer';
+import type { OfferMatch } from '../models/offerMatch';
 
 type OffersContextValue = {
   offers: Offer[];
@@ -22,6 +23,7 @@ type OffersContextValue = {
   recommendationsMessage: string | null;
   refresh: () => Promise<void>;
   findOffer: (id: string) => Offer | undefined;
+  cacheOfferMatch: (id: string, match: OfferMatch) => void;
 };
 
 const OffersContext = createContext<OffersContextValue | null>(null);
@@ -118,6 +120,11 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     (id: string) => offers.find((offer) => offer.id === id),
     [offers],
   );
+  const cacheOfferMatch = useCallback((id: string, match: OfferMatch) => {
+    const addMatch = (offer: Offer) => offer.id === id ? { ...offer, match } : offer;
+    setOffers((current) => current.map(addMatch));
+    setRecommendedOffers((current) => current.map(addMatch));
+  }, []);
   const value = useMemo<OffersContextValue>(() => ({
     offers,
     recommendedOffers,
@@ -127,6 +134,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     recommendationsMessage,
     refresh,
     findOffer,
+    cacheOfferMatch,
   }), [
     offers,
     recommendedOffers,
@@ -136,6 +144,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     recommendationsMessage,
     refresh,
     findOffer,
+    cacheOfferMatch,
   ]);
 
   return <OffersContext.Provider value={value}>{children}</OffersContext.Provider>;

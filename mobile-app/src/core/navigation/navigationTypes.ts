@@ -1,9 +1,11 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
-  StudentTabs: undefined;
+  StudentTabs: NavigatorScreenParams<StudentTabParamList> | undefined;
   OfferDetail: { offerId: string };
   UnsupportedRole: undefined;
 };

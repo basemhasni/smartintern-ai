@@ -153,3 +153,11 @@ Exemples d'intents :
 - skill gap simulation ;
 - offer quality analysis.
 
+## Utilisation du matching sur mobile
+
+Le detail d'offre reutilise d'abord le matching present dans les recommandations.
+En son absence, l'etudiant declenche explicitement
+`GET /api/offers/:id/match`. Le mobile passe exclusivement par `backend-api`, ne
+contacte jamais directement `ai-service` et ne recalcule aucun score. Un CV
+analyse est requis pour lancer cette action.
+
