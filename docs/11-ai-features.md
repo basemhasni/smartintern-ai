@@ -98,6 +98,11 @@ Sorties :
 - chemin recommandé ;
 - projets conseillés.
 
+L'application mobile expose les trois modes du moteur (`CONSERVATIVE`,
+`REALISTIC`, `OPTIMISTIC`) et exige une action explicite. Elle presente les
+resultats sans recalcul local; ces estimations restent pedagogiques et ne
+garantissent aucune decision de recrutement.
+
 ## Offer Quality Analyzer
 
 Objectif : aider les entreprises à rédiger des offres plus exploitables.
@@ -160,4 +165,8 @@ En son absence, l'etudiant declenche explicitement
 `GET /api/offers/:id/match`. Le mobile passe exclusivement par `backend-api`, ne
 contacte jamais directement `ai-service` et ne recalcule aucun score. Un CV
 analyse est requis pour lancer cette action.
+
+Le simulateur mobile utilise `POST /api/offers/:id/skill-gap-simulation`. Le
+backend reconstruit le matching authentifie avant de deleguer au service IA; le
+client envoie seulement le mode choisi.
 

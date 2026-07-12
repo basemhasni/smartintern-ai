@@ -76,6 +76,7 @@ Le client ajoute `X-Client-Type: mobile` et
 | `GET /offers/:id` | detail reel d'une offre |
 | `GET /students/recommendations?limit=10` | recommandations et matchings disponibles |
 | `GET /offers/:id/match` | declenche le Matching V3 pour l'etudiant |
+| `POST /offers/:id/skill-gap-simulation` | simule les axes de progression depuis le matching backend |
 | `GET /students/applications` | suivi et verification d'une candidature existante |
 | `POST /offers/:offerId/apply` | cree une candidature avec un corps JSON vide |
 
@@ -154,6 +155,22 @@ Sections disponibles selon la reponse : score principal, `scoreBreakdown`,
 competences, Skill Evidence Map, Career Signal Map, Decision Trace, warnings et
 quality checks. Les snippets de preuve sont limites a 220 caracteres.
 
+## Skill Gap Simulator
+
+Depuis le detail d'une offre ou son analyse IA, l'etudiant peut lancer une
+simulation explicite dans un des modes reels du moteur : `CONSERVATIVE`,
+`REALISTIC` ou `OPTIMISTIC`. Le mobile envoie uniquement `{ "mode": "..." }` a
+`POST /offers/:id/skill-gap-simulation`.
+
+Le backend reconstruit le Matching V3 avec le profil et le CV authentifies, puis
+transmet ce resultat au Skill Gap Simulator de `ai-service`. Le client mobile ne
+peut donc pas fournir ni modifier un score de matching. Il affiche uniquement
+les resultats renvoyes par le moteur.
+
+Les resultats sont caches en memoire par couple `(offerId, mode)` pendant la
+session. Une relance reste une action volontaire. Ce cache n'est pas persiste
+apres fermeture de l'application et aucune simulation n'est enregistree en base.
+
 ## Limites actuelles
 
 - le schema d'offre ne contient pas de deadline, missions structurees, type de
@@ -168,6 +185,8 @@ quality checks. Les snippets de preuve sont limites a 220 caracteres.
   l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
   redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
-- upload CV, lettre de motivation complete, Career Assistant, Skill Gap
-  Simulator et notifications push restent hors perimetre ;
+- upload CV, lettre de motivation complete, Career Assistant et notifications
+  push restent hors perimetre ;
+- le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite
+  du service IA ; ses estimations restent pedagogiques et non contractuelles ;
 - aucune infrastructure de tests mobile n'est installee actuellement.

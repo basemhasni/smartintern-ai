@@ -7,6 +7,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   StudentTabs: NavigatorScreenParams<StudentTabParamList> | undefined;
   OfferDetail: { offerId: string };
+  SkillGapSimulator: { offerId: string };
   ApplicationDetail: { applicationId: string };
   UnsupportedRole: undefined;
 };

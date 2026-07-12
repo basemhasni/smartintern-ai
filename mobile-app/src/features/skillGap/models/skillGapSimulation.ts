@@ -1,0 +1,24 @@
+import type { RecommendedPathStep } from './recommendedPathStep';
+import type { RecommendedProject } from './recommendedProject';
+import type { SkillImpact } from './skillImpact';
+import type { CombinationSimulation, ScoreCap, SingleSkillSimulation } from './skillSimulation';
+export const simulationModes = ['CONSERVATIVE', 'REALISTIC', 'OPTIMISTIC'] as const;
+export type SimulationMode = typeof simulationModes[number];
+export type SkillGapSimulationResult = {
+    currentScore?: number;
+    currentDecisionLabel?: string | null;
+    potentialBestScore?: number;
+    potentialDecisionLabel?: string | null;
+    scoreGain?: number;
+    simulationMode?: SimulationMode;
+    highImpactGaps: SkillImpact[];
+    singleSkillSimulations: SingleSkillSimulation[];
+    combinationSimulations: CombinationSimulation[];
+    recommendedPath: RecommendedPathStep[];
+    recommendedProjects: RecommendedProject[];
+    scoreCapsApplied: ScoreCap[];
+    decisionTrace: Record<string, unknown>[];
+    summary?: string | null;
+    warnings: string[];
+    assumptions: string[];
+};

@@ -1,7 +1,7 @@
 const path = require('path');
 
 const prisma = require('../config/prisma');
-const { analyzeCV, matchCandidateWithOffer } = require('./ai.service');
+const { analyzeCV, matchCandidateWithOffer, simulateSkillGaps } = require('./ai.service');
 const { extractTextFromCV } = require('./cv-text.service');
 
 const createHttpError = (statusCode, message) => {
@@ -175,6 +175,27 @@ const calculateOfferMatch = async (userId, offerId) => {
   };
 };
 
+const simulateOfferSkillGap = async (userId, offerId, mode) => {
+  const matching = await calculateOfferMatch(userId, offerId);
+  const result = await simulateSkillGaps({
+    matchingResult: matching,
+    selectedSkills: [],
+    options: {
+      maxCombinations: 3,
+      includeProjects: true,
+      includeDecisionTrace: true,
+      simulationMode: mode,
+    },
+  });
+
+  if (!result.success) {
+    throw createHttpError(503, 'Skill gap simulation is temporarily unavailable');
+  }
+
+  return result.data;
+};
+
 module.exports = {
   calculateOfferMatch,
+  simulateOfferSkillGap,
 };

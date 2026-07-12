@@ -7,5 +7,6 @@ const { authorizeRoles } = require('../middlewares/role.middleware');
 const matchingRouter = express.Router();
 
 matchingRouter.get('/:id/match', protect, authorizeRoles('STUDENT'), matchingController.matchOffer);
+matchingRouter.post('/:id/skill-gap-simulation', protect, authorizeRoles('STUDENT'), matchingController.simulateOfferSkillGap);
 
 module.exports = matchingRouter;

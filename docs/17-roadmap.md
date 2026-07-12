@@ -31,6 +31,7 @@
 - verification des doublons et suivi des candidatures.
 - liste mobile avec recherche, filtres et detail de candidature ;
 - synchronisation des compteurs apres candidature.
+- Skill Gap Simulator mobile avec modes, cache de session et parcours conseille.
 
 ### IA
 
@@ -49,7 +50,7 @@
 
 ## Moyen terme
 
-- connecter upload CV et modules IA avances dans `mobile-app` ;
+- connecter upload CV, Career Assistant et autres modules IA avances dans `mobile-app` ;
 - optimiser les recommandations pour eviter le calcul de toutes les offres ;
 - completer Docker Compose, monitoring et qualite IA.
 
@@ -65,5 +66,5 @@
 - endpoint de recommandations couteux lorsque le nombre d'offres augmente ;
 - pas de lecture seule du dernier matching ;
 - candidatures sans pagination, endpoint detail ou historique de statut ;
-- upload CV et modules IA mobiles avances non developpes ;
+- upload CV et modules IA mobiles hors Skill Gap Simulator non developpes ;
 - tests E2E navigateur non integres.

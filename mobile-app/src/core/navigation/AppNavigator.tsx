@@ -18,6 +18,8 @@ import { useAuth } from '@/features/auth/state/AuthContext';
 import { OfferDetailScreen } from '@/features/offers/OfferDetailScreen';
 import { OffersScreen } from '@/features/offers/OffersScreen';
 import { OffersProvider } from '@/features/offers/state/OffersContext';
+import { SkillGapSimulatorScreen } from '@/features/skillGap/screens/SkillGapSimulatorScreen';
+import { SkillGapProvider } from '@/features/skillGap/state/SkillGapContext';
 import { ConnectedProfileScreen } from '@/features/profile/ConnectedProfileScreen';
 import { SplashScreen } from '@/features/splash/SplashScreen';
 import { ConnectedStudentHomeScreen } from '@/features/studentHome/ConnectedStudentHomeScreen';
@@ -71,11 +73,14 @@ function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof c
     <ApplicationsProvider>
       <StudentDashboardProvider>
         <OffersProvider>
-          <Stack.Navigator screenOptions={stackOptions}>
-            <Stack.Screen component={StudentTabs} name="StudentTabs" />
-            <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
-            <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
-          </Stack.Navigator>
+          <SkillGapProvider>
+            <Stack.Navigator screenOptions={stackOptions}>
+              <Stack.Screen component={StudentTabs} name="StudentTabs" />
+              <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
+              <Stack.Screen component={SkillGapSimulatorScreen} name="SkillGapSimulator" />
+              <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
+            </Stack.Navigator>
+          </SkillGapProvider>
         </OffersProvider>
       </StudentDashboardProvider>
     </ApplicationsProvider>

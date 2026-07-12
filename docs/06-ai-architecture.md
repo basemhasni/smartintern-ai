@@ -98,6 +98,11 @@ Le Skill Gap Simulator estime l'impact potentiel d'une amélioration du profil :
 
 Important : il ne garantit pas le score futur. Il estime ce qui pourrait arriver si l'étudiant ajoute une vraie preuve dans son CV ou son portfolio.
 
+Sur mobile, `POST /api/offers/:id/skill-gap-simulation` sert de facade securisee.
+Le backend calcule le Matching V3 a partir de l'identite Bearer et appelle le
+simulateur existant. React Native envoie seulement le mode, ne contacte jamais
+directement `ai-service` et conserve les resultats uniquement en memoire.
+
 ## Offer Quality Analyzer
 
 L'Offer Quality Analyzer aide les entreprises à améliorer leurs offres :

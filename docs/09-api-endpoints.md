@@ -54,6 +54,7 @@ Cette page documente les endpoints principaux observés dans `backend-api/src/ro
 | GET | `/api/offers` | public | Offres publiées |
 | GET | `/api/offers/:id` | public | Détail offre publiée |
 | GET | `/api/offers/:id/match` | STUDENT | Matching IA pour une offre |
+| POST | `/api/offers/:id/skill-gap-simulation` | STUDENT | Simulation securisee des axes de progression |
 | POST | `/api/offers/:offerId/apply` | STUDENT + CSRF | Postuler |
 | POST | `/api/companies/offers` | COMPANY + CSRF | Créer offre |
 | GET | `/api/companies/offers` | COMPANY | Offres de l'entreprise |
@@ -186,3 +187,14 @@ Matching V3 existant. Aucun payload mobile n'est requis.
 Il n'existe pas encore de route permettant de relire toute l'explicabilite V3
 persistee. La table `MatchingResult` conserve le resume legacy, mais pas Skill
 Evidence Map, Career Signal Map ou Decision Trace.
+
+## Note mobile - Skill Gap Simulator
+
+`POST /api/offers/:id/skill-gap-simulation` accepte uniquement un corps
+`{ "mode": "CONSERVATIVE|REALISTIC|OPTIMISTIC" }`. La route, protegee pour le
+role `STUDENT`, reconstruit le matching depuis l'utilisateur authentifie et
+l'offre cible, puis appelle le simulateur existant via `ai-service`.
+
+Le mobile ne transmet jamais de `matchingResult`. La reponse conserve les champs
+reels du simulateur : scores, gaps, simulations, parcours, projets, plafonds,
+warnings et hypotheses.

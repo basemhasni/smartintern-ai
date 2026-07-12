@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { StudentTabParamList } from '@/core/navigation/navigationTypes';
+import type { RootStackParamList, StudentTabParamList } from '@/core/navigation/navigationTypes';
 import { useAppTheme } from '@/core/theme/ThemeProvider';
 import type { AppTheme } from '@/core/theme/theme';
 import { EmptyState } from '@/shared/components/EmptyState';
@@ -11,6 +12,8 @@ import { GlassCard } from '@/shared/components/GlassCard';
 import { GradientButton } from '@/shared/components/GradientButton';
 import { Screen } from '@/shared/components/Screen';
 import { StatusMessage } from '@/shared/components/StatusMessage';
+import { SkillGapSummaryCard } from '@/features/skillGap/components/SkillGapSummaryCard';
+import { useSkillGap } from '@/features/skillGap/state/SkillGapContext';
 import { AiMatchScoreCard } from './components/AiMatchScoreCard';
 import { AiQualityCard, AiWarningsCard } from './components/AiQualityCards';
 import { CareerSignalMapCard } from './components/CareerSignalMapCard';
@@ -27,6 +30,7 @@ export function AiInsightsScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   const insights = useAiInsights(route.params?.offerId);
+  const skillGap = useSkillGap();
   const selectOffer = insights.selectOffer;
   const selectorOffers = useMemo(() => {
     const ordered = [...insights.recommendedOffers, ...insights.offers];
@@ -66,6 +70,7 @@ export function AiInsightsScreen({ navigation, route }: Props) {
           <DecisionTraceTimeline items={insights.analysis.decisionTrace} />
           <AiWarningsCard warnings={insights.analysis.warnings} />
           <AiQualityCard checks={insights.analysis.qualityChecks} method={insights.analysis.matchingMethod} />
+          {insights.selectedOffer ? <SkillGapSummaryCard result={skillGap.getResult(insights.selectedOffer.id, 'REALISTIC')} onPress={() => navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.navigate('SkillGapSimulator', { offerId: insights.selectedOffer!.id })} /> : null}
           <GradientButton icon="refresh" label="Relancer l analyse" loading={insights.isAnalyzing} onPress={() => void insights.analyze()} variant="secondary" />
         </View>
       ) : null}

@@ -99,12 +99,10 @@ export function OfferDetailScreen({ navigation, route }: Props) {
       />
 
       {detail.match?.isAvailable ? (
-        <GradientButton
-          icon="analytics-outline"
-          label="Voir l analyse complete"
-          onPress={() => navigation.navigate('StudentTabs', { screen: 'AiInsights', params: { offerId: offer.id } })}
-          variant="secondary"
-        />
+        <View style={styles.aiActions}>
+          <GradientButton icon="analytics-outline" label="Voir l analyse complete" onPress={() => navigation.navigate('StudentTabs', { screen: 'AiInsights', params: { offerId: offer.id } })} variant="secondary" />
+          <GradientButton icon="trending-up-outline" label="Identifier mes axes de progression" onPress={() => navigation.navigate('SkillGapSimulator', { offerId: offer.id })} variant="secondary" />
+        </View>
       ) : null}
 
       <ApplyActionBar
@@ -157,4 +155,5 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   sectionTitle: { color: theme.colors.textPrimary, ...theme.typography.heading },
   sectionSubtitle: { color: theme.colors.textSecondary, ...theme.typography.caption },
   applicationsLink: { minHeight: 44, paddingVertical: theme.spacing.md, color: theme.colors.primary, ...theme.typography.label, textAlign: 'center' },
+  aiActions: { gap: theme.spacing.sm },
 });
