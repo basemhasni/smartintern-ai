@@ -1,5 +1,12 @@
 # Roadmap
 
+## Progression mobile IA
+
+- dashboard IA par offre et reutilisation du cache de matching ;
+- Score Breakdown, Skill Evidence Map, Career Signal Map et Decision Trace ;
+- prochaines evolutions : lecture persistante de l'explicabilite V3 et politique
+  de retention adaptee.
+
 ## Deja realise
 
 ### Backend

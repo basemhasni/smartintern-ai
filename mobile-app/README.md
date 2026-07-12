@@ -4,7 +4,7 @@ Application React Native / Expo de SmartIntern AI pour les etudiants.
 
 ## Statut
 
-**Step 5 - Suivi complet des candidatures**
+**Step 6 - Dashboard IA et explicabilite**
 
 - authentification mobile reelle avec Bearer token et Expo SecureStore ;
 - dashboard, profil, CV, offres et recommandations reels ;
@@ -15,6 +15,10 @@ Application React Native / Expo de SmartIntern AI pour les etudiants.
 - recherche et filtres locaux par statut ;
 - detail d'une candidature et acces a l'offre liee ;
 - synchronisation immediate apres une nouvelle candidature.
+- dashboard IA reel avec selection d'offre ;
+- Matching V3, score, verdict, confiance et decomposition ;
+- Skill Evidence Map, Career Signal Map et Decision Trace ;
+- warnings et controles qualite lorsqu'ils sont exposes.
 
 ## Stack
 
@@ -131,6 +135,24 @@ donc le state global, sans appel supplementaire. Il affiche `appliedAt` et
 - analyse non lancee, en cours, indisponible ou partielle ;
 - candidature existante, envoi en cours, succes et erreur `409` ;
 - champs d'offre et informations entreprise absents.
+- reponse Matching legacy ou V3 partielle ;
+- score, confiance ou explicabilite absents ;
+- CV absent et service IA indisponible.
+
+## Dashboard IA
+
+L'onglet IA utilise les offres publiees et recommandees deja chargees. Une
+analyse presente dans le provider d'offres est affichee immediatement. Sinon,
+l'etudiant lance explicitement `GET /offers/:id/match`. Le resultat est partage
+avec `OfferDetailScreen`, ce qui evite un second appel lors de la navigation.
+
+La normalisation mobile accepte les formats legacy et V3. Elle n'ajoute aucune
+valeur metier absente : un score manquant reste indisponible et une confiance
+manquante est affichee comme telle.
+
+Sections disponibles selon la reponse : score principal, `scoreBreakdown`,
+competences, Skill Evidence Map, Career Signal Map, Decision Trace, warnings et
+quality checks. Les snippets de preuve sont limites a 220 caracteres.
 
 ## Limites actuelles
 
@@ -142,6 +164,9 @@ donc le state global, sans appel supplementaire. Il affiche `appliedAt` et
 - il n'existe pas d'endpoint de detail ni d'historique des statuts ;
 - aucun endpoint de retrait etudiant n'existe, donc aucun bouton de retrait
   n'est affiche ;
+- `MatchingResult` ne conserve que le resume legacy et pas toute
+  l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
+  redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
 - upload CV, lettre de motivation complete, Career Assistant, Skill Gap
   Simulator et notifications push restent hors perimetre ;

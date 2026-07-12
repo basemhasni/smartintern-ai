@@ -174,3 +174,15 @@ champs de candidature et une offre partielle avec `id`, `title`, `location`,
 Il n'existe pas de route etudiant pour lire une candidature par identifiant, ni
 d'historique de statut, ni d'endpoint de retrait. Le client mobile construit le
 detail depuis son state global et n'affiche que `appliedAt` et `updatedAt`.
+
+## Note mobile - explicabilite IA
+
+Le dashboard IA reutilise les matchings complets renvoyes par
+`GET /api/students/recommendations`, puis appelle explicitement
+`GET /api/offers/:id/match` lorsqu'une nouvelle analyse est demandee. Cette route
+est protegee `STUDENT`, construit les donnees CV/offre cote backend et appelle le
+Matching V3 existant. Aucun payload mobile n'est requis.
+
+Il n'existe pas encore de route permettant de relire toute l'explicabilite V3
+persistee. La table `MatchingResult` conserve le resume legacy, mais pas Skill
+Evidence Map, Career Signal Map ou Decision Trace.

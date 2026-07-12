@@ -7,6 +7,7 @@ import { useAppTheme } from '@/core/theme/ThemeProvider';
 import type { AppTheme } from '@/core/theme/theme';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { GlassCard } from '@/shared/components/GlassCard';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { IconButton } from '@/shared/components/IconButton';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/components/Screen';
@@ -96,6 +97,15 @@ export function OfferDetailScreen({ navigation, route }: Props) {
         onAnalyze={() => void detail.analyze()}
         onOpenProfile={() => navigation.navigate('StudentTabs', { screen: 'Profile' })}
       />
+
+      {detail.match?.isAvailable ? (
+        <GradientButton
+          icon="analytics-outline"
+          label="Voir l analyse complete"
+          onPress={() => navigation.navigate('StudentTabs', { screen: 'AiInsights', params: { offerId: offer.id } })}
+          variant="secondary"
+        />
+      ) : null}
 
       <ApplyActionBar
         disabledReason={applicationDisabledReason}

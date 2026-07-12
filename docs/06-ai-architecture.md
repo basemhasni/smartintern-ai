@@ -1,5 +1,12 @@
 # Architecture IA
 
+## Consommation mobile explicable
+
+React Native ne reproduit aucun calcul de Matching V3. Il normalise uniquement
+les champs retournes par `backend-api` et affiche separement les sections
+disponibles. Les formats legacy sans `explainability` restent supportes sans
+score, confiance ou insight fictif.
+
 ## Objectif IA
 
 La partie IA de SmartIntern AI doit aider l'utilisateur à comprendre une décision, pas seulement recevoir un score. Les services IA sont donc conçus autour de trois axes :

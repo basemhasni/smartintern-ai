@@ -15,6 +15,6 @@ export type StudentTabParamList = {
   StudentHome: undefined;
   Offers: undefined;
   Applications: undefined;
-  AiInsights: undefined;
+  AiInsights: { offerId?: string } | undefined;
   Profile: undefined;
 };

@@ -1,44 +1,88 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import type { StudentTabParamList } from '@/core/navigation/navigationTypes';
 import { useAppTheme } from '@/core/theme/ThemeProvider';
 import type { AppTheme } from '@/core/theme/theme';
-import { AppBadge } from '@/shared/components/AppBadge';
+import { EmptyState } from '@/shared/components/EmptyState';
 import { GlassCard } from '@/shared/components/GlassCard';
+import { GradientButton } from '@/shared/components/GradientButton';
 import { Screen } from '@/shared/components/Screen';
+import { StatusMessage } from '@/shared/components/StatusMessage';
+import { AiMatchScoreCard } from './components/AiMatchScoreCard';
+import { AiQualityCard, AiWarningsCard } from './components/AiQualityCards';
+import { CareerSignalMapCard } from './components/CareerSignalMapCard';
+import { DecisionTraceTimeline } from './components/DecisionTraceTimeline';
+import { OfferAnalysisSelector } from './components/OfferAnalysisSelector';
+import { ScoreBreakdownCard } from './components/ScoreBreakdownCard';
+import { MatchedSkillsCard, MissingSkillsCard } from './components/SkillsInsightCards';
+import { SkillEvidenceMapCard } from './components/SkillEvidenceMapCard';
+import { useAiInsights } from './state/useAiInsights';
 
-const insights = [
-  { icon: 'analytics-outline', title: 'Matching Score', text: 'Compatibilité avec chaque offre', status: '82/100', active: true },
-  { icon: 'git-network-outline', title: 'Career Signal Map', text: 'Vos domaines de force', status: 'Bientôt', active: false },
-  { icon: 'shield-checkmark-outline', title: 'Skill Evidence', text: 'Compétences et preuves', status: 'Bientôt', active: false },
-  { icon: 'list-outline', title: 'Decision Trace', text: 'Facteurs de recommandation', status: 'Bientôt', active: false },
-  { icon: 'flask-outline', title: 'Skill Gap Simulator', text: 'Simulation de progression', status: 'Bientôt', active: false },
-] as const;
+type Props = BottomTabScreenProps<StudentTabParamList, 'AiInsights'>;
 
-export function AiInsightsScreen() {
-  // TODO Step 5: connect AI insights API.
+export function AiInsightsScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
-  return <Screen eyebrow="Intelligence carrière" title="Vos signaux IA" subtitle="Des recommandations lisibles, transparentes et orientées action."><LinearGradient colors={theme.gradients.premium} style={styles.featured}><View style={styles.featuredTop}><View style={styles.featuredIcon}><Ionicons color={theme.colors.white} name="sparkles" size={23} /></View><AppBadge icon="pulse" label="Aperçu" tone="success" /></View><Text style={styles.featuredTitle}>Votre potentiel, décodé.</Text><Text style={styles.featuredText}>Votre profil montre une forte cohérence produit et frontend. Les modules restent en mode aperçu jusqu’à la connexion IA.</Text><View style={styles.signalRow}><View><Text style={styles.signalValue}>82</Text><Text style={styles.signalLabel}>Score global</Text></View><View style={styles.separator} /><View><Text style={styles.signalValue}>2</Text><Text style={styles.signalLabel}>Forces clés</Text></View><View style={styles.separator} /><View><Text style={styles.signalValue}>3</Text><Text style={styles.signalLabel}>Pistes d’action</Text></View></View></LinearGradient><Text style={styles.sectionTitle}>Modules d’analyse</Text>{insights.map((item) => <Pressable disabled={!item.active} key={item.title} style={({ pressed }) => pressed && styles.pressed}><GlassCard style={styles.card} variant={item.active ? 'elevated' : 'soft'}><View style={[styles.icon, item.active && styles.iconActive]}><Ionicons color={item.active ? theme.colors.white : theme.colors.primary} name={item.icon} size={22} /></View><View style={styles.copy}><Text style={styles.title}>{item.title}</Text><Text style={styles.text}>{item.text}</Text></View><AppBadge label={item.status} tone={item.active ? 'success' : 'neutral'} /><Ionicons color={theme.colors.textMuted} name="chevron-forward" size={17} /></GlassCard></Pressable>)}</Screen>;
+  const insights = useAiInsights(route.params?.offerId);
+  const selectOffer = insights.selectOffer;
+  const selectorOffers = useMemo(() => {
+    const ordered = [...insights.recommendedOffers, ...insights.offers];
+    return [...new Map(ordered.map((offer) => [offer.id, offer])).values()];
+  }, [insights.offers, insights.recommendedOffers]);
+
+  useEffect(() => {
+    if (route.params?.offerId) selectOffer(route.params.offerId);
+  }, [route.params?.offerId, selectOffer]);
+
+  return (
+    <Screen eyebrow="Intelligence carriere" subtitle="Comprenez les preuves et limites derriere chaque compatibilite." title="Mon analyse IA" rightAccessory={insights.analysis ? <Pressable accessibilityLabel="Relancer l analyse" accessibilityRole="button" disabled={insights.isAnalyzing} onPress={() => void insights.analyze()} style={styles.refresh}><Ionicons color={theme.colors.primary} name="refresh" size={20} /></Pressable> : null}>
+      {selectorOffers.length ? <View style={styles.selector}><Text style={styles.sectionTitle}>Choisir une offre</Text><OfferAnalysisSelector offers={selectorOffers} selectedId={insights.selectedOfferId} onSelect={insights.selectOffer} /></View> : (
+        <GlassCard><EmptyState icon="briefcase-outline" message="Aucune offre publiee n est disponible pour une analyse." title="Aucune offre" /><GradientButton label="Voir les offres" onPress={() => navigation.navigate('Offers')} /></GlassCard>
+      )}
+
+      {!insights.selectedOfferId && selectorOffers.length ? (
+        <GlassCard accent><EmptyState icon="sparkles-outline" message="Selectionnez une offre pour analyser la compatibilite avec votre profil." title="Choisissez une offre" /></GlassCard>
+      ) : null}
+
+      {insights.selectedOffer && !insights.canAnalyze && !insights.analysis ? (
+        <GlassCard accent style={styles.actionCard}><StatusMessage message="Completez votre profil et ajoutez un CV analyse pour obtenir une analyse explicable." tone="info" /><GradientButton icon="person-outline" label="Ouvrir mon profil" onPress={() => navigation.navigate('Profile')} /></GlassCard>
+      ) : null}
+
+      {insights.selectedOffer && insights.canAnalyze && !insights.analysis ? (
+        <GlassCard accent style={styles.actionCard}><View style={styles.actionHeader}><View style={styles.actionIcon}><Ionicons color={theme.colors.primary} name="sparkles" size={23} /></View><View style={styles.flex}><Text style={styles.actionTitle}>Analyse non lancee</Text><Text style={styles.actionText}>Le matching sera calcule par le backend avec votre CV analyse.</Text></View></View>{insights.error ? <StatusMessage message={insights.error} tone="error" /> : null}<GradientButton icon="sparkles-outline" label="Analyser cette offre" loading={insights.isAnalyzing} onPress={() => void insights.analyze()} /></GlassCard>
+      ) : null}
+
+      {insights.analysis ? (
+        <View style={styles.analysis}>
+          {insights.error ? <StatusMessage message={insights.error} tone="error" /> : null}
+          <AiMatchScoreCard analysis={insights.analysis} analyzedAt={insights.lastAnalyzedAt} />
+          <View style={styles.columns}><MatchedSkillsCard skills={insights.analysis.matchedSkills} /><MissingSkillsCard critical={insights.analysis.criticalMissingSkills} skills={insights.analysis.missingSkills} /></View>
+          <ScoreBreakdownCard breakdown={insights.analysis.scoreBreakdown} />
+          <SkillEvidenceMapCard items={insights.analysis.skillEvidence} />
+          <CareerSignalMapCard map={insights.analysis.careerSignalMap} />
+          <DecisionTraceTimeline items={insights.analysis.decisionTrace} />
+          <AiWarningsCard warnings={insights.analysis.warnings} />
+          <AiQualityCard checks={insights.analysis.qualityChecks} method={insights.analysis.matchingMethod} />
+          <GradientButton icon="refresh" label="Relancer l analyse" loading={insights.isAnalyzing} onPress={() => void insights.analyze()} variant="secondary" />
+        </View>
+      ) : null}
+    </Screen>
+  );
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
-  featured: { borderRadius: theme.radius.xl, padding: theme.spacing.xl, gap: theme.spacing.md, ...theme.shadow },
-  featuredTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  featuredIcon: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.13)' },
-  featuredTitle: { color: theme.colors.white, ...theme.typography.heading, fontSize: 23, lineHeight: 29 },
-  featuredText: { color: 'rgba(255,255,255,0.76)', ...theme.typography.body },
-  signalRow: { marginTop: theme.spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.sm },
-  signalValue: { color: theme.colors.white, fontSize: 21, lineHeight: 26, fontWeight: '800' },
-  signalLabel: { color: 'rgba(255,255,255,0.58)', ...theme.typography.caption },
-  separator: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.14)' },
-  sectionTitle: { marginTop: theme.spacing.sm, color: theme.colors.textPrimary, ...theme.typography.heading },
-  card: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  icon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceSubtle },
-  iconActive: { backgroundColor: theme.colors.primary },
-  copy: { flex: 1, minWidth: 0, gap: 2 },
-  title: { color: theme.colors.textPrimary, ...theme.typography.label },
-  text: { color: theme.colors.textSecondary, ...theme.typography.caption },
-  pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  refresh: { width: 44, height: 44, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceMuted },
+  selector: { gap: theme.spacing.md },
+  sectionTitle: { color: theme.colors.textPrimary, ...theme.typography.heading },
+  actionCard: { gap: theme.spacing.lg },
+  actionHeader: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+  actionIcon: { width: 46, height: 46, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceMuted },
+  flex: { flex: 1, minWidth: 0, gap: theme.spacing.xs },
+  actionTitle: { color: theme.colors.textPrimary, ...theme.typography.subheading },
+  actionText: { color: theme.colors.textSecondary, ...theme.typography.caption },
+  analysis: { gap: theme.spacing.lg },
+  columns: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
 });
