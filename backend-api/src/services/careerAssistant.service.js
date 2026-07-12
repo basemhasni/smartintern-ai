@@ -4,6 +4,8 @@ const { indexCareerAdvice, searchVectorDocuments } = require('./rag.service');
 
 const DEFAULT_QUESTION = "Analyse mon profil et propose un plan d'amélioration pour cette offre.";
 
+const MAX_QUESTION_LENGTH = 500;
+
 const createHttpError = (statusCode, message) => {
   const error = new Error(message);
   error.statusCode = statusCode;
@@ -217,8 +219,20 @@ const buildRagContext = async (offer, requiredSkills, missingSkills, userId) => 
 };
 
 const generateAdvice = async (userId, payload) => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw createHttpError(400, 'Request payload must be an object');
+  }
+
   if (!payload.offerId) {
     throw createHttpError(400, 'offerId is required');
+  }
+
+  if (payload.question !== undefined && typeof payload.question !== 'string') {
+    throw createHttpError(400, 'question must be a string');
+  }
+
+  if (payload.question?.trim().length > MAX_QUESTION_LENGTH) {
+    throw createHttpError(413, `question must not exceed ${MAX_QUESTION_LENGTH} characters`);
   }
 
   const question =

@@ -129,6 +129,11 @@ Il propose :
 - conseils CV ;
 - conseils entretien.
 
+Sur mobile, les intentions reelles sont detectees depuis la question par Career
+Assistant V2. Les sections absentes restent absentes et aucune roadmap, source,
+competence ou recommandation generique n'est construite localement. Les conseils
+restent indicatifs et ne garantissent pas une embauche.
+
 ## Motivation Letter
 
 Objectif : générer une lettre professionnelle basée sur des preuves réelles.

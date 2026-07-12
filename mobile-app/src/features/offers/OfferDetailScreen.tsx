@@ -102,6 +102,7 @@ export function OfferDetailScreen({ navigation, route }: Props) {
         <View style={styles.aiActions}>
           <GradientButton icon="analytics-outline" label="Voir l analyse complete" onPress={() => navigation.navigate('StudentTabs', { screen: 'AiInsights', params: { offerId: offer.id } })} variant="secondary" />
           <GradientButton icon="trending-up-outline" label="Identifier mes axes de progression" onPress={() => navigation.navigate('SkillGapSimulator', { offerId: offer.id })} variant="secondary" />
+          <GradientButton icon="compass-outline" label="Obtenir des conseils personnalises" onPress={() => navigation.navigate('CareerAssistant', { offerId: offer.id })} variant="secondary" />
         </View>
       ) : null}
 

@@ -31,6 +31,18 @@ Cette page documente les endpoints principaux observés dans `backend-api/src/ro
 | GET | `/api/students/recommendations` | STUDENT | Recommandations |
 | POST | `/api/students/career-assistant` | STUDENT + CSRF | Conseil carrière |
 
+#### Career Assistant mobile
+
+`POST /api/students/career-assistant` accepte
+`{ "offerId": "...", "question": "..." }`. `question` est optionnelle et limitee
+a 500 caracteres. Le web utilise cookie et CSRF; le mobile utilise Bearer avec
+`X-Client-Type: mobile`.
+
+Le backend derive l'etudiant du token, charge le CV analyse et l'offre publiee,
+genere le Matching V3, filtre les sources RAG autorisees et appelle
+`POST /ai/career-advice`. Le client ne transmet jamais `studentId`, CV, matching,
+prompt interne ou contexte RAG.
+
 ### CV
 
 | Méthode | URL | Accès | Description |

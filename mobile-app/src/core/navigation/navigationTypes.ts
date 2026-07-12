@@ -8,6 +8,7 @@ export type RootStackParamList = {
   StudentTabs: NavigatorScreenParams<StudentTabParamList> | undefined;
   OfferDetail: { offerId: string };
   SkillGapSimulator: { offerId: string };
+  CareerAssistant: { offerId?: string } | undefined;
   ApplicationDetail: { applicationId: string };
   UnsupportedRole: undefined;
 };

@@ -129,6 +129,11 @@ Career Assistant V2 transforme le matching en plan d'action :
 - conseils entretien ;
 - roadmap d'apprentissage.
 
+Sur mobile, le Career Assistant utilise la facade authentifiee
+`POST /api/students/career-assistant`. Le client transmet seulement l'offre et
+une question optionnelle. Les resultats restent en cache de session par offre;
+aucun conseil n'est genere automatiquement a l'ouverture d'un ecran.
+
 ## Motivation Letter V2
 
 Motivation Letter V2 génère une lettre professionnelle basée sur les preuves :

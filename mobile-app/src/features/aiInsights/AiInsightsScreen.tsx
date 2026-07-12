@@ -14,6 +14,8 @@ import { Screen } from '@/shared/components/Screen';
 import { StatusMessage } from '@/shared/components/StatusMessage';
 import { SkillGapSummaryCard } from '@/features/skillGap/components/SkillGapSummaryCard';
 import { useSkillGap } from '@/features/skillGap/state/SkillGapContext';
+import { CareerAssistantSummaryCard } from '@/features/careerAssistant/components/CareerAssistantSummaryCard';
+import { useCareerAssistant } from '@/features/careerAssistant/state/CareerAssistantContext';
 import { AiMatchScoreCard } from './components/AiMatchScoreCard';
 import { AiQualityCard, AiWarningsCard } from './components/AiQualityCards';
 import { CareerSignalMapCard } from './components/CareerSignalMapCard';
@@ -31,6 +33,7 @@ export function AiInsightsScreen({ navigation, route }: Props) {
   const styles = createStyles(theme);
   const insights = useAiInsights(route.params?.offerId);
   const skillGap = useSkillGap();
+  const careerAssistant = useCareerAssistant();
   const selectOffer = insights.selectOffer;
   const selectorOffers = useMemo(() => {
     const ordered = [...insights.recommendedOffers, ...insights.offers];
@@ -71,6 +74,7 @@ export function AiInsightsScreen({ navigation, route }: Props) {
           <AiWarningsCard warnings={insights.analysis.warnings} />
           <AiQualityCard checks={insights.analysis.qualityChecks} method={insights.analysis.matchingMethod} />
           {insights.selectedOffer ? <SkillGapSummaryCard result={skillGap.getResult(insights.selectedOffer.id, 'REALISTIC')} onPress={() => navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.navigate('SkillGapSimulator', { offerId: insights.selectedOffer!.id })} /> : null}
+          {insights.selectedOffer ? <CareerAssistantSummaryCard advice={careerAssistant.getAdvice(insights.selectedOffer.id)} onPress={() => navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.navigate('CareerAssistant', { offerId: insights.selectedOffer!.id })} /> : null}
           <GradientButton icon="refresh" label="Relancer l analyse" loading={insights.isAnalyzing} onPress={() => void insights.analyze()} variant="secondary" />
         </View>
       ) : null}

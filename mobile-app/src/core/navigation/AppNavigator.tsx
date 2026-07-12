@@ -15,6 +15,8 @@ import { ConnectedLoginScreen } from '@/features/auth/ConnectedLoginScreen';
 import { ConnectedRegisterScreen } from '@/features/auth/ConnectedRegisterScreen';
 import { UnsupportedRoleScreen } from '@/features/auth/UnsupportedRoleScreen';
 import { useAuth } from '@/features/auth/state/AuthContext';
+import { CareerAssistantScreen } from '@/features/careerAssistant/screens/CareerAssistantScreen';
+import { CareerAssistantProvider } from '@/features/careerAssistant/state/CareerAssistantContext';
 import { OfferDetailScreen } from '@/features/offers/OfferDetailScreen';
 import { OffersScreen } from '@/features/offers/OffersScreen';
 import { OffersProvider } from '@/features/offers/state/OffersContext';
@@ -73,14 +75,17 @@ function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof c
     <ApplicationsProvider>
       <StudentDashboardProvider>
         <OffersProvider>
-          <SkillGapProvider>
-            <Stack.Navigator screenOptions={stackOptions}>
-              <Stack.Screen component={StudentTabs} name="StudentTabs" />
-              <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
-              <Stack.Screen component={SkillGapSimulatorScreen} name="SkillGapSimulator" />
-              <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
-            </Stack.Navigator>
-          </SkillGapProvider>
+          <CareerAssistantProvider>
+            <SkillGapProvider>
+              <Stack.Navigator screenOptions={stackOptions}>
+                <Stack.Screen component={StudentTabs} name="StudentTabs" />
+                <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
+                <Stack.Screen component={SkillGapSimulatorScreen} name="SkillGapSimulator" />
+                <Stack.Screen component={CareerAssistantScreen} name="CareerAssistant" />
+                <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
+              </Stack.Navigator>
+            </SkillGapProvider>
+          </CareerAssistantProvider>
         </OffersProvider>
       </StudentDashboardProvider>
     </ApplicationsProvider>

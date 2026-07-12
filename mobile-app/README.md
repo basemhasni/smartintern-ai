@@ -77,6 +77,7 @@ Le client ajoute `X-Client-Type: mobile` et
 | `GET /students/recommendations?limit=10` | recommandations et matchings disponibles |
 | `GET /offers/:id/match` | declenche le Matching V3 pour l'etudiant |
 | `POST /offers/:id/skill-gap-simulation` | simule les axes de progression depuis le matching backend |
+| `POST /students/career-assistant` | genere les conseils Career Assistant V2 pour une offre |
 | `GET /students/applications` | suivi et verification d'une candidature existante |
 | `POST /offers/:offerId/apply` | cree une candidature avec un corps JSON vide |
 
@@ -171,6 +172,25 @@ Les resultats sont caches en memoire par couple `(offerId, mode)` pendant la
 session. Une relance reste une action volontaire. Ce cache n'est pas persiste
 apres fermeture de l'application et aucune simulation n'est enregistree en base.
 
+## Career Assistant
+
+L'ecran Career Assistant est accessible depuis le detail d'offre, l'analyse IA
+et le Skill Gap Simulator. Aucune generation n'est automatique. Le mobile envoie
+uniquement `offerId` et, pour une question ciblee, un champ `question` limite a
+500 caracteres a `POST /students/career-assistant`.
+
+Le backend identifie l'etudiant depuis le token, charge son CV analyse et
+l'offre, genere le Matching V3, recherche le contexte RAG autorise et appelle
+Career Assistant V2. Le mobile affiche uniquement les sections retournees :
+`readinessLevel`, priorites, gaps critiques, roadmap, conseils CV, projets,
+preparation entretien, warnings et sources publiques.
+
+Les intentions sont detectees par le service IA depuis la question :
+`FULL_ANALYSIS`, `SKILL_GAPS`, `PROJECT_IDEAS`, `CV_IMPROVEMENT`,
+`INTERVIEW_PREP`, `STRENGTHS`, `LEARNING_PLAN`, `READINESS`, `SPECIFIC_SKILL` et
+`CUSTOM_QUESTION`. Les resultats et les dix dernieres reponses sont conserves en
+memoire par offre pendant la session, sans stockage persistant.
+
 ## Limites actuelles
 
 - le schema d'offre ne contient pas de deadline, missions structurees, type de
@@ -185,8 +205,10 @@ apres fermeture de l'application et aucune simulation n'est enregistree en base.
   l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
   redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
-- upload CV, lettre de motivation complete, Career Assistant et notifications
-  push restent hors perimetre ;
+- upload CV, lettre de motivation complete et notifications push restent hors
+  perimetre ;
+- Career Assistant ne possede pas d'endpoint de lecture d'un conseil persiste ;
+  une nouvelle session demande donc une generation explicite ;
 - le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite
   du service IA ; ses estimations restent pedagogiques et non contractuelles ;
 - aucune infrastructure de tests mobile n'est installee actuellement.
