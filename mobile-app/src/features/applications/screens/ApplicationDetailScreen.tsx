@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useEffect } from 'react';
 import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '@/core/navigation/navigationTypes';
@@ -13,6 +14,7 @@ import { IconButton } from '@/shared/components/IconButton';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/components/Screen';
 import { SectionHeader } from '@/shared/components/SectionHeader';
+import { useMotivationLetters } from '@/features/motivationLetters/state/MotivationLettersContext';
 import { ApplicationStatusBadge } from '../components/ApplicationStatusBadge';
 import { getApplicationStatusConfig } from '../config/applicationStatusConfig';
 import { useApplications } from '../state/ApplicationsContext';
@@ -23,7 +25,13 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   const { findById, isLoading, isRefreshing, error, refresh } = useApplications();
+  const { findByApplication, loadLetters } = useMotivationLetters();
   const application = findById(route.params.applicationId);
+  const letter = findByApplication(route.params.applicationId);
+
+  useEffect(() => {
+    void loadLetters();
+  }, [loadLetters]);
 
   if (isLoading && !application) return <Screen><LoadingState label="Chargement de la candidature..." /></Screen>;
   if (!application) {
@@ -94,6 +102,21 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
       ) : null}
 
       {application.message ? <GlassCard><SectionHeader title="Message envoye" /><Text style={styles.body}>{application.message}</Text></GlassCard> : null}
+
+      <GlassCard>
+        <SectionHeader title="Lettre de motivation" subtitle="Associee uniquement a cette candidature" />
+        {letter ? (
+          <View style={styles.letterBlock}>
+            <Text style={styles.body}>Une lettre est enregistree pour cette candidature.</Text>
+            <GradientButton icon="document-text-outline" label="Voir la lettre" onPress={() => navigation.navigate('MotivationLetterDetail', { applicationId: application.id })} variant="secondary" />
+          </View>
+        ) : (
+          <View style={styles.letterBlock}>
+            <Text style={styles.body}>Aucune lettre n est encore associee a cette candidature.</Text>
+            <GradientButton icon="sparkles" label="Generer une lettre" onPress={() => navigation.navigate('MotivationLetterGenerator', { applicationId: application.id, offerId: application.offerId })} variant="secondary" />
+          </View>
+        )}
+      </GlassCard>
     </Screen>
   );
 }
@@ -142,4 +165,5 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   factValue: { color: theme.colors.textPrimary, ...theme.typography.label },
   offerStatus: { width: '100%' },
   score: { marginTop: theme.spacing.md, color: theme.colors.primary, fontSize: 36, lineHeight: 42, fontWeight: '800' },
+  letterBlock: { marginTop: theme.spacing.md, gap: theme.spacing.md },
 });

@@ -106,6 +106,18 @@ export function OfferDetailScreen({ navigation, route }: Props) {
         </View>
       ) : null}
 
+      <GlassCard>
+        <SectionHeader title="Lettre de motivation" subtitle="Generee a partir de votre CV, du matching et de cette offre" />
+        {detail.existingApplication ? (
+          <View style={styles.letterAction}>
+            <StatusMessage message="La lettre sera enregistree et associee a votre candidature existante. Elle ne sera jamais envoyee automatiquement." tone="info" />
+            <GradientButton icon="document-text-outline" label="Generer une lettre de motivation" onPress={() => navigation.navigate('MotivationLetterGenerator', { offerId: offer.id, applicationId: detail.existingApplication!.id })} />
+          </View>
+        ) : (
+          <StatusMessage message="La generation devient disponible apres l envoi de votre candidature. Elle ne cree aucune candidature automatiquement." tone="info" />
+        )}
+      </GlassCard>
+
       <ApplyActionBar
         disabledReason={applicationDisabledReason}
         error={detail.applyError}
@@ -157,4 +169,5 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   sectionSubtitle: { color: theme.colors.textSecondary, ...theme.typography.caption },
   applicationsLink: { minHeight: 44, paddingVertical: theme.spacing.md, color: theme.colors.primary, ...theme.typography.label, textAlign: 'center' },
   aiActions: { gap: theme.spacing.sm },
+  letterAction: { marginTop: theme.spacing.lg, gap: theme.spacing.md },
 });

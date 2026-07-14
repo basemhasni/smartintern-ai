@@ -86,9 +86,16 @@ prompt interne ou contexte RAG.
 
 | Méthode | URL | Accès | Description |
 | --- | --- | --- | --- |
+| GET | `/api/applications/motivation-letters` | STUDENT | Lister les lettres de l'étudiant connecté |
 | POST | `/api/applications/:applicationId/generate-letter` | STUDENT + CSRF | Générer lettre |
 | GET | `/api/applications/:applicationId/motivation-letter` | STUDENT | Lire lettre |
-| PUT | `/api/applications/:applicationId/motivation-letter` | STUDENT + CSRF | Modifier lettre |
+| PUT | `/api/applications/:applicationId/motivation-letter` | STUDENT + CSRF | Modifier lettre (10 000 caractères maximum) |
+
+La génération accepte uniquement le champ `tone` avec `PROFESSIONAL`,
+`DYNAMIC` ou `SIMPLE`. Elle crée ou remplace automatiquement la lettre unique
+liée à la candidature. Une modification manuelle positionne
+`generatedByAI=false`. Pour le client mobile authentifié par Bearer, le
+middleware CSRF ignore les requêtes portant `X-Client-Type: mobile`.
 
 ### Classement candidat
 

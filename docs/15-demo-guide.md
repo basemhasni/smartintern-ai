@@ -49,6 +49,14 @@ Vérifier :
 10. Demander un conseil carrière.
 11. Postuler.
 12. Générer une lettre de motivation.
+13. Choisir un ton réel et lancer explicitement Motivation Letter V2.
+14. Montrer les preuves, compétences, affirmations évitées, contrôles qualité
+    et avertissements retournés.
+15. Retrouver la lettre dans la liste, la modifier puis la partager.
+
+La lettre exige une candidature déjà créée et un CV analysé. La démonstration
+ne doit pas laisser entendre qu'elle est envoyée automatiquement à
+l'entreprise. Une version modifiée manuellement est signalée comme telle.
 
 ## Scénario entreprise
 

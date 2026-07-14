@@ -36,12 +36,18 @@ export const normalizeApiError = (error: unknown): string => {
       return apiError.message || 'Cette operation a deja ete effectuee.';
     case 410:
       return 'Cette ressource n est plus disponible.';
+    case 413:
+      return 'Le contenu est trop long. Reduisez sa taille avant de reessayer.';
     case 422:
       return apiError.message || 'Les conditions requises ne sont pas encore remplies.';
     case 429:
       return 'Trop de tentatives. Reessayez plus tard.';
     case 500:
       return 'Erreur serveur. Reessayez plus tard.';
+    case 502:
+    case 503:
+    case 504:
+      return 'La generation IA est temporairement indisponible. Reessayez plus tard.';
     default:
       return apiError.message || 'Une erreur inattendue est survenue.';
   }

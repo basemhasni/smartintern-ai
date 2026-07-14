@@ -124,16 +124,66 @@ const buildMatchingPayload = (matchingResult) => {
   };
 };
 
+const MAX_LETTER_LENGTH = 10_000;
+const LETTER_RELATIONS = {
+  offer: {
+    select: {
+      id: true,
+      title: true,
+      location: true,
+      status: true,
+      company: {
+        select: {
+          id: true,
+          companyName: true,
+          sector: true,
+        },
+      },
+    },
+  },
+  application: {
+    select: {
+      id: true,
+      status: true,
+      appliedAt: true,
+      updatedAt: true,
+    },
+  },
+};
+
 const formatLetter = (letter, generationDetails = null) => ({
   id: letter.id,
   applicationId: letter.applicationId,
+  studentId: letter.studentId,
+  offerId: letter.offerId,
   tone: letter.tone,
   content: letter.content,
   generatedByAI: letter.generatedByAI,
   createdAt: letter.createdAt,
   updatedAt: letter.updatedAt,
+  ...(letter.offer ? {
+    offer: {
+      id: letter.offer.id,
+      title: letter.offer.title,
+      location: letter.offer.location,
+      status: letter.offer.status,
+      company: letter.offer.company,
+    },
+  } : {}),
+  ...(letter.application ? { application: letter.application } : {}),
   ...(generationDetails ? { v2: generationDetails } : {}),
 });
+
+const listLettersForStudent = async (userId) => {
+  const student = await getStudentByUserId(userId);
+  const letters = await prisma.motivationLetter.findMany({
+    where: { studentId: student.id },
+    include: LETTER_RELATIONS,
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  return letters.map((letter) => formatLetter(letter));
+};
 
 const buildLetterRagContext = async (application, missingSkills, userId) => {
   try {
@@ -257,6 +307,7 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
       content: aiResult.data.content,
       generatedByAI: true,
     },
+    include: LETTER_RELATIONS,
   });
 
   try {
@@ -276,6 +327,7 @@ const getLetterForApplication = async (userId, applicationId) => {
     where: {
       applicationId,
     },
+    include: LETTER_RELATIONS,
   });
 
   if (!letter) {
@@ -288,6 +340,10 @@ const getLetterForApplication = async (userId, applicationId) => {
 const updateLetterForApplication = async (userId, applicationId, payload) => {
   if (!payload.content || typeof payload.content !== 'string' || payload.content.trim().length === 0) {
     throw createHttpError(400, 'content is required');
+  }
+
+  if (payload.content.length > MAX_LETTER_LENGTH) {
+    throw createHttpError(413, `content must not exceed ${MAX_LETTER_LENGTH} characters`);
   }
 
   const student = await getStudentByUserId(userId);
@@ -309,7 +365,9 @@ const updateLetterForApplication = async (userId, applicationId, payload) => {
     },
     data: {
       content: payload.content.trim(),
+      generatedByAI: false,
     },
+    include: LETTER_RELATIONS,
   });
 
   try {
@@ -322,6 +380,7 @@ const updateLetterForApplication = async (userId, applicationId, payload) => {
 };
 
 module.exports = {
+  listLettersForStudent,
   generateLetterForApplication,
   getLetterForApplication,
   updateLetterForApplication,

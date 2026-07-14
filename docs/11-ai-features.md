@@ -144,6 +144,19 @@ Le service applique un contrôle anti-invention :
 - ne pas inventer un projet ;
 - ne pas inventer une expérience.
 
+Sur mobile, la génération passe par
+`POST /api/applications/:applicationId/generate-letter`. Une candidature réelle
+et un CV analysé sont obligatoires ; le client n'envoie ni `studentId`, ni CV,
+ni faux résultat de matching. Le backend reconstruit le contexte authentifié et
+enregistre une lettre unique par candidature.
+
+Motivation Letter V2 retourne, lorsqu'ils sont disponibles : `usedEvidence`,
+`usedSkills`, `avoidedClaims`, `missingSkillsHandled`, `qualityChecks`,
+`personalizationScore` et `warnings`. Le mobile tolère leur absence sans
+fabriquer de score ou de contrôle validé. Les tons supportés sont
+`PROFESSIONAL`, `DYNAMIC` et `SIMPLE`; la langue générée est actuellement le
+français uniquement.
+
 ## RAG
 
 Objectif : enrichir certaines réponses avec un contexte documentaire.

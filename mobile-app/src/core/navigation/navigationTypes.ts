@@ -10,6 +10,9 @@ export type RootStackParamList = {
   SkillGapSimulator: { offerId: string };
   CareerAssistant: { offerId?: string } | undefined;
   ApplicationDetail: { applicationId: string };
+  MotivationLetters: undefined;
+  MotivationLetterGenerator: { offerId?: string; applicationId?: string } | undefined;
+  MotivationLetterDetail: { applicationId: string };
   UnsupportedRole: undefined;
 };
 

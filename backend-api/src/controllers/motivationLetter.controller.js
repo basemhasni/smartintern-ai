@@ -1,5 +1,18 @@
 const motivationLetterService = require('../services/motivationLetter.service');
 
+const listLetters = async (req, res, next) => {
+  try {
+    const motivationLetters = await motivationLetterService.listLettersForStudent(req.user.id);
+
+    res.status(200).json({
+      motivationLetters,
+      total: motivationLetters.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const generateLetter = async (req, res, next) => {
   try {
     const motivationLetter = await motivationLetterService.generateLetterForApplication(
@@ -50,6 +63,7 @@ const updateLetter = async (req, res, next) => {
 };
 
 module.exports = {
+  listLetters,
   generateLetter,
   getLetter,
   updateLetter,

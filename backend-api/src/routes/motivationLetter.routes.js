@@ -6,6 +6,13 @@ const { authorizeRoles } = require('../middlewares/role.middleware');
 
 const router = express.Router();
 
+router.get(
+  '/motivation-letters',
+  protect,
+  authorizeRoles('STUDENT'),
+  motivationLetterController.listLetters
+);
+
 router.post(
   '/:applicationId/generate-letter',
   protect,

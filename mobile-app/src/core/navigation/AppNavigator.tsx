@@ -17,6 +17,10 @@ import { UnsupportedRoleScreen } from '@/features/auth/UnsupportedRoleScreen';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import { CareerAssistantScreen } from '@/features/careerAssistant/screens/CareerAssistantScreen';
 import { CareerAssistantProvider } from '@/features/careerAssistant/state/CareerAssistantContext';
+import { MotivationLetterDetailScreen } from '@/features/motivationLetters/screens/MotivationLetterDetailScreen';
+import { MotivationLetterGeneratorScreen } from '@/features/motivationLetters/screens/MotivationLetterGeneratorScreen';
+import { MotivationLettersScreen } from '@/features/motivationLetters/screens/MotivationLettersScreen';
+import { MotivationLettersProvider } from '@/features/motivationLetters/state/MotivationLettersContext';
 import { OfferDetailScreen } from '@/features/offers/OfferDetailScreen';
 import { OffersScreen } from '@/features/offers/OffersScreen';
 import { OffersProvider } from '@/features/offers/state/OffersContext';
@@ -77,13 +81,18 @@ function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof c
         <OffersProvider>
           <CareerAssistantProvider>
             <SkillGapProvider>
-              <Stack.Navigator screenOptions={stackOptions}>
-                <Stack.Screen component={StudentTabs} name="StudentTabs" />
-                <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
-                <Stack.Screen component={SkillGapSimulatorScreen} name="SkillGapSimulator" />
-                <Stack.Screen component={CareerAssistantScreen} name="CareerAssistant" />
-                <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
-              </Stack.Navigator>
+              <MotivationLettersProvider>
+                <Stack.Navigator screenOptions={stackOptions}>
+                  <Stack.Screen component={StudentTabs} name="StudentTabs" />
+                  <Stack.Screen component={OfferDetailScreen} name="OfferDetail" />
+                  <Stack.Screen component={SkillGapSimulatorScreen} name="SkillGapSimulator" />
+                  <Stack.Screen component={CareerAssistantScreen} name="CareerAssistant" />
+                  <Stack.Screen component={ApplicationDetailScreen} name="ApplicationDetail" />
+                  <Stack.Screen component={MotivationLettersScreen} name="MotivationLetters" />
+                  <Stack.Screen component={MotivationLetterGeneratorScreen} name="MotivationLetterGenerator" />
+                  <Stack.Screen component={MotivationLetterDetailScreen} name="MotivationLetterDetail" />
+                </Stack.Navigator>
+              </MotivationLettersProvider>
             </SkillGapProvider>
           </CareerAssistantProvider>
         </OffersProvider>

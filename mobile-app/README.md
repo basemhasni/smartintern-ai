@@ -191,6 +191,33 @@ Les intentions sont detectees par le service IA depuis la question :
 `CUSTOM_QUESTION`. Les resultats et les dix dernieres reponses sont conserves en
 memoire par offre pendant la session, sans stockage persistant.
 
+## Lettres de motivation IA
+
+La feature `src/features/motivationLetters/` utilise exclusivement les routes
+du backend :
+
+- `GET /applications/motivation-letters` pour la liste de l'etudiant ;
+- `POST /applications/:applicationId/generate-letter` avec
+  `{ "tone": "PROFESSIONAL" | "DYNAMIC" | "SIMPLE" }` ;
+- `GET /applications/:applicationId/motivation-letter` pour le detail ;
+- `PUT /applications/:applicationId/motivation-letter` avec `{ "content": "..." }`.
+
+La generation exige une candidature existante et un CV analyse. Elle ne cree,
+n'envoie et ne modifie jamais une candidature. Le backend identifie l'etudiant
+depuis son token, reconstruit le matching necessaire, appelle Motivation Letter
+V2 et enregistre automatiquement une lettre unique par candidature.
+
+Le mobile affiche seulement les metadonnees V2 disponibles : preuves et
+competences utilisees, affirmations evitees, competence manquante traitee,
+controles qualite, avertissements et score de personnalisation. Ces metadonnees
+ne sont pas actuellement persistees en base ; le contenu, le ton et les dates
+restent consultables apres rechargement.
+
+L'edition manuelle est limitee a 10 000 caracteres et marque la lettre comme
+modifiee. Le partage utilise `Share` de React Native. La copie utilise le
+Clipboard du navigateur sur Expo Web ; `expo-clipboard` reste requis pour la
+copie native Android/iOS.
+
 ## Limites actuelles
 
 - le schema d'offre ne contient pas de deadline, missions structurees, type de
@@ -205,8 +232,13 @@ memoire par offre pendant la session, sans stockage persistant.
   l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
   redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
-- upload CV, lettre de motivation complete et notifications push restent hors
-  perimetre ;
+- upload CV et notifications push restent hors perimetre ;
+- Motivation Letter V2 genere uniquement en francais et ne propose pas
+  d'instructions libres ;
+- aucune suppression de lettre n'est exposee par le backend ;
+- les metadonnees V2 ne sont pas persistees avec la lettre ;
+- la copie native Android/iOS attend `expo-clipboard` ; le partage fonctionne
+  avec l'API React Native existante ;
 - Career Assistant ne possede pas d'endpoint de lecture d'un conseil persiste ;
   une nouvelle session demande donc une generation explicite ;
 - le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite
