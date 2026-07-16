@@ -9,6 +9,13 @@ const ALLOWED_PROFILE_FIELDS = [
   'availabilityDate',
 ];
 const BLOCKED_FIELDS = ['id', 'userId', 'role', 'user', 'passwordHash', 'createdAt', 'updatedAt'];
+const PROFILE_FIELD_LIMITS = {
+  phone: 30,
+  location: 120,
+  educationLevel: 120,
+  targetJob: 120,
+  bio: 1000,
+};
 
 const userSelect = {
   id: true,
@@ -46,6 +53,10 @@ const getStudentProfile = async (userId) => {
 const validateNullableString = (field, value) => {
   if (value !== null && typeof value !== 'string') {
     throw createHttpError(400, `${field} must be a string or null`);
+  }
+
+  if (typeof value === 'string' && value.length > PROFILE_FIELD_LIMITS[field]) {
+    throw createHttpError(400, `${field} must not exceed ${PROFILE_FIELD_LIMITS[field]} characters`);
   }
 };
 

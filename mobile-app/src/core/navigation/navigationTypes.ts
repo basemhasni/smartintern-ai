@@ -13,6 +13,9 @@ export type RootStackParamList = {
   MotivationLetters: undefined;
   MotivationLetterGenerator: { offerId?: string; applicationId?: string } | undefined;
   MotivationLetterDetail: { applicationId: string };
+  EditProfile: undefined;
+  CvManagement: undefined;
+  CvAnalysis: { cvId: string };
   UnsupportedRole: undefined;
 };
 

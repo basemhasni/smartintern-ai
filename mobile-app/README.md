@@ -232,7 +232,7 @@ copie native Android/iOS.
   l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
   redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
-- upload CV et notifications push restent hors perimetre ;
+- notifications push restent hors perimetre ;
 - Motivation Letter V2 genere uniquement en francais et ne propose pas
   d'instructions libres ;
 - aucune suppression de lettre n'est exposee par le backend ;
@@ -244,3 +244,34 @@ copie native Android/iOS.
 - le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite
   du service IA ; ses estimations restent pedagogiques et non contractuelles ;
 - aucune infrastructure de tests mobile n'est installee actuellement.
+
+## Profil et CV mobile
+
+L'espace Profil utilise `GET /students/profile` et `PUT /students/profile`.
+Seuls `phone`, `location`, `educationLevel`, `targetJob`, `bio` et
+`availabilityDate` sont modifiables. L'identite, l'email et le role restent en
+lecture seule. La completion affichee est une checklist UI des informations
+deja utilisees par le dashboard, pas un score fourni par le backend.
+
+La feature `src/features/profile/` utilise `expo-document-picker` et les routes
+`GET /students/cv`, `GET /students/cv/:id`, `POST /students/cv/upload` et
+`DELETE /students/cv/:id`. L'upload utilise le champ multipart exact `cv`.
+
+Les formats acceptes sont PDF et DOCX, avec une limite de 5 Mo verifiee par le
+mobile puis obligatoirement par le backend. Sur Web, le `File` du navigateur est
+utilise ; sur Android/iOS, Expo fournit une URI temporaire. Aucun contenu,
+base64 ou URI de CV n'est persiste ou journalise par l'application.
+
+L'upload cree une nouvelle entree et lance automatiquement l'analyse via le
+backend. Le CV le plus recent alimente les prochaines analyses, tandis que
+l'historique reste disponible. La progression est indeterminee car `fetch`
+n'expose pas un pourcentage fiable sur toutes les plateformes.
+
+Apres modification du profil, ajout ou suppression d'un CV, une revision en
+memoire rafraichit les recommandations et rend obsoletes les caches mobiles IA.
+Le backend ne versionne pas encore les anciennes analyses persistantes. Les
+competences sont uniquement issues de l'analyse CV : aucune route d'edition
+manuelle n'existe actuellement.
+
+Pour un telephone reel, `EXPO_PUBLIC_API_URL` doit viser l'adresse LAN du PC,
+par exemple `http://192.168.x.x:5000/api`. Android Emulator utilise `10.0.2.2`.

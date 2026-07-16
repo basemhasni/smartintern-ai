@@ -22,6 +22,7 @@ import { SimulationModeSelector } from '../components/SimulationModeSelector';
 import { SimulationWarningsCard } from '../components/SimulationWarningsCard';
 import type { SimulationMode } from '../models/skillGapSimulation';
 import { useSkillGap } from '../state/SkillGapContext';
+import { ProfileRequirementsCard } from '@/features/profile/components/ProfileRequirementsCard';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SkillGapSimulator'>;
 
@@ -29,7 +30,7 @@ export function SkillGapSimulatorScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   const { findOffer } = useOffers();
-  const { latestCv } = useStudentDashboard();
+  const { latestCv, profile } = useStudentDashboard();
   const simulator = useSkillGap();
   const [mode, setMode] = useState<SimulationMode>('REALISTIC');
   const offer = findOffer(route.params.offerId);
@@ -40,7 +41,7 @@ export function SkillGapSimulatorScreen({ navigation, route }: Props) {
     <View style={styles.toolbar}><IconButton icon="arrow-back" label="Retour" onPress={() => navigation.goBack()} /><Text style={styles.toolbarTitle}>Skill Gap Simulator</Text><View style={styles.spacer} /></View>
     <GlassCard accent style={styles.intro}><SectionHeader title={offer?.title ?? 'Simulation de progression'} subtitle={offer?.company.companyName ?? 'Offre selectionnee'} /><Text style={styles.introText}>Explorez comment les competences acquises et leurs preuves pourraient faire evoluer votre compatibilite. Aucun score ne sera recalcule sur votre appareil.</Text></GlassCard>
     <GlassCard><SectionHeader title="Mode de simulation" subtitle="Choisissez le niveau des hypotheses utilisees par le moteur IA" /><View style={styles.selector}><SimulationModeSelector value={mode} onChange={(value) => { simulator.clearError(); setMode(value); }} /></View></GlassCard>
-    {!latestCv ? <StatusMessage tone="info" message="Ajoutez et faites analyser votre CV depuis le profil avant de lancer une simulation pertinente." /> : null}
+    {!latestCv ? <ProfileRequirementsCard hasProfile={Boolean(profile)} hasAnalyzedCv={false} onManageCv={() => navigation.navigate('CvManagement')} /> : null}
     {simulator.error ? <StatusMessage tone="error" message={simulator.error} /> : null}
     <GradientButton icon="sparkles-outline" label={result ? 'Relancer cette simulation' : 'Simuler ma progression'} loading={simulator.isSimulating} disabled={!latestCv} onPress={() => void simulator.simulate(route.params.offerId, mode)} />
     {simulatedAt ? <Text style={styles.timestamp}>Derniere simulation: {new Date(simulatedAt).toLocaleString()}</Text> : null}

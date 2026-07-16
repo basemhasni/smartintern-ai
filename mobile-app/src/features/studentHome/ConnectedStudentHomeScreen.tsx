@@ -17,6 +17,7 @@ import { GlassCard } from '@/shared/components/GlassCard';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/components/Screen';
 import { SectionHeader } from '@/shared/components/SectionHeader';
+import { GradientButton } from '@/shared/components/GradientButton';
 
 type Props = BottomTabScreenProps<StudentTabParamList, 'StudentHome'>;
 
@@ -148,6 +149,8 @@ export function ConnectedStudentHomeScreen({ navigation }: Props) {
           </Pressable>
         </GlassCard>
       ) : null}
+
+      {!latestCv ? <GradientButton icon="document-text-outline" label="Ajouter mon CV" onPress={() => rootNavigation?.navigate('CvManagement')} /> : null}
 
       <SectionHeader title="Vue d’ensemble" subtitle="Données disponibles actuellement" />
       <View style={styles.stats}>

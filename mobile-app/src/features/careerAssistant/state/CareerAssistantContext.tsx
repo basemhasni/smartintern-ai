@@ -3,6 +3,7 @@ import { createContext, type ReactNode, useCallback, useContext, useMemo, useRef
 import { ApiError, normalizeApiError } from '@/core/api/apiError';
 import { careerAssistantApi } from '../api/careerAssistantApi';
 import type { CareerAdviceResult, CareerAnswer } from '../models/careerAdvice';
+import { useStudentProfile } from '@/features/profile/state/StudentProfileContext';
 
 type ContextValue = {
   getAdvice: (offerId: string) => CareerAdviceResult | undefined;
@@ -26,6 +27,7 @@ const errorMessage = (error: unknown) => {
 };
 
 export function CareerAssistantProvider({ children }: { children: ReactNode }) {
+  const { revision } = useStudentProfile();
   const [advice, setAdvice] = useState<Record<string, CareerAdviceResult>>({});
   const [generatedAt, setGeneratedAt] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<Record<string, CareerAnswer[]>>({});
@@ -34,14 +36,16 @@ export function CareerAssistantProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const running = useRef(false);
 
+  const cacheKey = useCallback((offerId: string) => `${offerId}:${revision}`, [revision]);
   const request = useCallback(async (offerId: string, question?: string) => {
     if (running.current) return null;
     running.current = true;
     setError(null);
     try {
       const result = await careerAssistantApi.generate(offerId, question);
-      setAdvice((current) => ({ ...current, [offerId]: result }));
-      setGeneratedAt((current) => ({ ...current, [offerId]: new Date().toISOString() }));
+      const key = cacheKey(offerId);
+      setAdvice((current) => ({ ...current, [key]: result }));
+      setGeneratedAt((current) => ({ ...current, [key]: new Date().toISOString() }));
       return result;
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -49,7 +53,7 @@ export function CareerAssistantProvider({ children }: { children: ReactNode }) {
     } finally {
       running.current = false;
     }
-  }, []);
+  }, [cacheKey]);
 
   const generate = useCallback(async (offerId: string) => {
     setIsGenerating(true);
@@ -65,11 +69,12 @@ export function CareerAssistantProvider({ children }: { children: ReactNode }) {
     setIsSubmittingQuestion(false);
     if (!result) return false;
     const answer: CareerAnswer = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, question: trimmed, answer: result.directAnswer ?? result.finalAdvice, intent: result.questionIntent, createdAt: new Date().toISOString() };
-    setAnswers((current) => ({ ...current, [offerId]: [answer, ...(current[offerId] ?? [])].slice(0, 10) }));
+    const key = cacheKey(offerId);
+    setAnswers((current) => ({ ...current, [key]: [answer, ...(current[key] ?? [])].slice(0, 10) }));
     return true;
-  }, [request]);
+  }, [cacheKey, request]);
 
-  const value = useMemo<ContextValue>(() => ({ getAdvice: (offerId) => advice[offerId], getGeneratedAt: (offerId) => generatedAt[offerId], getAnswers: (offerId) => answers[offerId] ?? [], generate, ask, isGenerating, isSubmittingQuestion, error, clearError: () => setError(null), clearAnswers: (offerId) => setAnswers((current) => ({ ...current, [offerId]: [] })) }), [advice, generatedAt, answers, generate, ask, isGenerating, isSubmittingQuestion, error]);
+  const value = useMemo<ContextValue>(() => ({ getAdvice: (offerId) => advice[cacheKey(offerId)], getGeneratedAt: (offerId) => generatedAt[cacheKey(offerId)], getAnswers: (offerId) => answers[cacheKey(offerId)] ?? [], generate, ask, isGenerating, isSubmittingQuestion, error, clearError: () => setError(null), clearAnswers: (offerId) => setAnswers((current) => ({ ...current, [cacheKey(offerId)]: [] })) }), [advice, generatedAt, answers, generate, ask, isGenerating, isSubmittingQuestion, error, cacheKey]);
   return <CareerAssistantContext.Provider value={value}>{children}</CareerAssistantContext.Provider>;
 }
 

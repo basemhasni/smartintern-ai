@@ -91,7 +91,7 @@ export const normalizeStudentCv = (value: unknown): StudentCvSummary => {
  */
 export const getProfileCompletion = (
   profile: StudentProfile | null,
-  latestCv: StudentCvSummary | null,
+  latestCv: { id: string } | null,
 ): ProfileCompletion => {
   if (!profile) return { completed: 0, total: 8, percentage: 0 };
 

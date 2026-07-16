@@ -188,3 +188,15 @@ Le simulateur mobile utilise `POST /api/offers/:id/skill-gap-simulation`. Le
 backend reconstruit le matching authentifie avant de deleguer au service IA; le
 client envoie seulement le mode choisi.
 
+## Analyse CV mobile
+
+Le mobile envoie le document uniquement a `backend-api` avec
+`POST /api/students/cv/upload`. Le backend enregistre le fichier, extrait son
+texte puis appelle `POST /ai/analyze-cv`. React Native n'extrait aucune
+competence et ne contacte jamais directement `ai-service`.
+
+L'ecran mobile restitue seulement les champs disponibles : resume, competences,
+formation, experience, projets, domaines, langues, outils, qualite d'extraction
+et avertissements. Un changement de profil ou de CV invalide les caches IA de
+la session mobile.
+

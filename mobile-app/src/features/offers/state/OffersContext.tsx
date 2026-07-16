@@ -13,6 +13,7 @@ import { toApiError, normalizeApiError } from '@/core/api/apiError';
 import { offersApi } from '../api/offersApi';
 import type { Offer } from '../models/offer';
 import type { OfferMatch } from '../models/offerMatch';
+import { useStudentProfile } from '@/features/profile/state/StudentProfileContext';
 
 type OffersContextValue = {
   offers: Offer[];
@@ -41,6 +42,7 @@ const recommendationMessage = (error: unknown) => {
 };
 
 export function OffersProvider({ children }: { children: ReactNode }) {
+  const { revision } = useStudentProfile();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [recommendedOffers, setRecommendedOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +54,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => () => {
     mounted.current = false;
-  }, []);
+  }, [revision]);
 
   const load = useCallback(async (refreshing: boolean) => {
     const currentRequest = ++requestId.current;

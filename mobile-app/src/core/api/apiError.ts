@@ -37,7 +37,9 @@ export const normalizeApiError = (error: unknown): string => {
     case 410:
       return 'Cette ressource n est plus disponible.';
     case 413:
-      return 'Le contenu est trop long. Reduisez sa taille avant de reessayer.';
+      return apiError.message || 'Le contenu est trop volumineux. Reduisez sa taille avant de reessayer.';
+    case 415:
+      return apiError.message || 'Ce format de fichier n est pas accepte.';
     case 422:
       return apiError.message || 'Les conditions requises ne sont pas encore remplies.';
     case 429:

@@ -25,6 +25,7 @@ import { ScoreBreakdownCard } from './components/ScoreBreakdownCard';
 import { MatchedSkillsCard, MissingSkillsCard } from './components/SkillsInsightCards';
 import { SkillEvidenceMapCard } from './components/SkillEvidenceMapCard';
 import { useAiInsights } from './state/useAiInsights';
+import { ProfileRequirementsCard } from '@/features/profile/components/ProfileRequirementsCard';
 
 type Props = BottomTabScreenProps<StudentTabParamList, 'AiInsights'>;
 
@@ -55,7 +56,7 @@ export function AiInsightsScreen({ navigation, route }: Props) {
       ) : null}
 
       {insights.selectedOffer && !insights.canAnalyze && !insights.analysis ? (
-        <GlassCard accent style={styles.actionCard}><StatusMessage message="Completez votre profil et ajoutez un CV analyse pour obtenir une analyse explicable." tone="info" /><GradientButton icon="person-outline" label="Ouvrir mon profil" onPress={() => navigation.navigate('Profile')} /></GlassCard>
+        <ProfileRequirementsCard hasProfile={Boolean(insights.profile)} hasAnalyzedCv={insights.latestCv?.status === 'ANALYZED'} onManageCv={() => navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.navigate('CvManagement')} />
       ) : null}
 
       {insights.selectedOffer && insights.canAnalyze && !insights.analysis ? (

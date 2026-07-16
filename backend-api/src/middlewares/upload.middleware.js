@@ -35,7 +35,7 @@ const fileFilter = (req, file, cb) => {
 
   if (!allowedMimeTypes.includes(file.mimetype) || !allowedExtensions.includes(extension)) {
     const error = new Error('Invalid CV format. Only PDF and DOCX files are allowed');
-    error.statusCode = 400;
+    error.statusCode = 415;
     return cb(error);
   }
 
@@ -56,7 +56,7 @@ const handleMulterError = (err, req, res, next) => {
   }
 
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({
+    return res.status(413).json({
       status: 'error',
       message: 'CV file size must not exceed 5 MB',
     });

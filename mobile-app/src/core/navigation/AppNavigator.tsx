@@ -27,6 +27,10 @@ import { OffersProvider } from '@/features/offers/state/OffersContext';
 import { SkillGapSimulatorScreen } from '@/features/skillGap/screens/SkillGapSimulatorScreen';
 import { SkillGapProvider } from '@/features/skillGap/state/SkillGapContext';
 import { ConnectedProfileScreen } from '@/features/profile/ConnectedProfileScreen';
+import { CvAnalysisScreen } from '@/features/profile/screens/CvAnalysisScreen';
+import { CvManagementScreen } from '@/features/profile/screens/CvManagementScreen';
+import { EditProfileScreen } from '@/features/profile/screens/EditProfileScreen';
+import { StudentProfileProvider } from '@/features/profile/state/StudentProfileContext';
 import { SplashScreen } from '@/features/splash/SplashScreen';
 import { ConnectedStudentHomeScreen } from '@/features/studentHome/ConnectedStudentHomeScreen';
 import { StudentDashboardProvider } from '@/features/student/state/StudentDashboardContext';
@@ -77,8 +81,9 @@ function StudentTabs() {
 function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof createStackOptions> }) {
   return (
     <ApplicationsProvider>
-      <StudentDashboardProvider>
-        <OffersProvider>
+      <StudentProfileProvider>
+        <StudentDashboardProvider>
+          <OffersProvider>
           <CareerAssistantProvider>
             <SkillGapProvider>
               <MotivationLettersProvider>
@@ -91,12 +96,16 @@ function StudentExperience({ stackOptions }: { stackOptions: ReturnType<typeof c
                   <Stack.Screen component={MotivationLettersScreen} name="MotivationLetters" />
                   <Stack.Screen component={MotivationLetterGeneratorScreen} name="MotivationLetterGenerator" />
                   <Stack.Screen component={MotivationLetterDetailScreen} name="MotivationLetterDetail" />
+                  <Stack.Screen component={EditProfileScreen} name="EditProfile" />
+                  <Stack.Screen component={CvManagementScreen} name="CvManagement" />
+                  <Stack.Screen component={CvAnalysisScreen} name="CvAnalysis" />
                 </Stack.Navigator>
               </MotivationLettersProvider>
             </SkillGapProvider>
           </CareerAssistantProvider>
-        </OffersProvider>
-      </StudentDashboardProvider>
+          </OffersProvider>
+        </StudentDashboardProvider>
+      </StudentProfileProvider>
     </ApplicationsProvider>
   );
 }

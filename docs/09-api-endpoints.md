@@ -52,6 +52,11 @@ prompt interne ou contexte RAG.
 | GET | `/api/students/cv/:id` | STUDENT | Détail CV |
 | DELETE | `/api/students/cv/:id` | STUDENT + CSRF | Suppression CV |
 
+L'upload attend le champ multipart `cv`, accepte PDF/DOCX jusqu'a 5 Mo et lance
+l'analyse CV automatiquement. Il cree une nouvelle entree ; la liste est
+ordonnee du CV le plus recent au plus ancien. Une taille excessive retourne
+`413` et un format non supporte `415`.
+
 ### Entreprise
 
 | Méthode | URL | Accès | Description |

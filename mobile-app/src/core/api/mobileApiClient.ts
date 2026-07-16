@@ -40,12 +40,13 @@ export async function mobileApiRequest<T>(
 
   try {
     const token = skipAuth ? null : await getAccessToken();
+    const isMultipart = typeof FormData !== 'undefined' && requestOptions.body instanceof FormData;
     const response = await fetch(`${appConfig.apiBaseUrl}${path}`, {
       ...requestOptions,
       signal: controller.signal,
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
+        ...(!isMultipart ? { 'Content-Type': 'application/json' } : {}),
         'X-Client-Type': 'mobile',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
