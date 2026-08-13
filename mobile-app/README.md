@@ -232,7 +232,6 @@ copie native Android/iOS.
   l'explicabilite V3 ; une analyse complete n'est donc pas restaurable apres un
   redemarrage sans relancer le matching ;
 - l'endpoint `/offers/:id/match` calcule puis enregistre le resultat ;
-- notifications push restent hors perimetre ;
 - Motivation Letter V2 genere uniquement en francais et ne propose pas
   d'instructions libres ;
 - aucune suppression de lettre n'est exposee par le backend ;

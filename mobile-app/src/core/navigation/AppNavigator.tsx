@@ -130,7 +130,7 @@ export function AppNavigator() {
 
 export const getNavigationTheme = (theme: AppTheme): NavigationTheme => ({
   ...(theme.isDark ? DarkTheme : DefaultTheme),
-  colors: { ...(theme.isDark ? DarkTheme.colors : DefaultTheme.colors), primary: theme.colors.primary, background: theme.colors.background, card: theme.colors.backgroundElevated, text: theme.colors.textPrimary, border: theme.colors.border, notification: theme.colors.emerald },
+  colors: { ...(theme.isDark ? DarkTheme.colors : DefaultTheme.colors), primary: theme.colors.primary, background: theme.colors.background, card: theme.colors.backgroundElevated, text: theme.colors.textPrimary, border: theme.colors.border },
 });
 
 const styles = StyleSheet.create({

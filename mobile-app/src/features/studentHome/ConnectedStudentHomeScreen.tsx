@@ -82,14 +82,9 @@ export function ConnectedStudentHomeScreen({ navigation }: Props) {
       eyebrow="Votre espace"
       refreshControl={<RefreshControl refreshing={isRefreshing} tintColor={theme.colors.primary} onRefresh={() => void refresh()} />}
       rightAccessory={(
-        <View style={styles.headerActions}>
-          <Pressable accessibilityLabel="Notifications bientôt disponibles" style={styles.notificationButton}>
-            <Ionicons color={theme.colors.textSecondary} name="notifications-outline" size={20} />
-          </Pressable>
-          <Pressable accessibilityLabel="Ouvrir le profil" onPress={() => navigation.navigate('Profile')} style={styles.avatar}>
-            <Text style={styles.avatarText}>{getUserInitials(displayUser ?? null)}</Text>
-          </Pressable>
-        </View>
+        <Pressable accessibilityLabel="Ouvrir le profil" onPress={() => navigation.navigate('Profile')} style={styles.avatar}>
+          <Text style={styles.avatarText}>{getUserInitials(displayUser ?? null)}</Text>
+        </Pressable>
       )}
       subtitle="Vos informations et opportunités, mises à jour depuis SmartIntern AI."
       title={`Bonjour, ${firstName}`}
@@ -206,8 +201,6 @@ export function ConnectedStudentHomeScreen({ navigation }: Props) {
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
-  headerActions: { flexDirection: 'row', gap: theme.spacing.sm },
-  notificationButton: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border },
   avatar: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryStrong, ...theme.shadowSmall },
   avatarText: { color: theme.colors.white, ...theme.typography.label, fontWeight: '800' },
   infoCard: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
