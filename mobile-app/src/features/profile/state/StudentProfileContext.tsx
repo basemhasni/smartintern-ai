@@ -64,7 +64,12 @@ export function StudentProfileProvider({ children }: { children: ReactNode }) {
   const mounted = useRef(true);
   const uploading = useRef(false);
 
-  useEffect(() => () => { mounted.current = false; }, []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setIsLoading(true);

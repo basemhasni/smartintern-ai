@@ -1,6 +1,31 @@
+import { Platform } from 'react-native';
+
 import { darkColors, darkGradients, lightColors, lightGradients } from './colors';
 import { radius, spacing } from './spacing';
 import { typography } from './typography';
+
+const createShadow = (isDark: boolean, small: boolean) => Platform.select({
+  web: {
+    boxShadow: isDark
+      ? small ? '0 4px 10px rgba(0, 0, 0, 0.18)' : '0 12px 24px rgba(0, 0, 0, 0.26)'
+      : small ? '0 4px 12px rgba(23, 32, 51, 0.06)' : '0 10px 24px rgba(23, 32, 51, 0.08)',
+  },
+  default: isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: small ? 4 : 12 },
+        shadowOpacity: small ? 0.18 : 0.26,
+        shadowRadius: small ? 10 : 24,
+        elevation: small ? 3 : 8,
+      }
+    : {
+        shadowColor: '#172033',
+        shadowOffset: { width: 0, height: small ? 4 : 10 },
+        shadowOpacity: small ? 0.06 : 0.08,
+        shadowRadius: small ? 12 : 24,
+        elevation: small ? 2 : 4,
+      },
+})!;
 
 const createTheme = (isDark: boolean) => ({
   isDark,
@@ -9,36 +34,8 @@ const createTheme = (isDark: boolean) => ({
   spacing,
   radius,
   typography,
-  shadow: isDark
-    ? {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.26,
-        shadowRadius: 24,
-        elevation: 8,
-      }
-    : {
-        shadowColor: '#172033',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 24,
-        elevation: 4,
-      },
-  shadowSmall: isDark
-    ? {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.18,
-        shadowRadius: 10,
-        elevation: 3,
-      }
-    : {
-        shadowColor: '#172033',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 12,
-        elevation: 2,
-      },
+  shadow: createShadow(isDark, false),
+  shadowSmall: createShadow(isDark, true),
 } as const);
 
 export const lightTheme = createTheme(false);

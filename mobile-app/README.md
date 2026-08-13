@@ -4,7 +4,7 @@ Application React Native / Expo de SmartIntern AI pour les etudiants.
 
 ## Statut
 
-**Step 6 - Dashboard IA et explicabilite**
+**Parcours etudiant complet - audit et stabilisation**
 
 - authentification mobile reelle avec Bearer token et Expo SecureStore ;
 - dashboard, profil, CV, offres et recommandations reels ;
@@ -43,9 +43,13 @@ npm run ios
 npm run web
 npm run lint
 npm run typecheck
+npm run smoke:student
 ```
 
 Expo SDK 57 requiert Node.js `>=20.19.4`.
+
+Le smoke test utilise un compte temporaire unique, couvre 40 controles API et
+nettoie automatiquement les donnees, fichiers CV et index RAG crees.
 
 ## Configuration API
 
@@ -242,7 +246,8 @@ copie native Android/iOS.
   une nouvelle session demande donc une generation explicite ;
 - le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite
   du service IA ; ses estimations restent pedagogiques et non contractuelles ;
-- aucune infrastructure de tests mobile n'est installee actuellement.
+- aucun runner de tests de composants n'est installe ; le smoke test API leger
+  et le plan `docs/mobile-student-test-plan.md` couvrent le parcours integre.
 
 ## Profil et CV mobile
 

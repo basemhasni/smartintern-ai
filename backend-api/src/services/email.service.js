@@ -51,14 +51,12 @@ const buildResetPasswordEmail = ({ resetLink, expiresInMinutes }) => ({
 const sendPasswordResetEmail = async ({ to, resetLink, expiresInMinutes }) => {
   if (!isSmtpConfigured()) {
     if (process.env.NODE_ENV !== 'production') {
-      console.log('\n[DEV] SmartIntern AI password reset link');
-      console.log(`Email: ${to}`);
-      console.log(`Link: ${resetLink}\n`);
+      console.warn('SMTP is not configured. Development reset link is available only in the API response.');
     } else {
       console.warn('SMTP is not configured. Password reset email was not sent.');
     }
 
-    return { sent: false, fallback: 'console' };
+    return { sent: false, fallback: 'response' };
   }
 
   const transporter = createTransporter();

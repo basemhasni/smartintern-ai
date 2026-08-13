@@ -52,9 +52,12 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const requestId = useRef(0);
   const mounted = useRef(true);
 
-  useEffect(() => () => {
-    mounted.current = false;
-  }, [revision]);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const load = useCallback(async (refreshing: boolean) => {
     const currentRequest = ++requestId.current;
@@ -115,7 +118,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [load]);
+  }, [load, revision]);
 
   const refresh = useCallback(() => load(true), [load]);
   const findOffer = useCallback(

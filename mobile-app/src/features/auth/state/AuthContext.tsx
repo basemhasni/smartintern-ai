@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { ApiError, normalizeApiError } from '@/core/api/apiError';
+import { setUnauthorizedHandler } from '@/core/api/mobileApiClient';
 import {
   clearAuthStorage,
   getAccessToken,
@@ -103,6 +104,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void runRestoreSession();
   }, [restoreSession]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(async () => {
+      await clearAuthStorage();
+      setAccessToken(null);
+      setUser(null);
+      setErrorMessage('Votre session a expire. Reconnectez-vous.');
+    });
+
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);

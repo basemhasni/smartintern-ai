@@ -34,6 +34,7 @@
 - Skill Gap Simulator mobile avec modes, cache de session et parcours conseille.
 - Career Assistant V2 mobile avec questions ciblees et historique de session.
 - profil etudiant modifiable, selection PDF/DOCX, historique et analyse CV mobile.
+- smoke test integre du parcours etudiant avec nettoyage automatique des donnees.
 
 ### IA
 
@@ -48,7 +49,7 @@
 - enrichir le modele d'offre avec deadline, missions, contrat et remuneration ;
 - ajouter un historique de statuts et, si le metier le valide, un retrait
   etudiant protege ;
-- ajouter des tests mobiles et E2E.
+- ajouter des tests de composants mobiles et un E2E natif compatible Expo.
 
 ## Moyen terme
 

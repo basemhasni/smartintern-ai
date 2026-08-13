@@ -7,6 +7,13 @@ type RequestOptions = RequestInit & {
   skipAuth?: boolean;
 };
 
+type UnauthorizedHandler = () => void | Promise<void>;
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export const setUnauthorizedHandler = (handler: UnauthorizedHandler | null) => {
+  unauthorizedHandler = handler;
+};
+
 const parseResponseBody = async (response: Response) => {
   const text = await response.text();
   if (!text) return null;
@@ -55,6 +62,9 @@ export async function mobileApiRequest<T>(
     const body = await parseResponseBody(response);
 
     if (!response.ok) {
+      if (response.status === 401 && !skipAuth && unauthorizedHandler) {
+        await unauthorizedHandler();
+      }
       throw new ApiError(
         extractApiMessage(body) ?? 'La requete API a echoue.',
         response.status,

@@ -45,8 +45,11 @@ export function useOfferDetail(offerId: string) {
   const applying = useRef(false);
   const mounted = useRef(true);
 
-  useEffect(() => () => {
-    mounted.current = false;
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
   const loadOffer = useCallback(async () => {

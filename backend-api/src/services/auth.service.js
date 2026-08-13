@@ -58,17 +58,25 @@ const validateRequiredFields = (payload, fields) => {
 };
 
 const register = async ({ firstName, lastName, email, password, role }) => {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+
   validateRequiredFields(
-    { firstName, lastName, email, password, role },
+    { firstName, lastName, email: normalizedEmail, password, role },
     ['firstName', 'lastName', 'email', 'password', 'role']
   );
+
+  if (!validateEmailFormat(normalizedEmail)) {
+    throw createHttpError(400, 'Adresse email invalide.');
+  }
+
+  validatePasswordStrength(password);
 
   if (!PUBLIC_REGISTRATION_ROLES.includes(role)) {
     throw createHttpError(400, 'Public registration is only available for STUDENT and COMPANY roles.');
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizedEmail },
   });
 
   if (existingUser) {
@@ -82,7 +90,7 @@ const register = async ({ firstName, lastName, email, password, role }) => {
       data: {
         firstName,
         lastName,
-        email,
+        email: normalizedEmail,
         passwordHash,
         role,
       },
@@ -115,10 +123,11 @@ const register = async ({ firstName, lastName, email, password, role }) => {
 };
 
 const login = async ({ email, password }) => {
-  validateRequiredFields({ email, password }, ['email', 'password']);
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  validateRequiredFields({ email: normalizedEmail, password }, ['email', 'password']);
 
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizedEmail },
   });
 
   if (!user) {
@@ -179,13 +188,8 @@ const requestPasswordReset = async ({ email }) => {
     });
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('Password reset email failed in development. Using reset link fallback.');
-      console.warn(error.message);
-      console.log('\n[DEV] SmartIntern AI password reset fallback link');
-      console.log(`Email: ${user.email}`);
-      console.log(`Link: ${resetLink}\n`);
-
-      emailDelivery = { sent: false, fallback: 'console', reason: 'SMTP_SEND_FAILED' };
+      console.warn('Password reset email failed in development. Reset link is available only in the API response.');
+      emailDelivery = { sent: false, fallback: 'response', reason: 'SMTP_SEND_FAILED' };
     } else {
       await prisma.user.update({
         where: { id: user.id },

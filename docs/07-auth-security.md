@@ -112,8 +112,19 @@ L'application mobile Expo utilise une strategie stateless compatible avec l'auth
 - le mobile stocke ce token avec `expo-secure-store` ;
 - les appels mobiles proteges utilisent `Authorization: Bearer <token>` ;
 - `/api/auth/me` restaure la session depuis le Bearer token.
+- un `401` sur une requete mobile authentifiee nettoie le stockage local et
+  ramene l'utilisateur vers le parcours non connecte.
 
 Le token Bearer n'est pas retourne par defaut aux clients web. Les requetes mobiles
 avec `X-Client-Type: mobile` ne passent pas par le double-submit CSRF, car elles
 n'utilisent pas le cookie navigateur comme mecanisme principal. Le web garde la
 protection CSRF existante.
+
+## Durcissement valide par le smoke test mobile
+
+- register et reset-password imposent au minimum 8 caracteres, une lettre et un
+  chiffre ;
+- les emails sont normalises avant register et login ;
+- le token ou le lien de reset n'est jamais ecrit dans les logs ;
+- en developpement, si SMTP est indisponible, le lien de reset peut uniquement
+  etre retourne dans la reponse API explicite du flux de developpement.

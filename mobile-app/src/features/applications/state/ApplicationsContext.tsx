@@ -47,8 +47,11 @@ export function ApplicationsProvider({ children }: { children: ReactNode }) {
   const requestId = useRef(0);
   const mounted = useRef(true);
 
-  useEffect(() => () => {
-    mounted.current = false;
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
   const load = useCallback(async (refreshing: boolean) => {
