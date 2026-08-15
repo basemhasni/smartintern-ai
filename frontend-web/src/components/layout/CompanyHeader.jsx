@@ -1,4 +1,4 @@
-import { Bell, Menu, PlusCircle } from 'lucide-react';
+import { Menu, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 function CompanyHeader({ title, user, company, onOpenMenu, onLogout }) {
@@ -25,14 +25,6 @@ function CompanyHeader({ title, user, company, onOpenMenu, onLogout }) {
             <PlusCircle className="h-4 w-4" aria-hidden="true" />
             Creer une offre
           </Link>
-          <button
-            className="relative grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-ink shadow-panel"
-            type="button"
-            aria-label="Notifications futures"
-          >
-            <Bell className="h-4 w-4" aria-hidden="true" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger" aria-hidden="true" />
-          </button>
           <div className="hidden rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-ink shadow-panel sm:block">
             {company?.companyName || user?.firstName || 'Entreprise'}
           </div>

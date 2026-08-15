@@ -6,6 +6,11 @@ const parseList = (value) => String(value || '')
 const getAllowedOrigins = () => {
   const configuredOrigins = parseList(process.env.CORS_ORIGIN);
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+  if (process.env.NODE_ENV === 'production') {
+    return Array.from(new Set([...configuredOrigins, frontendUrl]));
+  }
+
   const defaults = [
     frontendUrl,
     'http://127.0.0.1:5173',
@@ -27,16 +32,24 @@ const validateEnvironment = () => {
 
   if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
   if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
+  if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) missing.push('FRONTEND_URL');
+  if (process.env.NODE_ENV === 'production' && !process.env.CORS_ORIGIN) missing.push('CORS_ORIGIN');
 
   if (missing.length > 0) {
     throw new Error(`Missing required environment variable(s): ${missing.join(', ')}`);
   }
 
-  if (
-    process.env.NODE_ENV === 'production'
-    && ['change_me_later', 'secret', 'dev_secret'].includes(process.env.JWT_SECRET)
-  ) {
-    throw new Error('JWT_SECRET must be changed before running in production.');
+  if (process.env.NODE_ENV === 'production') {
+    const weakSecrets = new Set([
+      'change_me_later',
+      'secret',
+      'dev_secret',
+      'replace_with_a_long_random_secret',
+    ]);
+
+    if (process.env.JWT_SECRET.length < 32 || weakSecrets.has(process.env.JWT_SECRET)) {
+      throw new Error('JWT_SECRET must be a non-default secret of at least 32 characters in production.');
+    }
   }
 };
 

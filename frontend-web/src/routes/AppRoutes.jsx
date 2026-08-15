@@ -1,36 +1,48 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import ProtectedRoute from '../auth/ProtectedRoute.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { getDashboardPathByRole } from '../utils/auth.js';
-import AccessDeniedPage from '../pages/AccessDeniedPage.jsx';
-import ForgotPasswordPage from '../pages/ForgotPasswordPage.jsx';
-import LandingPage from '../pages/LandingPage.jsx';
-import LoginPage from '../pages/LoginPage.jsx';
-import NotFoundPage from '../pages/NotFoundPage.jsx';
-import RegisterPage from '../pages/RegisterPage.jsx';
-import ResetPasswordPage from '../pages/ResetPasswordPage.jsx';
-import AdminLayout from '../components/layout/AdminLayout.jsx';
-import CompanyLayout from '../components/layout/CompanyLayout.jsx';
-import StudentLayout from '../components/layout/StudentLayout.jsx';
-import AdminCompaniesPage from '../pages/admin/AdminCompaniesPage.jsx';
-import AdminDashboardPage from '../pages/admin/AdminDashboardPage.jsx';
-import AdminUsersPage from '../pages/admin/AdminUsersPage.jsx';
-import CompanyApplicationsPage from '../pages/company/CompanyApplicationsPage.jsx';
-import CompanyCandidateRankingPage from '../pages/company/CompanyCandidateRankingPage.jsx';
-import CompanyDashboardPage from '../pages/company/CompanyDashboardPage.jsx';
-import CompanyOfferCreatePage from '../pages/company/CompanyOfferCreatePage.jsx';
-import CompanyOfferDetailPage from '../pages/company/CompanyOfferDetailPage.jsx';
-import CompanyOfferEditPage from '../pages/company/CompanyOfferEditPage.jsx';
-import CompanyOffersPage from '../pages/company/CompanyOffersPage.jsx';
-import CompanyProfilePage from '../pages/company/CompanyProfilePage.jsx';
-import StudentCareerAssistantPage from '../pages/student/StudentCareerAssistantPage.jsx';
-import StudentCvPage from '../pages/student/StudentCvPage.jsx';
-import StudentApplicationsPage from '../pages/student/StudentApplicationsPage.jsx';
-import StudentDashboardPage from '../pages/student/StudentDashboardPage.jsx';
-import StudentOfferDetailPage from '../pages/student/StudentOfferDetailPage.jsx';
-import StudentOffersPage from '../pages/student/StudentOffersPage.jsx';
-import StudentProfilePage from '../pages/student/StudentProfilePage.jsx';
+
+const AccessDeniedPage = lazy(() => import('../pages/AccessDeniedPage.jsx'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage.jsx'));
+const LandingPage = lazy(() => import('../pages/LandingPage.jsx'));
+const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage.jsx'));
+const AdminLayout = lazy(() => import('../components/layout/AdminLayout.jsx'));
+const CompanyLayout = lazy(() => import('../components/layout/CompanyLayout.jsx'));
+const StudentLayout = lazy(() => import('../components/layout/StudentLayout.jsx'));
+const AdminCompaniesPage = lazy(() => import('../pages/admin/AdminCompaniesPage.jsx'));
+const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage.jsx'));
+const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage.jsx'));
+const CompanyApplicationsPage = lazy(() => import('../pages/company/CompanyApplicationsPage.jsx'));
+const CompanyCandidateRankingPage = lazy(() => import('../pages/company/CompanyCandidateRankingPage.jsx'));
+const CompanyDashboardPage = lazy(() => import('../pages/company/CompanyDashboardPage.jsx'));
+const CompanyOfferCreatePage = lazy(() => import('../pages/company/CompanyOfferCreatePage.jsx'));
+const CompanyOfferDetailPage = lazy(() => import('../pages/company/CompanyOfferDetailPage.jsx'));
+const CompanyOfferEditPage = lazy(() => import('../pages/company/CompanyOfferEditPage.jsx'));
+const CompanyOffersPage = lazy(() => import('../pages/company/CompanyOffersPage.jsx'));
+const CompanyProfilePage = lazy(() => import('../pages/company/CompanyProfilePage.jsx'));
+const StudentCareerAssistantPage = lazy(() => import('../pages/student/StudentCareerAssistantPage.jsx'));
+const StudentCvPage = lazy(() => import('../pages/student/StudentCvPage.jsx'));
+const StudentApplicationsPage = lazy(() => import('../pages/student/StudentApplicationsPage.jsx'));
+const StudentDashboardPage = lazy(() => import('../pages/student/StudentDashboardPage.jsx'));
+const StudentOfferDetailPage = lazy(() => import('../pages/student/StudentOfferDetailPage.jsx'));
+const StudentOffersPage = lazy(() => import('../pages/student/StudentOffersPage.jsx'));
+const StudentProfilePage = lazy(() => import('../pages/student/StudentProfilePage.jsx'));
+
+function RouteLoading() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-canvas text-ink">
+      <p className="rounded-stitch border border-line bg-white px-5 py-4 text-sm font-bold shadow-panel">
+        Chargement...
+      </p>
+    </main>
+  );
+}
 
 function DashboardRedirect() {
   const { isAuthenticated, isLoading, role } = useAuth();
@@ -54,7 +66,8 @@ function DashboardRedirect() {
 
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<RouteLoading />}>
+      <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -96,7 +109,8 @@ function AppRoutes() {
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }
 

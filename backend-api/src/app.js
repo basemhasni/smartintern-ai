@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -48,7 +47,6 @@ app.use(cors({
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '1mb' }));
 app.use(csrfProtection);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

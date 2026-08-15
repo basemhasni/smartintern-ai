@@ -5,6 +5,7 @@ const backendRoot = path.resolve(__dirname, '../../backend-api');
 require(path.join(backendRoot, 'node_modules/dotenv')).config({
   path: path.join(backendRoot, '.env'),
 });
+const JSZip = require(path.join(backendRoot, 'node_modules/jszip'));
 const prisma = require(path.join(backendRoot, 'src/config/prisma'));
 
 const baseUrl = process.env.TEST_API_URL || 'http://localhost:5000/api';
@@ -71,35 +72,23 @@ const test = async (name, operation, validate) => {
   }
 };
 
-const makePdf = (lines) => {
-  const escaped = lines.map((line) => line.replaceAll('\\', '\\\\').replaceAll('(', '\\(').replaceAll(')', '\\)'));
-  const commands = ['BT', '/F1 11 Tf', '72 760 Td'];
-  escaped.forEach((line, index) => {
-    if (index > 0) commands.push('0 -18 Td');
-    commands.push(`(${line}) Tj`);
-  });
-  commands.push('ET');
-  const stream = `${commands.join('\n')}\n`;
-  const objects = [
-    '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-    `<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}endstream`,
-  ];
-  let pdf = '%PDF-1.4\n';
-  const offsets = [0];
-  objects.forEach((object, index) => {
-    offsets.push(Buffer.byteLength(pdf));
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-  });
-  const xref = Buffer.byteLength(pdf);
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  offsets.slice(1).forEach((offset) => {
-    pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
-  });
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
-  return Buffer.from(pdf);
+const makeDocx = async (lines) => {
+  const escapeXml = (value) => value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+  const paragraphs = lines
+    .map((line) => `<w:p><w:r><w:t>${escapeXml(line)}</w:t></w:r></w:p>`)
+    .join('');
+  const zip = new JSZip();
+
+  zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${paragraphs}<w:sectPr/></w:body></w:document>`);
+
+  return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 };
 
 const cleanup = async () => {
@@ -203,7 +192,7 @@ const main = async () => {
   invalidForm.append('cv', new Blob(['not a cv'], { type: 'text/plain' }), 'invalid.txt');
   await test('Format CV invalide refuse', () => request('/students/cv/upload', { method: 'POST', body: invalidForm }), ({ status }) => status === 415 || `HTTP ${status}`);
 
-  const pdf = makePdf([
+  const docx = await makeDocx([
     'Test Mobile - Software Engineering Student',
     'Skills: JavaScript, TypeScript, React Native, Node.js, Python, SQL, Git',
     'Experience: mobile application development and REST API integration',
@@ -211,7 +200,7 @@ const main = async () => {
     'Languages: French, English',
   ]);
   const cvForm = new FormData();
-  cvForm.append('cv', new Blob([pdf], { type: 'application/pdf' }), 'mobile-smoke-cv.pdf');
+  cvForm.append('cv', new Blob([docx], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }), 'mobile-smoke-cv.docx');
   const uploaded = await test('Upload et analyse CV', () => request('/students/cv/upload', { method: 'POST', body: cvForm }), ({ status, body }) => status === 201 && body?.cv?.id && body?.cv?.analysisJson && !body.cv.analysisJson.error || `HTTP ${status}${body?.cv?.analysisJson?.error ? `, ${body.cv.analysisJson.error}` : ''}`);
   cvId = uploaded?.body?.cv?.id || null;
   if (cvId && process.env.UI_FIXTURE_MODE === '1') {

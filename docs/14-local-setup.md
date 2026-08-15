@@ -86,7 +86,14 @@ APP_NAME="SmartIntern AI Service"
 APP_ENV="development"
 PORT=8000
 ALLOWED_ORIGINS="http://localhost:5173,http://localhost:5000"
+SMARTINTERN_SENTENCE_MODEL="all-MiniLM-L6-v2"
+SMARTINTERN_ALLOW_MODEL_DOWNLOAD=false
+RAG_ALLOW_MODEL_DOWNLOAD=false
 ```
+
+Les telechargements de modeles sont desactives par defaut. Le service utilise
+ses fallbacks deterministes lorsque les backends semantiques optionnels ne sont
+pas installes localement.
 
 Démarrer :
 
@@ -122,6 +129,9 @@ cd mobile-app
 npm install
 npm run web
 ```
+
+Copier `mobile-app/.env.example` vers `.env` uniquement lorsqu'une URL API
+personnalisee est necessaire.
 
 Expo SDK 57 requiert Node.js `>=20.19.4`. L'API utilisée par défaut est
 `http://localhost:5000/api` sur Expo Web et iOS Simulator, et

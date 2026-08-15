@@ -107,7 +107,7 @@ Les réponses IA doivent rester prudentes en cas de données insuffisantes.
 L'application mobile Expo utilise une strategie stateless compatible avec l'auth web :
 
 - le mobile envoie `X-Client-Type: mobile` ;
-- `POST /api/auth/login` et `POST /api/auth/register` continuent de poser le cookie HttpOnly pour le web ;
+- `POST /api/auth/login` et `POST /api/auth/register` posent le cookie HttpOnly uniquement pour le web ; aucune requête mobile ne reçoit ce cookie ;
 - ces deux routes retournent aussi `accessToken` dans le JSON uniquement quand `X-Client-Type: mobile` est present ;
 - le mobile stocke ce token avec `expo-secure-store` ;
 - les appels mobiles proteges utilisent `Authorization: Bearer <token>` ;

@@ -46,7 +46,8 @@ npm run typecheck
 npm run smoke:student
 ```
 
-Expo SDK 57 requiert Node.js `>=20.19.4`.
+Expo SDK 57 requiert Node.js `>=20.19.4`. Node `20.12.x` ne peut pas lancer
+Metro correctement ; utilisez une version conforme a `package.json`.
 
 Le smoke test utilise un compte temporaire unique, couvre 40 controles API et
 nettoie automatiquement les donnees, fichiers CV et index RAG crees.
@@ -219,8 +220,9 @@ restent consultables apres rechargement.
 
 L'edition manuelle est limitee a 10 000 caracteres et marque la lettre comme
 modifiee. Le partage utilise `Share` de React Native. La copie utilise le
-Clipboard du navigateur sur Expo Web ; `expo-clipboard` reste requis pour la
-copie native Android/iOS.
+Clipboard du navigateur sur Expo Web. Sur Android/iOS, le bouton indique que la
+copie native n'est pas encore disponible ; le partage reste fonctionnel avec
+l'API React Native existante.
 
 ## Limites actuelles
 
@@ -240,8 +242,8 @@ copie native Android/iOS.
   d'instructions libres ;
 - aucune suppression de lettre n'est exposee par le backend ;
 - les metadonnees V2 ne sont pas persistees avec la lettre ;
-- la copie native Android/iOS attend `expo-clipboard` ; le partage fonctionne
-  avec l'API React Native existante ;
+- la copie native Android/iOS n'est pas disponible ; le partage fonctionne avec
+  l'API React Native existante ;
 - Career Assistant ne possede pas d'endpoint de lecture d'un conseil persiste ;
   une nouvelle session demande donc une generation explicite ;
 - le Skill Gap Simulator exige un CV deja analyse et depend de la disponibilite

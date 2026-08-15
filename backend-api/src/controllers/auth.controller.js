@@ -21,7 +21,9 @@ const register = async (req, res, next) => {
   try {
     const result = await authService.register(req.body);
 
-    setAuthCookie(res, result.token);
+    if (!isMobileClient(req)) {
+      setAuthCookie(res, result.token);
+    }
 
     res.status(201).json(buildAuthResponse(req, result, 'User registered successfully'));
   } catch (error) {
@@ -33,7 +35,9 @@ const login = async (req, res, next) => {
   try {
     const result = await authService.login(req.body);
 
-    setAuthCookie(res, result.token);
+    if (!isMobileClient(req)) {
+      setAuthCookie(res, result.token);
+    }
 
     res.status(200).json(buildAuthResponse(req, result, 'User logged in successfully'));
   } catch (error) {

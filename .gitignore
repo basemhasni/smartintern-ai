@@ -23,14 +23,9 @@ venv/
 env/
 .pytest_cache/
 
-# Flutter
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-pubspec.lock
-android/.gradle/
-ios/Pods/
+# Expo
+.expo/
+.expo-shared/
 
 # Uploads and logs
 uploads/
@@ -42,4 +37,3 @@ logs/
 Thumbs.db
 .idea/
 .vscode/
-
