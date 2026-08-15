@@ -363,6 +363,9 @@ def _rag_insights(documents: list[dict], gaps: list[dict]) -> tuple[list[str], l
     for document in documents[:5]:
         if not isinstance(document, dict):
             continue
+        relevance = float(document.get("score") or document.get("hybridScore") or 0)
+        if relevance < 0.18:
+            continue
         metadata = _as_dict(document.get("metadata"))
         skills = _unique_skills(sum((_as_list(metadata.get(key)) for key in ("skills", "requiredSkills", "optionalSkills", "matchedSkills")), []))
         confirmed = [gap_keys[_skill_key(skill)] for skill in skills if _skill_key(skill) in gap_keys]
@@ -416,6 +419,10 @@ def generate_career_advice_v2(input_data: Any) -> dict:
     interview_tips = generate_interview_preparation_tips(matching)
     rag_documents = _as_list(payload.get("ragContextDocuments"))
     rag_insights, rag_warnings = _rag_insights(rag_documents, gaps)
+    relevant_rag_documents = [
+        document for document in rag_documents
+        if isinstance(document, dict) and float(document.get("score") or document.get("hybridScore") or 0) >= 0.18
+    ]
     rag_citations = [
         {
             "sourceId": document.get("id"),
@@ -426,8 +433,7 @@ def generate_career_advice_v2(input_data: Any) -> dict:
             "score": float(document.get("score") or 0),
             "snippet": str(document.get("contentPreview") or "")[:240],
         }
-        for document in rag_documents[:5]
-        if isinstance(document, dict)
+        for document in relevant_rag_documents[:5]
     ]
     critical = [gap for gap in gaps if gap["gapType"] == "CRITICAL"]
     required = [gap for gap in gaps if gap["gapType"] == "REQUIRED"]
@@ -609,7 +615,7 @@ def generate_career_advice_v2(input_data: Any) -> dict:
             "learningRoadmap": roadmap,
             "estimatedPreparationEffort": _effort(readiness, len(gaps)),
             "warnings": warnings,
-            "ragContextUsed": bool(rag_documents),
+            "ragContextUsed": bool(relevant_rag_documents),
             "ragCitations": rag_citations,
             "ragWarnings": rag_warnings,
         },

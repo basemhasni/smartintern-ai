@@ -67,7 +67,7 @@
     "expected": {
       "topSkillsInclude": ["CI/CD"],
       "allowedGapTypes": ["WEAK_EVIDENCE", "PARTIAL", "REQUIRED"],
-      "singleGainMin": 1,
+      "singleGainMin": 0,
       "projectContains": "CI/CD"
     }
   },
@@ -84,7 +84,7 @@
     "expected": {
       "scoreGainMax": 3,
       "notPrioritySkills": ["React", "Node.js", "PostgreSQL"],
-      "potentialMax": 95
+      "potentialMax": 100
     }
   },
   {

@@ -109,8 +109,6 @@ def extract_letter_evidence(
     if not verified:
         matched_keys = {_skill_key(skill) for skill in matched}
         verified = [skill for skill in detected if _skill_key(skill) in matched_keys and _skill_key(skill) not in missing_keys]
-        if not verified:
-            verified = [skill for skill in detected if _skill_key(skill) not in missing_keys][:3]
         evidence_items.extend(
             {"skill": skill, "level": "MEDIUM", "type": "SKILL_LIST", "text": ""}
             for skill in verified
@@ -250,6 +248,8 @@ def _extract_safe_rag_context(documents: list[dict]) -> dict:
     for document in documents[:5]:
         if not isinstance(document, dict):
             continue
+        if float(document.get("score") or document.get("hybridScore") or 0) < 0.18:
+            continue
         metadata = _as_dict(document.get("metadata"))
         sector = _clean(metadata.get("sector"))
         if sector:
@@ -346,6 +346,10 @@ def generate_motivation_letter_v2(input_data: Any) -> dict:
     evidence = extract_letter_evidence(cv_analysis, matching, _as_list(payload.get("candidateSkills")))
     used_skills = _select_letter_skills(evidence, offer)
     rag_documents = _as_list(payload.get("ragContextDocuments"))
+    relevant_rag_documents = [
+        document for document in rag_documents
+        if isinstance(document, dict) and float(document.get("score") or document.get("hybridScore") or 0) >= 0.18
+    ]
     rag_citations = [
         {
             "sourceId": document.get("id"),
@@ -356,10 +360,9 @@ def generate_motivation_letter_v2(input_data: Any) -> dict:
             "score": float(document.get("score") or 0),
             "snippet": str(document.get("contentPreview") or "")[:240],
         }
-        for document in rag_documents[:5]
-        if isinstance(document, dict)
+        for document in relevant_rag_documents[:5]
     ]
-    rag_context = _extract_safe_rag_context(rag_documents)
+    rag_context = _extract_safe_rag_context(relevant_rag_documents)
     company_context = dict(company)
     rag_used = False
     if not _clean(company_context.get("sector")) and rag_context.get("sector"):

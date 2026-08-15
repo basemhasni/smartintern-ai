@@ -1,0 +1,108 @@
+{
+  "profiles": [
+    {
+      "id": "PROFILE-01",
+      "name": "Fullstack avec preuves fortes",
+      "text": "Projet de gestion realise avec React, TypeScript, Node.js, Express.js et PostgreSQL. J ai implemente les composants, les API REST et les migrations, puis dockerise et teste l application.",
+      "skills": ["React", "TypeScript", "Node.js", "Express.js", "PostgreSQL", "REST API", "Docker"]
+    },
+    {
+      "id": "PROFILE-02",
+      "name": "Frontend Angular sans React",
+      "text": "Projet frontend realise avec Angular et TypeScript. J ai construit les composants, formulaires et routes. Je n ai pas encore utilise React dans un projet.",
+      "skills": ["Angular", "TypeScript", "HTML", "CSS"]
+    },
+    {
+      "id": "PROFILE-03",
+      "name": "Backend Java Spring",
+      "text": "Projet backend realise avec Java et Spring Boot. J ai developpe des services REST et utilise MySQL. JavaScript n a pas ete utilise.",
+      "skills": ["Java", "Spring Boot", "MySQL", "REST API"]
+    },
+    {
+      "id": "PROFILE-04",
+      "name": "DevOps partiel",
+      "text": "Projet deploye avec Docker. J ai versionne le code avec Git et configure Jenkins pour executer des tests, sans administrer Kubernetes ni une chaine CI/CD complete.",
+      "skills": ["Docker", "Git", "Jenkins"]
+    },
+    {
+      "id": "PROFILE-05",
+      "name": "SQL generique",
+      "text": "Formation aux bases de donnees relationnelles et projet utilisant SQL pour les requetes. Aucune pratique specifique de PostgreSQL n est documentee.",
+      "skills": ["SQL"]
+    },
+    {
+      "id": "PROFILE-06",
+      "name": "Liste de competences sans preuve",
+      "text": "Competences: React, Node.js, Docker.",
+      "skills": ["React", "Node.js", "Docker"]
+    },
+    {
+      "id": "PROFILE-07",
+      "name": "Python Flask",
+      "text": "Projet API realise avec Python et Flask. J ai implemente les routes, les validations et les tests. FastAPI n a pas ete utilise.",
+      "skills": ["Python", "Flask", "REST API"]
+    }
+  ],
+  "offers": [
+    {
+      "id": "OFFER-01",
+      "title": "Stage frontend React",
+      "description": "Construire des composants React avec TypeScript.",
+      "requiredSkills": ["React", "TypeScript"],
+      "optionalSkills": ["Jest"]
+    },
+    {
+      "id": "OFFER-02",
+      "title": "Stage JavaScript",
+      "description": "Developper en JavaScript pour une application web.",
+      "requiredSkills": ["JavaScript"],
+      "optionalSkills": []
+    },
+    {
+      "id": "OFFER-03",
+      "title": "Stage Kubernetes CI/CD",
+      "description": "Administrer Kubernetes et contribuer a une chaine CI/CD.",
+      "requiredSkills": ["Kubernetes", "CI/CD"],
+      "optionalSkills": ["Docker"]
+    },
+    {
+      "id": "OFFER-04",
+      "title": "Stage PostgreSQL",
+      "description": "Concevoir et optimiser une base PostgreSQL.",
+      "requiredSkills": ["PostgreSQL"],
+      "optionalSkills": ["SQL"]
+    },
+    {
+      "id": "OFFER-05",
+      "title": "Stage GitLab CI",
+      "description": "Maintenir des pipelines GitLab CI.",
+      "requiredSkills": ["GitLab CI"],
+      "optionalSkills": ["Git"]
+    },
+    {
+      "id": "OFFER-06",
+      "title": "Stage FastAPI",
+      "description": "Developper des API Python avec FastAPI.",
+      "requiredSkills": ["FastAPI", "Python"],
+      "optionalSkills": ["REST API"]
+    },
+    {
+      "id": "OFFER-07",
+      "title": "Stage React Native",
+      "description": "Construire une application mobile avec React Native.",
+      "requiredSkills": ["React Native"],
+      "optionalSkills": ["TypeScript"]
+    }
+  ],
+  "scenarios": [
+    {"id": "QC-01", "category": "false_positive", "profileId": "PROFILE-02", "offerId": "OFFER-01", "requirement": "React", "expectedMatchType": "TRANSFERABLE", "forbiddenMatched": ["React"], "scoreMax": 72},
+    {"id": "QC-02", "category": "false_positive", "profileId": "PROFILE-03", "offerId": "OFFER-02", "requirement": "JavaScript", "expectedMatchType": "MISSING", "forbiddenMatched": ["JavaScript"], "scoreMax": 35},
+    {"id": "QC-03", "category": "partial_relation", "profileId": "PROFILE-04", "offerId": "OFFER-03", "requirement": "Kubernetes", "expectedMatchType": "RELATED", "forbiddenMatched": ["Kubernetes"], "scoreMax": 72},
+    {"id": "QC-04", "category": "partial_relation", "profileId": "PROFILE-05", "offerId": "OFFER-04", "requirement": "PostgreSQL", "expectedMatchType": "TRANSFERABLE", "forbiddenMatched": ["PostgreSQL"], "scoreMax": 72},
+    {"id": "QC-05", "category": "false_positive", "profileId": "PROFILE-04", "offerId": "OFFER-05", "requirement": "GitLab CI", "expectedMatchType": "MISSING", "forbiddenMatched": ["GitLab CI"], "scoreMax": 35},
+    {"id": "QC-06", "category": "false_positive", "profileId": "PROFILE-07", "offerId": "OFFER-06", "requirement": "FastAPI", "expectedMatchType": "MISSING", "forbiddenMatched": ["FastAPI"], "scoreMax": 72},
+    {"id": "QC-07", "category": "evidence_quality", "profileId": "PROFILE-06", "offerId": "OFFER-01", "requirement": "React", "expectedEvidenceLevel": "WEAK", "forbiddenMatched": ["React"], "confidence": "LOW"},
+    {"id": "QC-08", "category": "true_positive", "profileId": "PROFILE-01", "offerId": "OFFER-01", "requirement": "React", "expectedMatchType": "EXACT", "expectedMatched": ["React", "TypeScript"], "scoreMin": 70},
+    {"id": "QC-09", "category": "false_positive", "profileId": "PROFILE-01", "offerId": "OFFER-07", "requirement": "React Native", "expectedMatchType": "TRANSFERABLE", "forbiddenMatched": ["React Native"], "scoreMax": 72}
+  ]
+}

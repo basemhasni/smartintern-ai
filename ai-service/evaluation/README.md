@@ -14,6 +14,7 @@ evaluation/
     orchestrator_cases.json
     skill_gap_simulator_cases.json
     offer_quality_cases.json
+    ai_quality_consistency_cases.json
   evaluators/
     quality_metrics.py
     matching_evaluator.py
@@ -24,6 +25,7 @@ evaluation/
     explainability_evaluator.py
     skill_gap_simulator_evaluator.py
     offer_quality_evaluator.py
+    consistency_evaluator.py
   expected/
     README.md
   reports/
@@ -43,6 +45,8 @@ python scripts/evaluate_orchestrator_v2.py
 python scripts/evaluate_explainability.py
 python scripts/evaluate_skill_gap_simulator.py
 python scripts/evaluate_offer_quality_analyzer.py
+python scripts/evaluate_ai_quality_consistency.py
+python scripts/benchmark_ai_quality.py --runs 10
 python -m unittest discover -s tests -v
 ```
 
@@ -81,13 +85,14 @@ Orchestrator V2: 8/8 PASS
 Explainability: 8/8 PASS
 Skill Gap Simulator: 8/8 PASS
 Offer Quality Analyzer: 10/10 PASS
-Global: 77/77 PASS
+AI Quality Consistency: 13/13 PASS
+Global: 90/90 PASS
 Status: PASS
 ```
 
-Because no `FAIL` or `WARNING` was detected in that baseline, no service-level
-calibration change was required. Future fixes should be driven by newly failing
-reports or by newly added stricter cases.
+The consistency suite adds explicit false-positive, false-negative, alias,
+evidence, metamorphic and repeatability checks. The benchmark script reports
+local min/average/max latency and does not call an external service.
 
 ## Case Format
 

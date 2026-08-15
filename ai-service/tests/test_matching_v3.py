@@ -38,7 +38,7 @@ class HybridMatchingV3Tests(unittest.TestCase):
 
     def test_related_match_is_not_legacy_matched(self):
         result = self._match(["Angular"], ["React"], title="Stage React")
-        self.assertEqual(result["v3"]["coverageMatrix"][0]["matchType"], "RELATED")
+        self.assertEqual(result["v3"]["coverageMatrix"][0]["matchType"], "TRANSFERABLE")
         self.assertNotIn("React", result["matchedSkills"])
         self.assertIn("React", result["missingSkills"])
 

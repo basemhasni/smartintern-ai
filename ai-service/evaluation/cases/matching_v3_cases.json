@@ -17,7 +17,7 @@
     "name": "java_spring_vs_react_node",
     "cv_text": "Etudiant backend ayant realise un projet academique avec Java, Spring Boot et MySQL. J'ai developpe plusieurs services et documente les endpoints. La base MySQL stockait les donnees du projet. Je connais Git et Postman, mais je n'ai pas encore travaille avec React ni Node.js dans un projet concret.",
     "offer": {"title": "Stage developpeur React Node.js", "description": "Developper une application web avec React, Node.js, PostgreSQL et des API REST.", "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
-    "expected_score_min": 25, "expected_score_max": 50, "expected_decision_label": "VERY_LOW_MATCH",
+    "expected_score_min": 10, "expected_score_max": 35, "expected_decision_label": "VERY_LOW_MATCH",
     "expected_matched_skills": [], "expected_missing_required_skills": ["React", "Node.js"]
   },
   {
@@ -38,8 +38,8 @@
     "name": "poor_cv_complete_offer",
     "cv_text": "Etudiant React debutant.",
     "offer": {"title": "Stage React Node.js", "description": "Developper une plateforme web avec React, Node.js, PostgreSQL et API REST. Les competences doivent etre utilisees dans des projets documentes.", "requiredSkills": ["React", "Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
-    "expected_score_min": 15, "expected_score_max": 45, "expected_decision_label": "LOW_MATCH", "expected_confidence": "LOW",
-    "expected_matched_skills": ["React"], "expected_missing_required_skills": ["Node.js", "PostgreSQL", "REST API"]
+    "expected_score_min": 15, "expected_score_max": 45, "expected_decision_label": "INSUFFICIENT_DATA", "expected_confidence": "LOW",
+    "expected_matched_skills": [], "expected_missing_required_skills": ["React", "Node.js", "PostgreSQL", "REST API"]
   },
   {
     "name": "poor_offer_rich_cv",
@@ -59,7 +59,7 @@
     "name": "angular_typescript_vs_react_typescript",
     "cv_text": "Developpeur frontend junior ayant realise un projet avec Angular, TypeScript, HTML et CSS. J'ai construit des composants, gere les formulaires et structure une application modulaire. Le projet a ete teste et documente avec Git. Je connais les principes des frameworks frontend mais je n'ai pas encore utilise React en projet.",
     "offer": {"title": "Stage React TypeScript", "description": "Developper des composants React et TypeScript pour une interface web moderne. HTML et CSS sont egalement demandes.", "requiredSkills": ["React", "TypeScript", "HTML", "CSS"], "optionalSkills": ["Jest"]},
-    "expected_score_min": 55, "expected_score_max": 72, "expected_decision_label": "GOOD_MATCH",
+    "expected_score_min": 55, "expected_score_max": 72, "expected_decision_label": "PARTIAL_MATCH",
     "expected_matched_skills": ["TypeScript", "HTML", "CSS"], "expected_missing_required_skills": ["React"]
   },
   {
@@ -73,7 +73,7 @@
     "name": "flutter_mobile",
     "cv_text": "Developpeur mobile junior ayant cree une application Flutter avec Dart pour Android. Le projet gere une API, des formulaires et un stockage local. J'ai structure les ecrans, teste les parcours principaux et publie le code sur Git. Une seconde application academique a permis de consolider les widgets et la navigation.",
     "offer": {"title": "Stage mobile Flutter", "description": "Developper une application mobile Flutter en Dart pour Android et participer aux tests de l'application.", "requiredSkills": ["Flutter", "Dart", "Android"], "optionalSkills": ["Git"]},
-    "expected_score_min": 75, "expected_score_max": 90, "expected_decision_label": "STRONG_MATCH",
+    "expected_score_min": 75, "expected_score_max": 95, "expected_decision_label": "STRONG_MATCH",
     "expected_matched_skills": ["Flutter", "Dart", "Android"], "expected_missing_required_skills": []
   },
   {

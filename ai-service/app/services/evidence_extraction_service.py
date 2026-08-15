@@ -11,6 +11,7 @@ from app.utils.text_normalization import deduplicate_strings, normalize_text
 TYPE_WEIGHTS = {
     "PROJECT": 1.0,
     "EXPERIENCE": 0.95,
+    "CERTIFICATION": 0.82,
     "EDUCATION": 0.75,
     "SKILL_LIST": 0.65,
     "SUMMARY": 0.6,
@@ -27,10 +28,12 @@ def _split_sentences(text: str) -> list[str]:
 
 def _evidence_type(sentence: str) -> str:
     normalized = normalize_text(sentence)
-    if any(marker in normalized for marker in ("projet", "project", "realise", "developpe", "concu", "built")):
-        return "PROJECT"
     if any(marker in normalized for marker in ("experience", "emploi", "poste", "alternance", "worked", "responsable")):
         return "EXPERIENCE"
+    if any(marker in normalized for marker in ("certification", "certifie", "certified", "credential")):
+        return "CERTIFICATION"
+    if any(marker in normalized for marker in ("projet", "project", "realise", "developpe", "concu", "built")):
+        return "PROJECT"
     if any(marker in normalized for marker in ("formation", "universite", "licence", "master", "education", "cours")):
         return "EDUCATION"
     if any(marker in normalized for marker in ("competences", "skills", "technologies", "outils", "stack")):
@@ -38,6 +41,18 @@ def _evidence_type(sentence: str) -> str:
     if any(marker in normalized for marker in ("profil", "resume", "summary", "objectif")):
         return "SUMMARY"
     return "UNKNOWN"
+
+
+def _evidence_confidence(sentence: str, evidence_type: str) -> float:
+    normalized = normalize_text(sentence)
+    confidence = TYPE_WEIGHTS[evidence_type]
+    weak_markers = (
+        "connaissance", "notion", "notions", "en cours", "apprentissage",
+        "initiation", "bases", "learning",
+    )
+    if any(marker in normalized for marker in weak_markers):
+        confidence *= 0.55
+    return round(confidence, 3)
 
 
 def _contains_negation(sentence: str) -> bool:
@@ -50,10 +65,34 @@ def _contains_negation(sentence: str) -> bool:
 
 
 def extract_evidence_sentences(cv_text: str) -> list[dict]:
-    return [
-        {"text": sentence, "type": _evidence_type(sentence), "confidence": TYPE_WEIGHTS[_evidence_type(sentence)], "negated": _contains_negation(sentence)}
-        for sentence in _split_sentences(cv_text)
-    ][:40]
+    evidence = []
+    inherited_type = None
+    inherited_sentences = 0
+    for sentence in _split_sentences(cv_text):
+        evidence_type = _evidence_type(sentence)
+        normalized = normalize_text(sentence)
+        action_markers = (
+            "utilise", "administre", "configure", "travaille", "cree", "developpe",
+            "implemente", "concu", "teste", "deploie", "automatise", "ecrit", "versionne",
+            "used", "built", "implemented", "deployed", "configured",
+        )
+        if evidence_type in {"PROJECT", "EXPERIENCE"}:
+            inherited_type = evidence_type
+            inherited_sentences = 2
+        elif evidence_type == "UNKNOWN" and inherited_type and inherited_sentences > 0 and any(marker in normalized for marker in action_markers):
+            evidence_type = inherited_type
+            inherited_sentences -= 1
+        elif inherited_sentences > 0:
+            inherited_sentences -= 1
+        evidence.append(
+            {
+                "text": sentence,
+                "type": evidence_type,
+                "confidence": _evidence_confidence(sentence, evidence_type),
+                "negated": _contains_negation(sentence),
+            }
+        )
+    return evidence[:40]
 
 
 def extract_project_evidence(cv_text: str) -> list[dict]:

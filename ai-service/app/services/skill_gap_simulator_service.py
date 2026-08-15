@@ -6,11 +6,17 @@ from itertools import combinations
 from typing import Any
 
 from app.knowledge.skill_taxonomy import get_skill
+from app.services.hybrid_matching_engine_v3 import calculate_hybrid_score, resolve_decision_label
 from app.utils.text_normalization import normalize_text
 
 
 MODE_FACTORS = {"CONSERVATIVE": 0.72, "REALISTIC": 1.0, "OPTIMISTIC": 1.12}
-TARGET_COVERAGE = {"CONSERVATIVE": 0.82, "REALISTIC": 0.92, "OPTIMISTIC": 0.98}
+MODE_ASSUMPTIONS = {
+    "CONSERVATIVE": {"coverage": 0.55, "confidence": 0.55, "evidenceType": "SKILL_LIST", "evidenceLevel": "WEAK"},
+    "REALISTIC": {"coverage": 0.72, "confidence": 0.75, "evidenceType": "EDUCATION", "evidenceLevel": "MEDIUM"},
+    "OPTIMISTIC": {"coverage": 0.95, "confidence": 0.92, "evidenceType": "PROJECT", "evidenceLevel": "STRONG"},
+}
+TARGET_COVERAGE = {mode: values["coverage"] for mode, values in MODE_ASSUMPTIONS.items()}
 PRIORITY_ORDER = {"CRITICAL": 0, "REQUIRED": 1, "PARTIAL": 2, "WEAK_EVIDENCE": 3, "OPTIONAL": 4}
 
 
@@ -39,16 +45,8 @@ def _unique_skills(values: list[Any]) -> list[str]:
     return result
 
 
-def _decision_label(score: int) -> str:
-    if score >= 85:
-        return "STRONG_MATCH"
-    if score >= 70:
-        return "GOOD_MATCH"
-    if score >= 50:
-        return "PARTIAL_MATCH"
-    if score >= 30:
-        return "LOW_MATCH"
-    return "VERY_LOW_MATCH"
+def _decision_label(score: int, confidence: str = "MEDIUM", critical_missing_count: int = 0) -> str:
+    return resolve_decision_label(score, True, True, confidence, critical_missing_count)
 
 
 def _find_row(matrix: list[dict], skill: str) -> dict:
@@ -196,14 +194,34 @@ def _component_delta(matrix: list[dict], skill: str, mode: str) -> float:
 def _simulated_matrix(matching_result: dict, skills: list[str], mode: str) -> list[dict]:
     matrix = [dict(_as_dict(row)) for row in _as_list(_as_dict(matching_result.get("v3")).get("coverageMatrix"))]
     keys = {_skill_key(skill) for skill in skills}
+    assumption = MODE_ASSUMPTIONS[mode]
     for row in matrix:
         if _skill_key(row.get("requirement")) in keys:
-            row["coverage"] = max(float(row.get("coverage") or 0), TARGET_COVERAGE[mode])
-            row["confidence"] = max(float(row.get("confidence") or 0), 0.86 if mode == "CONSERVATIVE" else 0.92)
+            row["coverage"] = max(float(row.get("coverage") or 0), float(assumption["coverage"]))
+            row["confidence"] = max(float(row.get("confidence") or 0), float(assumption["confidence"]))
             row["matchType"] = "SIMULATED_EVIDENCE"
-            row["evidenceType"] = "PROJECT"
-            row["evidence"] = ["Hypothese: preuve projet reelle ajoutee au CV ou au portfolio."]
+            row["evidenceType"] = assumption["evidenceType"]
+            row["evidence"] = [f"Hypothese {mode.lower()}: niveau de preuve {str(assumption['evidenceLevel']).lower()}."]
+            row["declaredSkill"] = assumption["evidenceLevel"] == "WEAK"
     return matrix
+
+
+def _matching_v3_context(matching_result: dict) -> tuple[dict, dict] | None:
+    context = _as_dict(_as_dict(matching_result.get("v3")).get("scoringContext"))
+    candidate_profile = _as_dict(context.get("candidateProfile"))
+    offer_analysis = _as_dict(context.get("offerAnalysis"))
+    if not candidate_profile or not offer_analysis:
+        return None
+    return candidate_profile, offer_analysis
+
+
+def _score_caps_from_warnings(warnings: list[str], final_score: int) -> list[dict]:
+    known_caps = (35, 55, 60, 72, 90, 95, 98)
+    caps = []
+    for warning in warnings:
+        cap = next((value for value in known_caps if str(value) in warning), final_score)
+        caps.append({"cap": cap, "reason": warning})
+    return caps
 
 
 def _cv_quality_is_low(matching_result: dict) -> bool:
@@ -249,11 +267,30 @@ def estimate_potential_score(matching_result: dict, simulated_changes: list[str]
     v3 = _as_dict(matching.get("v3"))
     matrix = [_as_dict(row) for row in _as_list(v3.get("coverageMatrix"))]
     breakdown = _as_dict(v3.get("scoreBreakdown") or matching.get("scoreBreakdown"))
-    raw_base = float(breakdown.get("rawTotal") or current)
-    component_gains = {skill: round(_component_delta(matrix, skill, mode), 2) for skill in simulated_changes}
-    synergy = min(3.0, max(0, len(simulated_changes) - 1) * (0.8 if mode == "CONSERVATIVE" else 1.3))
     simulated = _simulated_matrix(matching, simulated_changes, mode)
-    potential, caps = _apply_score_caps(raw_base + sum(component_gains.values()) + synergy, simulated, matching)
+    scoring_context = _matching_v3_context(matching)
+    if scoring_context and matrix:
+        candidate_profile, offer_analysis = scoring_context
+        scoring = calculate_hybrid_score(simulated, candidate_profile, offer_analysis)
+        potential = min(95, scoring["score"])
+        caps = _score_caps_from_warnings(scoring.get("warnings") or [], potential)
+        if _cv_quality_is_low(matching) and not any(item.get("cap") == 60 for item in caps):
+            caps.append({"cap": 60, "reason": "La qualite du CV limite tout scenario a 60 tant que les preuves restent insuffisantes."})
+        if scoring["score"] > 95:
+            caps.append({"cap": 95, "reason": "Le simulateur conserve un plafond prudent de 95."})
+        component_gains = {}
+        for skill in simulated_changes:
+            single_scoring = calculate_hybrid_score(
+                _simulated_matrix(matching, [skill], mode),
+                candidate_profile,
+                offer_analysis,
+            )
+            component_gains[skill] = max(0, min(95, single_scoring["score"]) - current)
+    else:
+        raw_base = float(breakdown.get("rawTotal") or current)
+        component_gains = {skill: round(_component_delta(matrix, skill, mode), 2) for skill in simulated_changes}
+        synergy = min(3.0, max(0, len(simulated_changes) - 1) * (0.8 if mode == "CONSERVATIVE" else 1.3))
+        potential, caps = _apply_score_caps(raw_base + sum(component_gains.values()) + synergy, simulated, matching)
     potential = max(current, potential)
     return {
         "score": potential,
@@ -271,14 +308,15 @@ def simulate_single_skill_improvement(matching_result: dict, skill: str, options
     estimate = estimate_potential_score(matching_result, [skill], mode)
     gap = next((item for item in identify_high_impact_gaps(matching_result) if _skill_key(item["skill"]) == _skill_key(skill)), {})
     current = int(float(_as_dict(matching_result).get("score") or 0))
+    assumption = MODE_ASSUMPTIONS.get(mode, MODE_ASSUMPTIONS["REALISTIC"])
     return {
         "skill": skill,
         "beforeScore": current,
         "afterScore": estimate["score"],
         "gain": estimate["gain"],
         "beforeEvidenceLevel": gap.get("currentEvidenceLevel", "MISSING"),
-        "afterEvidenceLevel": "STRONG",
-        "assumption": f"Simulation {mode.lower()} basee sur l'ajout d'une preuve projet reelle pour {skill}.",
+        "afterEvidenceLevel": assumption["evidenceLevel"],
+        "assumption": f"Simulation {mode.lower()} basee sur une preuve {str(assumption['evidenceLevel']).lower()} pour {skill}.",
         "impactExplanation": _impact_text(gap.get("gapType", "REQUIRED"), gap.get("category", _category(skill))),
         "confidence": "LOW" if str(_as_dict(matching_result).get("confidence") or "LOW").upper() == "LOW" else "MEDIUM",
         "scoreCapsApplied": estimate["scoreCapsApplied"],
@@ -291,13 +329,19 @@ def simulate_skill_combination(matching_result: dict, skills: list[str], options
     selected = _unique_skills(skills)
     estimate = estimate_potential_score(matching_result, selected, mode)
     current = int(float(_as_dict(matching_result).get("score") or 0))
+    confidence = str(_as_dict(matching_result).get("confidence") or "LOW").upper()
+    simulated_matrix = estimate.get("simulatedMatrix") or []
+    critical_missing_count = sum(
+        1 for row in simulated_matrix
+        if str(row.get("importance") or "").upper() == "CRITICAL" and float(row.get("coverage") or 0) < 0.75
+    )
     categories = _unique_skills([_category(skill, _find_row(_as_list(_as_dict(matching_result.get("v3")).get("coverageMatrix")), skill)) for skill in selected])
     return {
         "skills": selected,
         "beforeScore": current,
         "afterScore": estimate["score"],
         "gain": estimate["gain"],
-        "decisionLabelAfter": _decision_label(estimate["score"]),
+        "decisionLabelAfter": _decision_label(estimate["score"], confidence, critical_missing_count),
         "reason": f"Cette combinaison renforce {', '.join(categories[:3])} et couvre plusieurs ecarts complementaires avec des preuves reelles.",
         "confidence": "LOW" if str(_as_dict(matching_result).get("confidence") or "LOW").upper() == "LOW" else "MEDIUM",
         "scoreCapsApplied": estimate["scoreCapsApplied"],

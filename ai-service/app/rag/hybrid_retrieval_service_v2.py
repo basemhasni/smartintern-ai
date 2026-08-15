@@ -38,6 +38,15 @@ def _metadata_boost(document: dict, filters: dict) -> float:
     return min(1.0, matches / 2)
 
 
+def _skill_metadata_boost(query: str, document: dict) -> float:
+    query_terms = set(normalize_text(query).split())
+    metadata = document.get("metadata") or {}
+    skill_terms = set(normalize_text(" ".join(str(skill) for skill in metadata.get("skills") or [])).split())
+    if not query_terms or not skill_terms:
+        return 0.0
+    return min(1.0, len(query_terms & skill_terms) / max(1, min(len(query_terms), len(skill_terms))))
+
+
 def _recency_boost(document: dict) -> float:
     raw = document.get("updatedAt") or document.get("createdAt")
     if not raw:
@@ -69,19 +78,21 @@ def _matches_filters(document: dict, filters: dict) -> bool:
 def hybrid_search(query: str, documents: list[dict], filters: dict | None = None, options: dict | None = None) -> dict:
     filters, options = filters or {}, options or {}
     top_k = max(1, min(int(options.get("topK") or 5), 20))
-    min_score = max(0.0, min(float(options.get("minScore") or 0.08), 1.0))
+    min_score = max(0.0, min(float(options.get("minScore") or 0.16), 1.0))
     query_embedding = generate_embedding(query)
     candidates = []
     for document in documents:
         if not _matches_filters(document, filters):
             continue
         text = document.get("text") or document.get("content") or document.get("contentPreview") or ""
+        searchable_text = f"{document.get('title') or ''} {text}".strip()
         embedding = document.get("embedding") or generate_embedding(text)
         vector_score = _cosine(query_embedding, embedding)
-        lexical_score = _lexical_score(query, text)
+        lexical_score = _lexical_score(query, searchable_text)
         metadata_score = _metadata_boost(document, filters)
+        skill_metadata_score = _skill_metadata_boost(query, document)
         recency_score = _recency_boost(document)
-        hybrid_score = 0.60 * vector_score + 0.25 * lexical_score + 0.10 * metadata_score + 0.05 * recency_score
+        hybrid_score = 0.50 * vector_score + 0.25 * lexical_score + 0.10 * metadata_score + 0.10 * skill_metadata_score + 0.05 * recency_score
         if hybrid_score < min_score or (vector_score < 0.03 and lexical_score < 0.1):
             continue
         public_document = {key: value for key, value in document.items() if key not in {"embedding", "embeddingJson"}}
@@ -91,6 +102,7 @@ def hybrid_search(query: str, documents: list[dict], filters: dict | None = None
             "vectorScore": round(vector_score, 4),
             "lexicalScore": round(lexical_score, 4),
             "metadataBoost": round(metadata_score, 4),
+            "skillMetadataBoost": round(skill_metadata_score, 4),
             "recencyBoost": round(recency_score, 4),
             "hybridScore": round(hybrid_score, 4),
             "score": round(hybrid_score, 4),

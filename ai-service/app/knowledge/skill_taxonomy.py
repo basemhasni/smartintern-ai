@@ -14,6 +14,13 @@ class SkillDefinition:
     weight: float = 1.0
 
 
+@dataclass(frozen=True)
+class SkillRelation:
+    relation: str
+    coverage: float
+    reason: str
+
+
 SKILL_TAXONOMY: tuple[SkillDefinition, ...] = (
     SkillDefinition("HTML", ("html", "html5"), "Frontend", ("CSS", "JavaScript"), 0.8),
     SkillDefinition("CSS", ("css", "css3", "cascading style sheets"), "Frontend", ("HTML", "Tailwind CSS", "Bootstrap"), 0.8),
@@ -29,9 +36,11 @@ SKILL_TAXONOMY: tuple[SkillDefinition, ...] = (
     SkillDefinition("Node.js", ("node", "nodejs", "node js", "node.js"), "Backend", ("JavaScript", "Express.js"), 1.2),
     SkillDefinition("Express.js", ("express", "expressjs", "express js", "express.js"), "Backend", ("Node.js", "REST API"), 1.0),
     SkillDefinition("Java", ("java", "java ee", "jakarta ee"), "Backend", ("Spring Boot",), 1.1),
-    SkillDefinition("Spring Boot", ("spring", "springboot", "spring boot", "spring framework"), "Backend", ("Java", "REST API"), 1.2),
+    SkillDefinition("Spring Boot", ("springboot", "spring boot"), "Backend", ("Java", "Spring Framework", "REST API"), 1.2),
+    SkillDefinition("Spring Framework", ("spring", "spring framework", "spring core", "spring mvc"), "Backend", ("Java", "Spring Boot"), 1.1),
     SkillDefinition("Python", ("python", "python3", "python 3"), "Backend", ("FastAPI", "Django", "Pandas", "NumPy"), 1.1),
     SkillDefinition("FastAPI", ("fastapi", "fast api"), "Backend", ("Python", "REST API"), 1.0),
+    SkillDefinition("Flask", ("flask", "flask api"), "Backend", ("Python", "REST API"), 1.0),
     SkillDefinition("Django", ("django", "django rest framework", "drf"), "Backend", ("Python", "REST API"), 1.0),
     SkillDefinition("PHP", ("php", "php8", "php 8"), "Backend", ("Laravel",), 1.0),
     SkillDefinition("Laravel", ("laravel",), "Backend", ("PHP", "REST API"), 1.0),
@@ -48,6 +57,7 @@ SKILL_TAXONOMY: tuple[SkillDefinition, ...] = (
     SkillDefinition("Docker", ("docker", "dockerfile", "docker compose", "docker-compose"), "DevOps / Cloud", ("Kubernetes", "CI/CD"), 1.1),
     SkillDefinition("Kubernetes", ("kubernetes", "k8s"), "DevOps / Cloud", ("Docker", "CI/CD"), 1.2),
     SkillDefinition("GitHub Actions", ("github actions", "github action", "actions workflow"), "DevOps / Cloud", ("CI/CD", "GitHub"), 1.0),
+    SkillDefinition("GitLab CI", ("gitlab ci", "gitlab ci cd", "gitlab pipeline"), "DevOps / Cloud", ("CI/CD", "Git"), 1.0),
     SkillDefinition("Jenkins", ("jenkins", "jenkins pipeline"), "DevOps / Cloud", ("CI/CD",), 1.0),
     SkillDefinition("CI/CD", ("ci cd", "cicd", "continuous integration", "continuous delivery", "continuous deployment"), "DevOps / Cloud", ("GitHub Actions", "Jenkins", "Docker"), 1.1),
     SkillDefinition("AWS", ("aws", "amazon web services"), "DevOps / Cloud", ("Azure", "Docker"), 1.1),
@@ -90,6 +100,33 @@ SKILL_TAXONOMY: tuple[SkillDefinition, ...] = (
 SKILLS_BY_NAME = {skill.canonical_name: skill for skill in SKILL_TAXONOMY}
 
 
+# Relations directionnelles: (competence du candidat, exigence de l'offre).
+# Elles evitent qu'une proximite d'ecosysteme devienne une equivalence technique.
+SKILL_RELATIONS: dict[tuple[str, str], SkillRelation] = {
+    ("Angular", "React"): SkillRelation("TRANSFERABLE", 0.34, "Les concepts frontend sont transferables, mais Angular ne prouve pas React."),
+    ("React", "Angular"): SkillRelation("TRANSFERABLE", 0.34, "Les concepts frontend sont transferables, mais React ne prouve pas Angular."),
+    ("React Native", "React"): SkillRelation("TRANSFERABLE", 0.38, "React Native partage des concepts React sans prouver une pratique React Web."),
+    ("React", "React Native"): SkillRelation("TRANSFERABLE", 0.32, "React Web apporte des bases transferables sans prouver React Native."),
+    ("Docker", "Kubernetes"): SkillRelation("RELATED", 0.35, "Docker est lie a l'orchestration, mais ne prouve pas Kubernetes."),
+    ("Kubernetes", "Docker"): SkillRelation("RELATED", 0.45, "Kubernetes implique souvent des conteneurs, sans prouver une pratique Docker detaillee."),
+    ("SQL", "PostgreSQL"): SkillRelation("TRANSFERABLE", 0.35, "SQL est transferable, mais ne prouve pas les specificites PostgreSQL."),
+    ("PostgreSQL", "SQL"): SkillRelation("RELATED", 0.65, "PostgreSQL fournit une preuve directe de pratique SQL relationnelle."),
+    ("Node.js", "Express.js"): SkillRelation("TRANSFERABLE", 0.30, "Node.js est le runtime, mais ne prouve pas l'utilisation d'Express."),
+    ("Express.js", "Node.js"): SkillRelation("RELATED", 0.65, "Express est execute sur Node.js et constitue un signal technique pertinent."),
+    ("Jenkins", "CI/CD"): SkillRelation("TRANSFERABLE", 0.45, "Jenkins est un outil CI/CD, mais son nom seul ne prouve pas une chaine complete."),
+    ("GitHub Actions", "CI/CD"): SkillRelation("TRANSFERABLE", 0.45, "GitHub Actions est un outil CI/CD, mais son nom seul ne prouve pas une chaine complete."),
+    ("GitLab CI", "CI/CD"): SkillRelation("TRANSFERABLE", 0.45, "GitLab CI est un outil CI/CD, mais son nom seul ne prouve pas une chaine complete."),
+    ("Spring Framework", "Spring Boot"): SkillRelation("TRANSFERABLE", 0.42, "Spring Framework apporte des bases utiles, mais ne prouve pas Spring Boot."),
+    ("Spring Boot", "Spring Framework"): SkillRelation("RELATED", 0.68, "Spring Boot repose sur Spring Framework et fournit un signal direct."),
+    ("Java", "JavaScript"): SkillRelation("DIFFERENT", 0.0, "Java et JavaScript sont des langages distincts."),
+    ("JavaScript", "Java"): SkillRelation("DIFFERENT", 0.0, "JavaScript et Java sont des langages distincts."),
+    ("FastAPI", "Flask"): SkillRelation("DIFFERENT", 0.0, "FastAPI et Flask sont deux frameworks Python distincts."),
+    ("Flask", "FastAPI"): SkillRelation("DIFFERENT", 0.0, "Flask et FastAPI sont deux frameworks Python distincts."),
+    ("Git", "GitLab CI"): SkillRelation("DIFFERENT", 0.0, "Git est un outil de versioning et ne prouve pas GitLab CI."),
+    ("GitLab CI", "Git"): SkillRelation("RELATED", 0.35, "GitLab CI est lie aux depots Git sans prouver une pratique Git complete."),
+}
+
+
 def get_skill(canonical_name: str) -> SkillDefinition | None:
     return SKILLS_BY_NAME.get(canonical_name)
 
@@ -97,4 +134,24 @@ def get_skill(canonical_name: str) -> SkillDefinition | None:
 def get_related_skills(canonical_name: str) -> tuple[str, ...]:
     definition = get_skill(canonical_name)
     return definition.related_skills if definition else ()
+
+
+def get_skill_relation(candidate_skill: str, required_skill: str) -> SkillRelation | None:
+    """Return a conservative, directional relation between two canonical skills."""
+    if candidate_skill == required_skill:
+        return SkillRelation("EXACT", 1.0, "La competence correspond exactement a l'exigence.")
+    explicit = SKILL_RELATIONS.get((candidate_skill, required_skill))
+    if explicit:
+        return explicit
+    candidate = get_skill(candidate_skill)
+    required = get_skill(required_skill)
+    if candidate and required and (
+        required_skill in candidate.related_skills or candidate_skill in required.related_skills
+    ):
+        return SkillRelation(
+            "RELATED",
+            0.32,
+            f"{candidate_skill} est liee a {required_skill}, sans constituer une preuve de maitrise.",
+        )
+    return None
 

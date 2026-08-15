@@ -7,7 +7,7 @@ import math
 from difflib import SequenceMatcher
 from typing import Any
 
-from app.knowledge.skill_taxonomy import SKILLS_BY_NAME, get_related_skills
+from app.knowledge.skill_taxonomy import SKILLS_BY_NAME, SkillRelation, get_skill_relation
 from app.services.career_signal_map_service import build_career_signal_map
 from app.services.decision_trace_service import build_decision_trace
 from app.services.evidence_checker_service import evaluate_all_skills_evidence
@@ -61,12 +61,22 @@ def _controlled_fuzzy_match(requirement: str, raw_candidate_skills: list[str]) -
     return best_skill, best_score
 
 
-def _find_related(requirement: str, candidate_skills: list[str]) -> str | None:
-    related = set(get_related_skills(requirement))
+def _find_relation(requirement: str, candidate_skills: list[str]) -> tuple[str | None, SkillRelation | None]:
+    positive: list[tuple[str, SkillRelation]] = []
+    different: tuple[str, SkillRelation] | None = None
     for candidate in candidate_skills:
-        if candidate in related or requirement in set(get_related_skills(candidate)):
-            return candidate
-    return None
+        relation = get_skill_relation(candidate, requirement)
+        if not relation or relation.relation == "EXACT":
+            continue
+        if relation.relation == "DIFFERENT":
+            different = different or (candidate, relation)
+        else:
+            positive.append((candidate, relation))
+    if different:
+        return different
+    if positive:
+        return max(positive, key=lambda item: item[1].coverage)
+    return None, None
 
 
 def _skill_evidence(candidate_profile: dict, skill: str) -> list[dict]:
@@ -104,53 +114,68 @@ def _coverage_row(requirement_item: dict, candidate_profile: dict, debug: bool) 
     confidence = 0.0
     reason = f"Aucune preuve fiable de {requirement} n'a ete detectee dans le profil."
     semantic_details = None
+    relation_name = None
+    declared_skill = False
 
     if direct_type:
         match_type = direct_type
-        base = 1.0 if direct_type == "EXACT" else 0.95
-        coverage = base if evidence_quality >= 0.9 else max(0.82, base - 0.08)
-        confidence = max(0.82, evidence_quality)
-        proof = "avec une preuve de projet ou d'experience" if evidence_quality >= 0.9 else "dans les competences explicites du profil"
+        base = 1.0 if direct_type == "EXACT" else 0.98
+        if evidence and evidence_type in {"PROJECT", "EXPERIENCE"} and evidence_quality >= 0.78:
+            coverage = base
+            confidence = evidence_quality
+        elif evidence and evidence_type in {"CERTIFICATION", "EDUCATION"}:
+            coverage = min(base, 0.86)
+            confidence = max(0.68, evidence_quality)
+        elif evidence:
+            coverage = min(base, 0.70)
+            confidence = max(0.52, evidence_quality)
+        else:
+            declared_skill = True
+            coverage = 0.62
+            confidence = 0.52
+        proof = "avec une preuve de projet ou d'experience" if coverage >= 0.9 else "comme competence declaree, avec une preuve encore limitee"
         reason = f"{requirement} est reconnu {proof}."
     else:
         fuzzy_skill, fuzzy_score = _controlled_fuzzy_match(requirement, raw_skills)
         if fuzzy_skill:
             match_type = "FUZZY"
-            coverage = min(0.85, fuzzy_score * 0.9)
-            confidence = fuzzy_score
+            coverage = min(0.68, fuzzy_score * 0.75)
+            confidence = min(0.78, fuzzy_score)
             reason = f"La variante {fuzzy_skill} est tres proche de {requirement}, sans etre consideree comme une preuve exacte."
         else:
-            evidence_texts = [item["text"] for item in candidate_profile.get("allEvidence", [])]
-            semantic_details = compute_requirement_evidence_similarity(requirement, evidence_texts)
-            semantic_score = semantic_details["score"]
-            if semantic_score >= 0.75:
-                match_type = "SEMANTIC"
-                coverage = min(0.9, max(0.75, semantic_score))
-                confidence = semantic_score
-                reason = f"Une preuve textuelle est semantiquement proche de l'exigence {requirement}."
-                if semantic_details.get("bestEvidence"):
-                    evidence = [{"text": semantic_details["bestEvidence"], "type": "UNKNOWN", "confidence": semantic_score}]
-                    evidence_type = "UNKNOWN"
-            elif semantic_score >= 0.55:
-                match_type = "SEMANTIC"
-                coverage = min(0.7, max(0.45, semantic_score * 0.85))
-                confidence = semantic_score
-                reason = f"Un signal semantique partiel existe pour {requirement}, mais il reste insuffisant comme preuve de maitrise."
-                if semantic_details.get("bestEvidence"):
-                    evidence = [{"text": semantic_details["bestEvidence"], "type": "UNKNOWN", "confidence": semantic_score}]
-                    evidence_type = "UNKNOWN"
+            related, relation = _find_relation(requirement, candidate_skills)
+            if related and relation:
+                relation_name = relation.relation
+                match_type = relation.relation if relation.relation != "DIFFERENT" else "MISSING"
+                coverage = relation.coverage
+                related_evidence = _skill_evidence(candidate_profile, related)
+                related_quality, related_type = _best_evidence_quality(related_evidence)
+                if related_evidence:
+                    evidence = related_evidence
+                    evidence_type = related_type
+                confidence = min(0.72, max(0.45, related_quality * 0.75)) if coverage else 0.95
+                reason = relation.reason
+                raw_match = related
             else:
-                related = _find_related(requirement, candidate_skills)
-                if related:
-                    match_type = "RELATED"
-                    coverage = 0.55
-                    related_evidence = _skill_evidence(candidate_profile, related)
-                    related_quality, related_type = _best_evidence_quality(related_evidence)
-                    if related_evidence:
-                        evidence = related_evidence
-                        evidence_type = related_type
-                    confidence = max(0.60, related_quality * 0.8)
-                    reason = f"{related} est techniquement liee a {requirement} et dispose d'une preuve, mais ne prouve pas sa maitrise."
+                evidence_texts = [item["text"] for item in candidate_profile.get("allEvidence", [])]
+                semantic_details = compute_requirement_evidence_similarity(requirement, evidence_texts)
+                semantic_score = semantic_details["score"]
+                if semantic_score >= 0.78:
+                    match_type = "SEMANTIC"
+                    coverage = min(0.72, semantic_score * 0.85)
+                    confidence = semantic_score
+                    reason = f"Une preuve textuelle est proche de {requirement}, sans equivalence technique explicite."
+                    if semantic_details.get("bestEvidence"):
+                        evidence = [{"text": semantic_details["bestEvidence"], "type": "UNKNOWN", "confidence": semantic_score}]
+                        evidence_type = "UNKNOWN"
+                elif semantic_score >= 0.58:
+                    match_type = "SEMANTIC"
+                    coverage = min(0.52, semantic_score * 0.72)
+                    confidence = semantic_score
+                    reason = f"Un signal semantique partiel existe pour {requirement}, mais il ne prouve pas sa maitrise."
+                    if semantic_details.get("bestEvidence"):
+                        evidence = [{"text": semantic_details["bestEvidence"], "type": "UNKNOWN", "confidence": semantic_score}]
+                        evidence_type = "UNKNOWN"
 
     row = {
         "requirement": requirement,
@@ -162,7 +187,10 @@ def _coverage_row(requirement_item: dict, candidate_profile: dict, debug: bool) 
         "evidence": [item["text"][:220] for item in evidence[: (4 if debug else 1)]],
         "evidenceType": evidence_type,
         "reason": reason,
+        "declaredSkill": declared_skill,
     }
+    if relation_name:
+        row["relation"] = relation_name
     if raw_match:
         row["matchedCandidateSkill"] = raw_match
     if debug and semantic_details:
@@ -211,10 +239,16 @@ def _seniority_alignment(candidate_profile: dict, offer_analysis: dict) -> float
 def _confidence(candidate_profile: dict, offer_analysis: dict, matrix: list[dict]) -> str:
     cv_quality = (candidate_profile.get("rawTextQuality") or {}).get("quality", "LOW")
     offer_quality = (offer_analysis.get("offerQuality") or {}).get("quality", "LOW")
-    strong_evidence = sum(1 for row in matrix if row["coverage"] >= 0.75 and row.get("evidence"))
-    if cv_quality == "GOOD" and offer_quality == "GOOD" and strong_evidence >= 3:
+    strong_evidence = sum(
+        1 for row in matrix
+        if row["coverage"] >= 0.75 and row.get("evidenceType") in {"PROJECT", "EXPERIENCE"}
+    )
+    ambiguous = sum(1 for row in matrix if row.get("matchType") in {"FUZZY", "SEMANTIC", "RELATED", "TRANSFERABLE"})
+    if cv_quality == "GOOD" and offer_quality == "GOOD" and strong_evidence >= 3 and not ambiguous:
         return "HIGH"
-    if cv_quality != "LOW" and offer_quality != "LOW" and matrix:
+    if cv_quality != "LOW" and offer_quality != "LOW" and matrix and (
+        strong_evidence >= 1 or ambiguous == 0 or cv_quality == "GOOD"
+    ):
         return "MEDIUM"
     return "LOW"
 
@@ -225,10 +259,15 @@ def calculate_hybrid_score(coverage_matrix: list[dict], candidate_profile: dict,
     optional_rows = [row for row in coverage_matrix if row["importance"] == "OPTIONAL"]
     critical_ratio = _average_coverage(critical_rows, _average_coverage(required_rows))
     required_ratio = _average_coverage(required_rows)
-    optional_ratio = _average_coverage(optional_rows, 1.0 if required_rows else 0.0)
-    evidence_rows = [row for row in required_rows if row["coverage"] > 0]
+    optional_ratio = _average_coverage(optional_rows, required_ratio)
+    evidence_rows = required_rows
     evidence_ratio = _average_coverage([
-        {"coverage": max(TYPE_WEIGHTS.get(row.get("evidenceType"), 0.5), row["confidence"] * 0.8) if row.get("evidence") else 0.35}
+        {
+            "coverage": min(
+                row["coverage"],
+                max(TYPE_WEIGHTS.get(row.get("evidenceType"), 0.5), row["confidence"] * 0.8),
+            ) if row.get("evidence") else (0.15 if row.get("declaredSkill") else 0.0)
+        }
         for row in evidence_rows
     ])
     domain = _domain_alignment(candidate_profile, offer_analysis)
@@ -268,6 +307,13 @@ def calculate_hybrid_score(coverage_matrix: list[dict], candidate_profile: dict,
     if score > 90 and (cv_quality_name != "GOOD" or optional_missing):
         score = 90
         warnings.append("score superieur a 90 reserve aux profils riches avec couverture optionnelle presque complete")
+    strong_proofs = sum(
+        1 for row in required_rows + optional_rows
+        if row.get("coverage", 0) >= 0.9 and row.get("evidenceType") in {"PROJECT", "EXPERIENCE"}
+    )
+    if score > 95 and strong_proofs < 5:
+        score = 95
+        warnings.append("score superieur a 95 reserve a au moins cinq preuves fortes et directement pertinentes")
     if score > 98 and not (critical_ratio >= 0.98 and required_ratio >= 0.98 and evidence_ratio >= 0.9 and cv_quality_name == "GOOD"):
         score = 98
         warnings.append("score superieur a 98 reserve aux profils presque totalement prouves")
@@ -287,9 +333,23 @@ def calculate_hybrid_score(coverage_matrix: list[dict], candidate_profile: dict,
     }
 
 
-def _decision_label(score: int, has_requirements: bool, has_candidate_data: bool) -> str:
+def resolve_decision_label(
+    score: int,
+    has_requirements: bool,
+    has_candidate_data: bool,
+    confidence: str = "MEDIUM",
+    critical_missing_count: int = 0,
+) -> str:
     if not has_requirements or not has_candidate_data:
         return "INSUFFICIENT_DATA"
+    if str(confidence).upper() == "LOW":
+        return "INSUFFICIENT_DATA"
+    if critical_missing_count:
+        if score >= 50:
+            return "PARTIAL_MATCH"
+        if score >= 30:
+            return "LOW_MATCH"
+        return "VERY_LOW_MATCH"
     if score >= 85:
         return "STRONG_MATCH"
     if score >= 70:
@@ -313,7 +373,13 @@ def _build_candidate_profile(cv_analysis: dict, raw_cv_text: str | None, raw_can
         item for values in evidence_profile.get("skillEvidence", {}).values() for item in values
     ]
     profile.setdefault("domainSignals", _domains_from_skills(canonical_skills))
-    profile.setdefault("rawTextQuality", _fallback_cv_quality(raw_cv_text, canonical_skills))
+    fallback_quality = _fallback_cv_quality(raw_cv_text, canonical_skills, evidence_profile)
+    current_quality = profile.get("rawTextQuality") or {}
+    quality_rank = {"LOW": 0, "MEDIUM": 1, "GOOD": 2}
+    if quality_rank.get(fallback_quality["quality"], 0) > quality_rank.get(current_quality.get("quality", "LOW"), 0):
+        profile["rawTextQuality"] = fallback_quality
+    else:
+        profile.setdefault("rawTextQuality", fallback_quality)
     profile.setdefault("experienceLevelV2", "UNKNOWN")
     return profile
 
@@ -324,15 +390,19 @@ def _domains_from_skills(skills: list[str]) -> list[str]:
     return deduplicate_strings([mapping[category] for category, values in categories.items() if values and category in mapping])
 
 
-def _fallback_cv_quality(raw_text: str | None, skills: list[str]) -> dict:
+def _fallback_cv_quality(raw_text: str | None, skills: list[str], evidence_profile: dict) -> dict:
     length = len(raw_text or "")
-    if length >= 600:
+    concrete_skills = sum(
+        1 for evidence in (evidence_profile.get("skillEvidence") or {}).values()
+        if any(item.get("type") in {"PROJECT", "EXPERIENCE"} and float(item.get("confidence") or 0) >= 0.78 for item in evidence)
+    )
+    if length >= 600 or concrete_skills >= 3:
         quality = "GOOD"
-    elif length >= 160 or len(skills) >= 4:
+    elif length >= 160 or concrete_skills >= 1 or len(skills) >= 4:
         quality = "MEDIUM"
     else:
         quality = "LOW"
-    return {"quality": quality, "length": length, "hasEnoughText": quality != "LOW"}
+    return {"quality": quality, "length": length, "hasEnoughText": quality != "LOW", "concreteSkillCount": concrete_skills}
 
 
 class HybridMatchingEngineV3:
@@ -376,7 +446,13 @@ class HybridMatchingEngineV3:
             "missingEvidenceCount": sum(1 for row in matrix if not row.get("evidence")),
         }
         explanation = generate_matching_explanation(scoring["score"], confidence, matrix, scoring["domainAlignment"], scoring["warnings"])
-        decision = _decision_label(scoring["score"], bool(required_rows), bool(candidate_profile["skills"] or candidate_profile["allEvidence"]))
+        decision = resolve_decision_label(
+            scoring["score"],
+            bool(required_rows),
+            bool(candidate_profile["skills"] or candidate_profile["allEvidence"]),
+            confidence,
+            len(scoring["criticalMissingSkills"]),
+        )
         strengths = [f"{row['requirement']} est couverte avec une preuve {row['evidenceType'].lower()}." for row in required_rows if row["coverage"] >= 0.75][:6]
         risks = [f"Competence critique manquante : {skill}." for skill in scoring["criticalMissingSkills"]]
         risks.extend(f"Preuve insuffisante pour {row['requirement']}." for row in partial[:4])
@@ -395,6 +471,18 @@ class HybridMatchingEngineV3:
             "domainAlignment": scoring["domainAlignment"],
             "evidenceSummary": evidence_summary,
             "semanticMethod": get_similarity_backend(),
+            "scoringContext": {
+                "candidateProfile": {
+                    "rawTextQuality": candidate_profile.get("rawTextQuality") or {},
+                    "domainSignals": candidate_profile.get("domainSignals") or [],
+                    "experienceLevelV2": candidate_profile.get("experienceLevelV2") or "UNKNOWN",
+                },
+                "offerAnalysis": {
+                    "domain": offer_requirements.get("domain") or "GENERAL",
+                    "seniorityExpected": offer_requirements.get("seniorityExpected") or "UNKNOWN",
+                    "offerQuality": offer_requirements.get("offerQuality") or {},
+                },
+            },
         }
         if debug:
             v3["warnings"] = scoring["warnings"]

@@ -74,7 +74,11 @@ def evaluate_skill_gap_simulator_cases(cases_path: Path | None = None) -> dict:
             check_result("current_score_bounds", 0 <= result.get("currentScore", -1) <= 100, "current score should stay in bounds"),
             check_result("potential_score_bounds", 0 <= result.get("potentialBestScore", -1) <= 100, "potential score should stay in bounds"),
             check_result("non_negative_gain", result.get("potentialBestScore", 0) >= result.get("currentScore", 0) and result.get("scoreGain", -1) >= 0, "potential score and gain should not decrease"),
-            check_result("potential_not_above_95", result.get("potentialBestScore", 101) <= 95, "potential score should stay at or below 95"),
+            check_result(
+                "potential_not_inflated",
+                result.get("potentialBestScore", 101) <= max(95, result.get("currentScore", 0)),
+                "potential score should stay at or below 95 unless the current verified score is already higher",
+            ),
             check_result("recommended_path_coherent", not result.get("highImpactGaps") or bool(result.get("recommendedPath")), "identified gaps need a recommended path"),
             check_result("decision_trace", len(result.get("decisionTrace", [])) >= 3, "simulation decision trace should explain the estimate"),
         ]

@@ -10,14 +10,13 @@ from app.utils.text_normalization import deduplicate_strings, normalize_text
 
 
 CONCRETE_TYPES = {"PROJECT", "EXPERIENCE"}
-USEFUL_TYPES = {"PROJECT", "EXPERIENCE", "EDUCATION", "SKILL_LIST", "SUMMARY", "RAG_CONTEXT"}
+USEFUL_TYPES = {"PROJECT", "EXPERIENCE", "CERTIFICATION", "EDUCATION", "SKILL_LIST", "SUMMARY", "RAG_CONTEXT"}
 WEAK_MARKERS = (
     "connaissance",
     "notion",
     "notions",
     "en cours",
     "apprentissage",
-    "debutant",
     "mentionne",
     "initiation",
     "bases",
@@ -69,13 +68,20 @@ def extract_evidence_snippets(skill: str, cv_text: str | None, cv_analysis: dict
     return deduplicate_strings([snippet for snippet in snippets if snippet])[:3]
 
 
-def classify_evidence_level(evidence_items: list[dict], match_type: str | None = None, coverage: float = 0.0) -> str:
+def classify_evidence_level(
+    evidence_items: list[dict],
+    match_type: str | None = None,
+    coverage: float = 0.0,
+    declared_skill: bool = False,
+) -> str:
     """Classify evidence independently from the final matching score."""
     items = [item for item in evidence_items if isinstance(item, dict) and item.get("text")]
     match = str(match_type or "").upper()
-    if match == "MISSING" or not items:
+    if match == "MISSING":
         return "MISSING"
-    if match == "RELATED":
+    if not items:
+        return "WEAK" if declared_skill and match in {"EXACT", "ALIAS"} else "MISSING"
+    if match in {"RELATED", "TRANSFERABLE"}:
         return "WEAK"
 
     best = max(items, key=lambda item: float(item.get("confidence") or TYPE_WEIGHTS.get(item.get("type"), 0.5)))
@@ -85,6 +91,8 @@ def classify_evidence_level(evidence_items: list[dict], match_type: str | None =
     is_weak_wording = any(marker in text for marker in WEAK_MARKERS)
 
     if is_weak_wording:
+        return "WEAK"
+    if evidence_type in {"SKILL_LIST", "SUMMARY"}:
         return "WEAK"
     if match in {"SEMANTIC", "FUZZY"} and coverage < 0.85:
         return "MEDIUM" if confidence >= 0.75 else "WEAK"
@@ -127,7 +135,8 @@ def evaluate_skill_evidence(skill: str, cv_text: str | None, cv_analysis: dict, 
 
     match_type = str(row.get("matchType") or ("EXACT" if evidence_items else "MISSING")).upper()
     coverage = float(row.get("coverage") or (1.0 if evidence_items else 0.0))
-    level = classify_evidence_level(evidence_items, match_type, coverage)
+    declared_skill = bool(row.get("declaredSkill"))
+    level = classify_evidence_level(evidence_items, match_type, coverage, declared_skill)
     best = max(evidence_items, key=lambda item: float(item.get("confidence") or 0), default={})
     evidence_type = "NONE" if level == "MISSING" else str(best.get("type") or row.get("evidenceType") or "UNKNOWN").upper()
     confidence = 0.0 if level == "MISSING" else min(0.99, max(float(best.get("confidence") or row.get("confidence") or 0.5), coverage * 0.9))

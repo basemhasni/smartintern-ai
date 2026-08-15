@@ -5,14 +5,25 @@ from __future__ import annotations
 from app.utils.text_normalization import normalize_text
 
 
+MIN_GROUNDED_SCORE = 0.18
+
+
+def _relevant_contexts(contexts: list[dict]) -> list[dict]:
+    return [
+        context for context in contexts
+        if float(context.get("score") or context.get("hybridScore") or 0) >= MIN_GROUNDED_SCORE
+        and (context.get("text") or context.get("contentPreview"))
+    ]
+
+
 def detect_insufficient_context(question: str, contexts: list[dict]) -> bool:
-    relevant = [context for context in contexts if float(context.get("score") or 0) >= 0.08 and (context.get("text") or context.get("contentPreview"))]
+    relevant = _relevant_contexts(contexts)
     return not question.strip() or not relevant
 
 
 def extract_citations(contexts: list[dict], limit: int = 5) -> list[dict]:
     citations = []
-    for context in contexts[:limit]:
+    for context in _relevant_contexts(contexts)[:limit]:
         metadata = context.get("metadata") or {}
         text = context.get("text") or context.get("contentPreview") or ""
         citations.append(
@@ -32,7 +43,7 @@ def extract_citations(contexts: list[dict], limit: int = 5) -> list[dict]:
 def build_answer_with_limitations(question: str, contexts: list[dict]) -> str:
     if detect_insufficient_context(question, contexts):
         return "Je n ai pas assez d informations indexees pour repondre precisement. Ajoutez un document plus detaille ou selectionnez un contexte plus complet."
-    selected = [context for context in contexts if float(context.get("score") or 0) >= 0.08][:3]
+    selected = _relevant_contexts(contexts)[:3]
     facts = []
     query_terms = set(normalize_text(question).split())
     for context in selected:

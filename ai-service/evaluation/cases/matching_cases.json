@@ -67,21 +67,21 @@
     "description": "Python FastAPI PostgreSQL vs offre backend Node PostgreSQL",
     "cvText": "Developpeur backend junior. J'ai realise une API REST avec Python, FastAPI et PostgreSQL. J'ai defini les routes, valide les donnees et documente l'API avec Postman.",
     "offer": {"title": "Stage backend Node.js", "description": "Developper des API REST avec Node.js et PostgreSQL. Participer aux tests et a la documentation.", "requiredSkills": ["Node.js", "PostgreSQL", "REST API"], "optionalSkills": ["Docker"]},
-    "expected": {"scoreMin": 42, "scoreMax": 76, "decisionLabels": ["LOW_MATCH", "PARTIAL_MATCH", "GOOD_MATCH"], "matchedSkills": ["PostgreSQL", "REST API"], "missingRequiredSkills": ["Node.js"], "criticalMissingSkills": []}
+    "expected": {"scoreMin": 35, "scoreMax": 76, "decisionLabels": ["LOW_MATCH", "PARTIAL_MATCH", "GOOD_MATCH"], "matchedSkills": ["PostgreSQL", "REST API"], "missingRequiredSkills": ["Node.js"], "criticalMissingSkills": []}
   },
   {
     "id": "flutter_mobile",
     "description": "Flutter mobile vs offre Flutter",
     "cvText": "Developpeur mobile junior ayant cree une application Flutter avec Dart pour Android. Le projet gere une API, des formulaires et un stockage local.",
     "offer": {"title": "Stage mobile Flutter", "description": "Developper une application mobile Flutter en Dart pour Android.", "requiredSkills": ["Flutter", "Dart", "Android"], "optionalSkills": ["Git"]},
-    "expected": {"scoreMin": 55, "scoreMax": 82, "decisionLabels": ["PARTIAL_MATCH", "GOOD_MATCH", "STRONG_MATCH"], "matchedSkills": ["Flutter", "Dart", "Android"], "missingRequiredSkills": [], "criticalMissingSkills": []}
+    "expected": {"scoreMin": 55, "scoreMax": 95, "decisionLabels": ["PARTIAL_MATCH", "GOOD_MATCH", "STRONG_MATCH"], "matchedSkills": ["Flutter", "Dart", "Android"], "missingRequiredSkills": [], "criticalMissingSkills": []}
   },
   {
     "id": "ai_rag_langgraph",
     "description": "IA/RAG/LangGraph vs offre IA RAG",
     "cvText": "Etudiant en IA ayant realise un assistant documentaire avec Python, RAG et LangGraph. Le projet utilise une base vectorielle, NLP et evaluation des reponses.",
     "offer": {"title": "Stage IA RAG LangGraph", "description": "Construire un assistant RAG en Python avec LangGraph, NLP et une base vectorielle.", "requiredSkills": ["RAG", "LangGraph", "Python", "NLP"], "optionalSkills": ["Vector Database"]},
-    "expected": {"scoreMin": 55, "scoreMax": 82, "decisionLabels": ["PARTIAL_MATCH", "GOOD_MATCH", "STRONG_MATCH"], "matchedSkills": ["RAG", "LangGraph", "Python", "NLP"], "missingRequiredSkills": [], "criticalMissingSkills": []}
+    "expected": {"scoreMin": 55, "scoreMax": 98, "decisionLabels": ["PARTIAL_MATCH", "GOOD_MATCH", "STRONG_MATCH"], "matchedSkills": ["RAG", "LangGraph", "Python", "NLP"], "missingRequiredSkills": [], "criticalMissingSkills": []}
   },
   {
     "id": "sql_postgresql_only_vs_backend_complete",

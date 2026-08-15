@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from evaluation.evaluators.career_evaluator import evaluate_career_cases
+from evaluation.evaluators.consistency_evaluator import evaluate_consistency_cases
 from evaluation.evaluators.explainability_evaluator import evaluate_explainability_cases
 from evaluation.evaluators.letter_evaluator import evaluate_letter_cases
 from evaluation.evaluators.matching_evaluator import evaluate_matching_cases
@@ -46,6 +47,7 @@ def _global_summary(summaries: list[dict[str, Any]]) -> dict[str, Any]:
         "explainabilityPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Explainability"), 0),
         "skillGapSimulatorPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Skill Gap Simulator"), 0),
         "offerQualityPassRate": next((round(summary.get("pass", 0) / summary.get("total", 1), 2) for summary in summaries if summary.get("suite") == "Offer Quality Analyzer"), 0),
+        "aiConsistencyScore": next((summary.get("consistencyScore") for summary in summaries if summary.get("suite") == "AI Quality Consistency"), 0),
     }
 
 
@@ -76,6 +78,7 @@ def _markdown(report: dict[str, Any]) -> str:
             f"- Explainability pass rate: `{report['global']['explainabilityPassRate']}`",
             f"- Skill Gap Simulator pass rate: `{report['global']['skillGapSimulatorPassRate']}`",
             f"- Offer Quality Analyzer pass rate: `{report['global']['offerQualityPassRate']}`",
+            f"- AI quality consistency score: `{report['global']['aiConsistencyScore']}`",
             "",
             "## Failures And Warnings",
             "",
@@ -105,6 +108,7 @@ def run_all_evaluations(write_reports: bool = True, rag_mode: str = "mock") -> d
         evaluate_explainability_cases(),
         evaluate_skill_gap_simulator_cases(),
         evaluate_offer_quality_cases(),
+        evaluate_consistency_cases(),
     ]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report = {
