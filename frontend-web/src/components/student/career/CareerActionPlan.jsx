@@ -1,4 +1,4 @@
-function CareerActionPlan({ actionPlan }) {
+function CareerActionPlan({ actionPlan = [] }) {
   return (
     <section className="rounded-stitch border border-line bg-white p-6 shadow-panel">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Plan d action</p>

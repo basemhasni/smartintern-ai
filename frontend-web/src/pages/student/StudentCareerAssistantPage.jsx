@@ -5,6 +5,7 @@ import { generateCareerAdvice } from '../../api/careerAssistantApi.js';
 import { getPublishedOffers, getStudentRecommendations } from '../../api/offersApi.js';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton.jsx';
+import AiErrorBoundary from '../../components/ai/AiErrorBoundary.jsx';
 import CareerAdviceResult from '../../components/student/career/CareerAdviceResult.jsx';
 import CareerAssistantEmptyState from '../../components/student/career/CareerAssistantEmptyState.jsx';
 import CareerAssistantHeader from '../../components/student/career/CareerAssistantHeader.jsx';
@@ -56,8 +57,21 @@ function StudentCareerAssistantPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const questionRef = useRef(null);
   const resultRef = useRef(null);
+  const mountedRef = useRef(true);
+  const loadRequestRef = useRef(0);
+  const generatingRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      loadRequestRef.current += 1;
+    };
+  }, []);
 
   const loadData = useCallback(async () => {
+    const requestId = loadRequestRef.current + 1;
+    loadRequestRef.current = requestId;
     setIsLoading(true);
     setLoadError('');
     setNotice('');
@@ -66,6 +80,8 @@ function StudentCareerAssistantPage() {
       getPublishedOffers(),
       getStudentRecommendations({ limit: 10, minScore: 0 }),
     ]);
+
+    if (!mountedRef.current || requestId !== loadRequestRef.current) return;
 
     if (offersResult.status === 'fulfilled') {
       setOffers(Array.isArray(offersResult.value) ? offersResult.value : []);
@@ -125,11 +141,14 @@ function StudentCareerAssistantPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (generatingRef.current) return;
+
     if (!selectedOfferId) {
       setFormError('Selectionnez une offre valide.');
       return;
     }
 
+    generatingRef.current = true;
     setIsGenerating(true);
     setFormError('');
     setAdvice(null);
@@ -143,6 +162,7 @@ function StudentCareerAssistantPage() {
       }
 
       const response = await generateCareerAdvice(payload);
+      if (!mountedRef.current) return;
       const normalizedAdvice = normalizeCareerAdviceResponse(response);
       setSubmittedQuestion(trimmedQuestion);
       setAdvice(normalizedAdvice);
@@ -150,9 +170,10 @@ function StudentCareerAssistantPage() {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
     } catch (error) {
-      setFormError(getCareerAssistantError(error));
+      if (mountedRef.current) setFormError(getCareerAssistantError(error));
     } finally {
-      setIsGenerating(false);
+      generatingRef.current = false;
+      if (mountedRef.current) setIsGenerating(false);
     }
   };
 
@@ -207,7 +228,9 @@ function StudentCareerAssistantPage() {
           <div className="space-y-6 scroll-mt-24" ref={resultRef}>
             {isGenerating ? <CareerGenerationState /> : null}
             {!isGenerating && advice ? (
-              <CareerAdviceResult advice={advice} offer={selectedOffer} question={submittedQuestion} onAskAnother={handleAskAnother} />
+              <AiErrorBoundary title="Conseils IA indisponibles" resetKey={`${selectedOfferId}-${submittedQuestion}`}>
+                <CareerAdviceResult advice={advice} offer={selectedOffer} question={submittedQuestion} onAskAnother={handleAskAnother} />
+              </AiErrorBoundary>
             ) : null}
             {!isGenerating && !advice ? <CareerAssistantEmptyState /> : null}
           </div>

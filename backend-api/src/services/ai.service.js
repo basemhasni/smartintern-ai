@@ -1,154 +1,78 @@
-const axios = require('axios');
+const { isObjectResponse, requestAi, toAiHttpError } = require('./aiClient');
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+const invokeAi = async ({ path, payload, workflow, allowRetry = false }) => {
+  try {
+    const data = await requestAi({
+      path,
+      data: payload,
+      workflow,
+      allowRetry,
+      validate: isObjectResponse,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      code: error.code,
+      statusCode: error.statusCode,
+    };
+  }
+};
 
 const analyzeCV = async (text) => {
   if (!text || typeof text !== 'string' || text.trim().length === 0) {
     return {
       success: false,
-      error: 'CV text is empty',
+      error: 'Le texte du CV est vide.',
+      code: 'AI_VALIDATION_ERROR',
+      statusCode: 422,
     };
   }
 
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/analyze-cv`,
-      { text },
-      { timeout: 5000 }
-    );
-
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'AI analysis failed',
-      details: error.response?.data?.detail || error.message,
-    };
-  }
+  return invokeAi({
+    path: '/ai/analyze-cv',
+    payload: { text },
+    workflow: 'matching',
+  });
 };
 
-const matchCandidateWithOffer = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/match`,
-      payload,
-      { timeout: 5000 }
-    );
+const matchCandidateWithOffer = (payload) => invokeAi({
+  path: '/ai/match',
+  payload,
+  workflow: 'matching',
+});
 
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'AI matching failed',
-      details: error.response?.data?.detail || error.message,
-    };
-  }
-};
+const generateMotivationLetter = (payload) => invokeAi({
+  path: '/ai/generate-letter',
+  payload,
+  workflow: 'motivationLetter',
+});
 
-const generateMotivationLetter = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/generate-letter`,
-      payload,
-      { timeout: 5000 }
-    );
+const generateCareerAdvice = (payload) => invokeAi({
+  path: '/ai/career-advice',
+  payload,
+  workflow: 'careerAssistant',
+});
 
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Motivation letter generation failed',
-      details: error.response?.data?.detail || error.message,
-    };
-  }
-};
+const analyzeOfferQuality = (payload) => invokeAi({
+  path: '/ai/analyze-offer-quality',
+  payload,
+  workflow: 'matching',
+});
 
-const generateCareerAdvice = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/career-advice`,
-      payload,
-      { timeout: 5000 }
-    );
+const simulateSkillGaps = (payload) => invokeAi({
+  path: '/ai/skill-gap-simulator',
+  payload,
+  workflow: 'skillGap',
+});
 
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Career advice generation failed',
-      details: error.response?.data?.detail || error.message,
-    };
-  }
-};
-
-const analyzeOfferQuality = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/analyze-offer-quality`,
-      payload,
-      { timeout: 5000 }
-    );
-
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Offer quality analysis failed',
-      details: error.response?.data?.message || error.response?.data?.detail || error.message,
-    };
-  }
-};
-
-const simulateSkillGaps = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/skill-gap-simulator`,
-      payload,
-      { timeout: 10000 }
-    );
-
-    return { success: true, data: response.data };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Skill gap simulation failed',
-      details: error.response?.data?.message || error.response?.data?.detail || error.message,
-    };
-  }
-};
-
-const orchestrateAi = async (payload) => {
-  try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/orchestrate/v2`,
-      payload,
-      { timeout: 15000 }
-    );
-
-    return { success: true, data: response.data };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'AI orchestration failed',
-      details: error.response?.data?.message || error.response?.data?.detail || error.message,
-    };
-  }
-};
+const orchestrateAi = (payload) => invokeAi({
+  path: '/ai/orchestrate/v2',
+  payload,
+  workflow: 'orchestrator',
+});
 
 module.exports = {
   analyzeOfferQuality,
@@ -158,4 +82,5 @@ module.exports = {
   matchCandidateWithOffer,
   orchestrateAi,
   simulateSkillGaps,
+  toAiHttpError,
 };

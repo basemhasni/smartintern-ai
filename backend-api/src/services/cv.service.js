@@ -53,14 +53,14 @@ const createCV = async (userId, file) => {
       analysisFailed = true;
       analysisJson = {
         error: analysisResult.error,
-        details: analysisResult.details || null,
+        code: analysisResult.code || 'AI_SERVICE_UNAVAILABLE',
       };
     }
   } catch (error) {
     analysisFailed = true;
     analysisJson = {
-      error: 'AI analysis failed',
-      details: error.message,
+      error: 'Le service IA est temporairement indisponible.',
+      code: error.code || 'AI_SERVICE_UNAVAILABLE',
     };
   }
 

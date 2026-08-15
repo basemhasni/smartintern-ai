@@ -10,7 +10,7 @@ function CoverageMetric({ icon: Icon, label, value, detail }) {
   );
 }
 
-function AdviceList({ title, items }) {
+function AdviceList({ title, items = [] }) {
   if (!items.length) return null;
   return (
     <div>
@@ -33,7 +33,8 @@ function CareerAnalysisOverview({ advice }) {
   const critical = summary.criticalCoverage || {};
   const evidence = summary.evidenceSummary || {};
   const effort = advice.v2.estimatedPreparationEffort;
-  const breakdown = Object.entries(summary.scoreBreakdown || {}).filter(([key]) => key !== 'total');
+  const breakdown = Object.entries(summary.scoreBreakdown || {}).filter(([key, value]) => key !== 'total' && Number.isFinite(Number(value)));
+  const summaryScore = Number.isFinite(Number(summary.score)) ? `${Number(summary.score)}/100` : 'Non disponible';
 
   return (
     <section className="rounded-stitch border border-line bg-white p-5 shadow-panel sm:p-7">
@@ -42,7 +43,7 @@ function CareerAnalysisOverview({ advice }) {
       <p className="mt-3 max-w-4xl text-sm leading-7 text-muted">{advice.profileSummary}</p>
 
       <div className="mt-6 grid gap-5 border-y border-line py-6 sm:grid-cols-2 xl:grid-cols-4">
-        <CoverageMetric icon={Target} label="Score" value={`${summary.score}/100`} detail={`Confiance ${summary.confidence}`} />
+        <CoverageMetric icon={Target} label="Score" value={summaryScore} detail={`Confiance ${summary.confidence || 'non disponible'}`} />
         <CoverageMetric icon={FileCheck2} label="Exigences" value={`${required.covered || 0}/${required.total || 0}`} detail="Competences obligatoires couvertes" />
         <CoverageMetric icon={ShieldAlert} label="Critiques" value={`${critical.covered || 0}/${critical.total || 0}`} detail="Competences critiques couvertes" />
         <CoverageMetric icon={CheckCircle2} label="Preuves fortes" value={evidence.strong || 0} detail={`${evidence.weak || 0} preuve(s) faible(s), ${evidence.missing || 0} absente(s)`} />

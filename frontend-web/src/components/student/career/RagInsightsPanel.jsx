@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function RagInsightsPanel({ ragInsights, ragContext }) {
+function RagInsightsPanel({ ragInsights = [], ragContext = { used: false, documents: [], documentsCount: 0 } }) {
   const [showSources, setShowSources] = useState(false);
   const hasContext = ragContext?.used || ragInsights.length > 0;
 
@@ -25,7 +25,7 @@ function RagInsightsPanel({ ragInsights, ragContext }) {
           ))}
         </ul>
       ) : null}
-      {ragContext.documents.length ? (
+      {Array.isArray(ragContext.documents) && ragContext.documents.length ? (
         <div className="mt-4">
           <button className="text-sm font-black text-primary hover:underline" type="button" onClick={() => setShowSources((current) => !current)}>
             {showSources ? 'Masquer les sources' : `Voir les sources (${ragContext.documentsCount})`}

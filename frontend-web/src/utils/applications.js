@@ -31,7 +31,9 @@ export const normalizeApplication = (application) => {
   };
 };
 
-export const normalizeApplications = (applications = []) => applications.map(normalizeApplication);
+export const normalizeApplications = (applications = []) => (
+  Array.isArray(applications) ? applications.filter(Boolean).map(normalizeApplication) : []
+);
 
 export const getApplicationStats = (applications = []) => ({
   total: applications.length,

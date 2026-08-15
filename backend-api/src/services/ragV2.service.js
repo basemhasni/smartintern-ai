@@ -1,8 +1,7 @@
-const axios = require('axios');
 const prisma = require('../config/prisma');
 const indexing = require('./ragIndexing.service');
+const { requestAi } = require('./aiClient');
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 const createHttpError = (statusCode, message) => Object.assign(new Error(message), { statusCode });
 const parseJsonValue = (value) => { if (!value || typeof value !== 'string') return value || null; try { return JSON.parse(value); } catch (error) { return null; } };
 const toStringArray = (value) => { const parsed = parseJsonValue(value); return Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string' && item.trim()) : []; };
@@ -22,8 +21,10 @@ const lexicalSimilarity = (query, text) => {
 };
 const generateEmbedding = async (text) => {
   if (!String(text || '').trim()) return null;
-  try { const response = await axios.post(`${AI_SERVICE_URL}/ai/rag/v2/embed`, { text }, { timeout: 10000 }); return Array.isArray(response.data?.embedding) ? response.data.embedding : null; }
-  catch (error) { console.error('RAG embedding generation failed:', error.message); return null; }
+  try {
+    const response = await requestAi({ path: '/ai/rag/v2/embed', data: { text }, workflow: 'rag', allowRetry: true, validate: (value) => Array.isArray(value?.embedding) });
+    return response.embedding;
+  } catch (error) { console.error('RAG embedding generation failed:', error.code || 'AI_SERVICE_UNAVAILABLE'); return null; }
 };
 const createVectorDocument = ({ ownerType, ownerId, title, content, embedding, metadata }) => prisma.vectorDocument.create({ data: { ownerType, ownerId: String(ownerId), title: title || null, content, embeddingJson: embedding, metadataJson: metadata || null } });
 
@@ -95,8 +96,8 @@ const searchVectorDocuments = async (query, options = {}) => {
 const generateRagAnswer = async (question, documents, mode = 'GENERAL') => {
   try {
     const contexts = documents.map((document) => ({ id: document.id, ownerType: document.ownerType, ownerId: document.ownerId, title: document.title, text: document.contentPreview, score: document.score, metadata: document.metadata }));
-    return (await axios.post(`${AI_SERVICE_URL}/ai/rag/v2/answer`, { question, contexts, answerMode: mode }, { timeout: 10000 })).data;
-  } catch (error) { if (error.response?.status === 400) throw createHttpError(400, error.response.data?.detail || 'Invalid RAG request'); throw createHttpError(503, 'AI service is currently unavailable.'); }
+    return await requestAi({ path: '/ai/rag/v2/answer', data: { question, contexts, answerMode: mode }, workflow: 'rag', validate: (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value) });
+  } catch (error) { throw error; }
 };
 const askRagQuestion = async (question, options = {}) => { const results = await searchVectorDocuments(question, options); const answer = await generateRagAnswer(question, results, options.mode); return { ...answer, sources: answer.citations || [], retrievedContextCount: answer.usedContextCount || 0 }; };
 const getRecentVectorDocuments = (limit) => prisma.vectorDocument.findMany({ take: Math.max(1, Math.min(Number.parseInt(limit, 10) || 50, 100)), orderBy: { createdAt: 'desc' }, select: { id: true, ownerType: true, ownerId: true, title: true, metadataJson: true, createdAt: true, updatedAt: true } });

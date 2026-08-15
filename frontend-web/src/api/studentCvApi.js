@@ -2,7 +2,7 @@ import axiosClient from './axiosClient.js';
 
 export const getStudentCvs = async () => {
   const response = await axiosClient.get('/api/students/cv');
-  return response.data.cvs || [];
+  return Array.isArray(response.data?.cvs) ? response.data.cvs : [];
 };
 
 export const getStudentCvById = async (id) => {

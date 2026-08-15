@@ -5,8 +5,9 @@ import SkillEvidenceBadge from './SkillEvidenceBadge.jsx';
 
 function SkillEvidenceMap({ evidenceMap, requiredSkills = [] }) {
   const [expanded, setExpanded] = useState(false);
-  const required = new Set(requiredSkills.map((skill) => String(skill).toLowerCase()));
-  const entries = Object.entries(evidenceMap || {}).sort(([first], [second]) => {
+  const required = new Set((Array.isArray(requiredSkills) ? requiredSkills : []).map((skill) => String(skill).toLowerCase()));
+  const safeEvidenceMap = evidenceMap && typeof evidenceMap === 'object' && !Array.isArray(evidenceMap) ? evidenceMap : {};
+  const entries = Object.entries(safeEvidenceMap).filter(([, item]) => item && typeof item === 'object' && !Array.isArray(item)).sort(([first], [second]) => {
     const firstRequired = required.has(first.toLowerCase());
     const secondRequired = required.has(second.toLowerCase());
     return firstRequired === secondRequired ? first.localeCompare(second) : firstRequired ? -1 : 1;
@@ -25,7 +26,7 @@ function SkillEvidenceMap({ evidenceMap, requiredSkills = [] }) {
                   <SkillEvidenceBadge level={item.evidenceLevel} />
                 </div>
                 <p className="mt-2 text-xs font-bold text-muted">Type : {item.evidenceType || 'NONE'}</p>
-                {(item.evidenceSnippets || []).slice(0, 2).map((snippet, index) => <p key={`${skill}-${index}`} className="mt-2 border-l-2 border-ai pl-3 text-xs leading-5 text-muted">{String(snippet).slice(0, 220)}</p>)}
+                {(Array.isArray(item.evidenceSnippets) ? item.evidenceSnippets : []).slice(0, 2).map((snippet, index) => <p key={`${skill}-${index}`} className="mt-2 border-l-2 border-ai pl-3 text-xs leading-5 text-muted">{String(snippet).slice(0, 220)}</p>)}
                 {item.recommendation ? <p className="mt-3 text-xs font-bold leading-5 text-primary">{item.recommendation}</p> : null}
               </article>
             ))}

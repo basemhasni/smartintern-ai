@@ -1,7 +1,7 @@
 const path = require('path');
 
 const prisma = require('../config/prisma');
-const { analyzeCV, matchCandidateWithOffer, simulateSkillGaps } = require('./ai.service');
+const { analyzeCV, matchCandidateWithOffer, simulateSkillGaps, toAiHttpError } = require('./ai.service');
 const { extractTextFromCV } = require('./cv-text.service');
 
 const createHttpError = (statusCode, message) => {
@@ -77,7 +77,7 @@ const refreshCVAnalysisIfNeeded = async (cv) => {
   const analysisResult = await analyzeCV(parsedText);
 
   if (!analysisResult.success) {
-    throw createHttpError(500, 'AI service unavailable. Please make sure ai-service is running.');
+    throw toAiHttpError(analysisResult);
   }
 
   const updatedCV = await prisma.cV.update({
@@ -132,7 +132,7 @@ const calculateOfferMatch = async (userId, offerId) => {
   });
 
   if (!matchingResult.success) {
-    throw createHttpError(500, 'AI service unavailable. Please make sure ai-service is running.');
+    throw toAiHttpError(matchingResult);
   }
 
   const matching = matchingResult.data;
@@ -189,7 +189,7 @@ const simulateOfferSkillGap = async (userId, offerId, mode) => {
   });
 
   if (!result.success) {
-    throw createHttpError(503, 'Skill gap simulation is temporarily unavailable');
+    throw toAiHttpError(result);
   }
 
   return result.data;

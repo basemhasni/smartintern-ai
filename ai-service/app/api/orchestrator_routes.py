@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
 
 from app.models.schemas import (
     OrchestratorRequest,
@@ -18,12 +17,7 @@ def orchestrate_endpoint(payload: OrchestratorRequest):
     try:
         return orchestrate(payload)
     except ValueError as error:
-        return JSONResponse(
-            status_code=400,
-            content={
-                "message": str(error),
-            },
-        )
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 @router.post("/orchestrate/v2", response_model=OrchestratorV2Response)
@@ -31,9 +25,4 @@ def orchestrate_v2_endpoint(payload: OrchestratorV2Request):
     try:
         return orchestrate_v2(payload)
     except ValueError as error:
-        return JSONResponse(
-            status_code=400,
-            content={
-                "message": str(error),
-            },
-        )
+        raise HTTPException(status_code=400, detail=str(error)) from error

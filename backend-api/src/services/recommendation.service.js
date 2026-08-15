@@ -1,7 +1,7 @@
 const path = require('path');
 
 const prisma = require('../config/prisma');
-const { analyzeCV, matchCandidateWithOffer } = require('./ai.service');
+const { analyzeCV, matchCandidateWithOffer, toAiHttpError } = require('./ai.service');
 const { extractTextFromCV } = require('./cv-text.service');
 
 const createHttpError = (statusCode, message) => {
@@ -101,7 +101,7 @@ const refreshCVAnalysisIfNeeded = async (cv) => {
   const analysisResult = await analyzeCV(parsedText);
 
   if (!analysisResult.success) {
-    throw createHttpError(500, 'AI service unavailable. Please make sure ai-service is running.');
+    throw toAiHttpError(analysisResult);
   }
 
   const updatedCV = await prisma.cV.update({
@@ -193,6 +193,7 @@ const buildRecommendation = async (studentId, candidateSkills, offer) => {
         matching: buildFallbackMatching('This offer could not be matched automatically.'),
       },
       aiFailed: true,
+      aiError: matchingResult,
     };
   }
 
@@ -260,7 +261,7 @@ const getStudentRecommendations = async (userId, query) => {
   const successfulMatches = results.filter((result) => !result.aiFailed).length;
 
   if (offers.length > 0 && successfulMatches === 0) {
-    throw createHttpError(500, 'AI service unavailable. Please make sure ai-service is running.');
+    throw toAiHttpError(results.find((result) => result.aiError)?.aiError);
   }
 
   const recommendations = results

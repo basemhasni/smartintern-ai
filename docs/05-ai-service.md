@@ -35,7 +35,7 @@ ai-service/
 
 | Endpoint | Description |
 | --- | --- |
-| `GET /ai/health` | santé du service |
+| `GET /health` | santé du service, sans lancer de workflow IA |
 | `POST /ai/analyze-cv` | analyse CV |
 | `POST /ai/analyze-offer` | analyse offre |
 | `POST /ai/match` | Matching V3 |

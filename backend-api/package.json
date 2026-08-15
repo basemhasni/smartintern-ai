@@ -28,7 +28,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "db:check": "node src/config/check-db.js",
-    "rag:reindex": "node scripts/reindex-rag.js"
+    "rag:reindex": "node scripts/reindex-rag.js",
+    "test": "node --test tests/ai-stability.test.js"
   },
   "keywords": [],
   "author": "",

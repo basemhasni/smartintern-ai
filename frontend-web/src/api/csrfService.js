@@ -3,13 +3,14 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
 const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+const API_TIMEOUT_MS = Number.parseInt(import.meta.env.VITE_API_TIMEOUT_MS, 10) || 15000;
 
 let csrfToken = null;
 let csrfRequest = null;
 
 const csrfClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: API_TIMEOUT_MS,
   withCredentials: true,
 });
 

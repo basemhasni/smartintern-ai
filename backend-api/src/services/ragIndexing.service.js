@@ -1,8 +1,6 @@
-const axios = require('axios');
-
 const prisma = require('../config/prisma');
+const { requestAi } = require('./aiClient');
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 const parseArray = (value) => {
   if (Array.isArray(value)) return value.filter((item) => typeof item === 'string' && item.trim());
@@ -22,13 +20,14 @@ const buildDocumentPayloadForAiService = ({ text, documentType, metadata }) => (
 
 const indexDocument = async ({ ownerType, ownerId, title, content, metadata }) => {
   if (!content || !String(content).trim()) return false;
-  const response = await axios.post(
-    `${AI_SERVICE_URL}/ai/rag/v2/index-document`,
-    buildDocumentPayloadForAiService({ text: content, documentType: ownerType, metadata }),
-    { timeout: 15000 },
-  );
-  const chunks = Array.isArray(response.data?.chunks) ? response.data.chunks : [];
-  const embeddings = Array.isArray(response.data?.embeddings) ? response.data.embeddings : [];
+  const response = await requestAi({
+    path: '/ai/rag/v2/index-document',
+    data: buildDocumentPayloadForAiService({ text: content, documentType: ownerType, metadata }),
+    workflow: 'rag',
+    validate: (value) => Array.isArray(value?.chunks) && Array.isArray(value?.embeddings),
+  });
+  const chunks = Array.isArray(response?.chunks) ? response.chunks : [];
+  const embeddings = Array.isArray(response?.embeddings) ? response.embeddings : [];
   if (!chunks.length || chunks.length !== embeddings.length) return false;
 
   const rows = chunks.map((chunk, index) => ({
@@ -43,7 +42,7 @@ const indexDocument = async ({ ownerType, ownerId, title, content, metadata }) =
       documentId: String(ownerId),
       chunkIndex: chunk.chunkIndex ?? index,
       section: chunk.section || chunk.metadata?.section || 'content',
-      embeddingBackend: response.data.embeddingBackend,
+      embeddingBackend: response.embeddingBackend,
     },
   }));
 

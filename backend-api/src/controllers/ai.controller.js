@@ -1,8 +1,9 @@
 const { analyzeOfferQuality, orchestrateAi, simulateSkillGaps } = require('../services/ai.service');
 
-const createHttpError = (statusCode, message) => {
+const createHttpError = (statusCode, message, code) => {
   const error = new Error(message);
   error.statusCode = statusCode;
+  error.code = code;
   return error;
 };
 
@@ -14,7 +15,7 @@ const analyzeOfferQualityEndpoint = async (req, res, next) => {
 
     const result = await analyzeOfferQuality(req.body);
     if (!result.success) {
-      throw createHttpError(503, result.error);
+      throw createHttpError(result.statusCode || 503, result.error, result.code);
     }
 
     res.status(200).json(result.data);
@@ -31,7 +32,7 @@ const forwardAiRequest = (service, unavailableMessage) => async (req, res, next)
 
     const result = await service(req.body);
     if (!result.success) {
-      throw createHttpError(503, unavailableMessage);
+      throw createHttpError(result.statusCode || 503, result.error || unavailableMessage, result.code);
     }
 
     res.status(200).json(result.data);

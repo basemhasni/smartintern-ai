@@ -5,6 +5,7 @@ const helmet = require('helmet');
 
 const { getAllowedOrigins } = require('./config/env');
 const { csrfProtection } = require('./middlewares/csrf.middleware');
+const { requestContextMiddleware } = require('./middlewares/requestContext.middleware');
 const adminRoutes = require('./routes/admin.routes');
 const aiRoutes = require('./routes/ai.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -30,6 +31,7 @@ const { companyOfferRouter, publicOfferRouter } = require('./routes/offer.routes
 const app = express();
 const allowedOrigins = getAllowedOrigins();
 
+app.use(requestContextMiddleware);
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
@@ -86,6 +88,8 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     status: 'error',
     message,
+    ...(err.code ? { error: { code: err.code, message } } : {}),
+    requestId: req.requestId,
   });
 });
 

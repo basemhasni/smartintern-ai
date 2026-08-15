@@ -7,5 +7,5 @@ export const applyToOffer = async (offerId, payload = {}) => {
 
 export const getStudentApplications = async () => {
   const response = await axiosClient.get('/api/students/applications');
-  return response.data.applications || [];
+  return Array.isArray(response.data?.applications) ? response.data.applications : [];
 };

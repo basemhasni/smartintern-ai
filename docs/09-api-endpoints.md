@@ -9,6 +9,7 @@ Cette page documente les endpoints principaux observés dans `backend-api/src/ro
 | Méthode | URL | Accès | Description |
 | --- | --- | --- | --- |
 | GET | `/health` | public | Vérifie que le backend répond |
+| GET | `/health/ai` | public | Diagnostic HTTP court du service IA |
 
 ### Auth
 
@@ -141,7 +142,7 @@ middleware CSRF ignore les requêtes portant `X-Client-Type: mobile`.
 
 | Méthode | URL | Description |
 | --- | --- | --- |
-| GET | `/ai/health` | Santé du service IA |
+| GET | `/health` | Santé du service IA, sans workflow |
 | POST | `/ai/analyze-cv` | Analyse CV |
 | POST | `/ai/analyze-offer` | Analyse offre |
 | POST | `/ai/analyze-offer-quality` | Analyse qualité offre |

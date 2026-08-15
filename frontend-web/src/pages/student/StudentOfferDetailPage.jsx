@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { applyToOffer, getStudentApplications } from '../../api/applicationsApi.js';
@@ -12,6 +12,7 @@ import MissingSkillsPanel from '../../components/ai/MissingSkillsPanel.jsx';
 import ScoreBreakdownCard from '../../components/ai/ScoreBreakdownCard.jsx';
 import SkillEvidenceMap from '../../components/ai/SkillEvidenceMap.jsx';
 import SkillGapSimulatorPanel from '../../components/ai/SkillGapSimulatorPanel.jsx';
+import AiErrorBoundary from '../../components/ai/AiErrorBoundary.jsx';
 import ApplyDialog from '../../components/student/offers/ApplyDialog.jsx';
 import MatchingExplanation from '../../components/student/offers/MatchingExplanation.jsx';
 import MotivationLetterDialog from '../../components/student/applications/MotivationLetterDialog.jsx';
@@ -25,17 +26,18 @@ const getReadableError = (error) => {
   if (error.response?.status === 403) return 'FORBIDDEN';
   if (error.response?.status === 404) return 'Cette offre est introuvable ou n’est plus publiee.';
   if (!error.response) return 'Impossible de contacter le serveur. Verifiez que le backend est demarre.';
-  return error.response.data?.message || 'Une erreur est survenue.';
+  return error.response.data?.error?.message || error.response.data?.message || 'Une erreur est survenue.';
 };
 
 const getMatchingError = (error) => {
   const message = getReadableError(error);
+  const code = error?.normalized?.code || error?.response?.data?.error?.code;
 
   if (message.includes('No analyzed CV') || message.includes('No candidate skills')) {
     return 'Importez et analysez votre CV pour calculer le score personnalise de cette offre.';
   }
 
-  if (message.includes('AI service')) {
+  if (['AI_SERVICE_UNAVAILABLE', 'AI_SERVICE_TIMEOUT', 'TIMEOUT'].includes(code) || message.includes('AI service')) {
     return 'Le service IA est indisponible. L’offre reste consultable et vous pouvez revenir plus tard pour le score.';
   }
 
@@ -63,42 +65,54 @@ function StudentOfferDetailPage() {
   const [tone, setTone] = useState('PROFESSIONAL');
   const [isGeneratingLetter, setIsGeneratingLetter] = useState(false);
   const [isSavingLetter, setIsSavingLetter] = useState(false);
+  const [duplicateDetected, setDuplicateDetected] = useState(false);
+  const loadRequestRef = useRef(0);
 
   const loadDetail = useCallback(async () => {
+    const requestId = loadRequestRef.current + 1;
+    loadRequestRef.current = requestId;
     setIsLoading(true);
     setPageError('');
     setMatchingError('');
+    setDuplicateDetected(false);
 
-    const [offerResult, matchingResult, applicationsResult] = await Promise.allSettled([
-      getOfferById(offerId),
-      getOfferMatching(offerId),
-      getStudentApplications(),
-    ]);
+    try {
+      const [offerResult, matchingResult, applicationsResult] = await Promise.allSettled([
+        getOfferById(offerId),
+        getOfferMatching(offerId),
+        getStudentApplications(),
+      ]);
 
-    if (offerResult.status === 'fulfilled') {
-      setOffer(normalizeOffer(offerResult.value));
-    } else {
-      const readable = getReadableError(offerResult.reason);
-      if (readable === 'FORBIDDEN') setShouldRedirectDenied(true);
-      else setPageError(readable);
+      if (requestId !== loadRequestRef.current) return;
+
+      if (offerResult.status === 'fulfilled') {
+        setOffer(normalizeOffer(offerResult.value));
+      } else {
+        const readable = getReadableError(offerResult.reason);
+        if (readable === 'FORBIDDEN') setShouldRedirectDenied(true);
+        else setPageError(readable);
+      }
+
+      if (matchingResult.status === 'fulfilled') {
+        setMatching(normalizeMatching(matchingResult.value));
+      } else {
+        setMatching(null);
+        setMatchingError(getMatchingError(matchingResult.reason));
+      }
+
+      if (applicationsResult.status === 'fulfilled') {
+        setApplications(normalizeApplications(applicationsResult.value));
+      }
+    } finally {
+      if (requestId === loadRequestRef.current) setIsLoading(false);
     }
-
-    if (matchingResult.status === 'fulfilled') {
-      setMatching(normalizeMatching(matchingResult.value));
-    } else {
-      setMatching(null);
-      setMatchingError(getMatchingError(matchingResult.reason));
-    }
-
-    if (applicationsResult.status === 'fulfilled') {
-      setApplications(normalizeApplications(applicationsResult.value));
-    }
-
-    setIsLoading(false);
   }, [offerId]);
 
   useEffect(() => {
     loadDetail();
+    return () => {
+      loadRequestRef.current += 1;
+    };
   }, [loadDetail]);
 
   useEffect(() => {
@@ -114,7 +128,7 @@ function StudentOfferDetailPage() {
   }, [letterMessage]);
 
   const application = useMemo(() => getApplicationForOffer(applications, offer?.id), [applications, offer?.id]);
-  const hasApplied = Boolean(application);
+  const hasApplied = Boolean(application || duplicateDetected);
 
   const handleApply = async (payload) => {
     setIsApplying(true);
@@ -130,7 +144,7 @@ function StudentOfferDetailPage() {
         try {
           setApplications(normalizeApplications(await getStudentApplications()));
         } catch {
-          setApplications((current) => current.length ? current : [{ offer, status: 'SENT' }]);
+          setDuplicateDetected(true);
         }
         setIsApplyDialogOpen(false);
         setSuccessMessage('Vous avez deja postule a cette offre.');
@@ -252,7 +266,9 @@ function StudentOfferDetailPage() {
           </section>
         </div>
         <div className="space-y-5">
-          <MatchingExplanation matching={matching} matchingError={matchingError} />
+          <AiErrorBoundary title="Compatibilite IA indisponible" resetKey={matching?.score ?? matchingError}>
+            <MatchingExplanation matching={matching} matchingError={matchingError} />
+          </AiErrorBoundary>
           <section className="rounded-stitch border border-line bg-white p-6 shadow-panel">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Actions</p>
             <h2 className="mt-2 text-xl font-black text-ink">Suite possible</h2>
@@ -280,7 +296,8 @@ function StudentOfferDetailPage() {
       </div>
 
       {matching ? (
-        <details className="group rounded-stitch border border-line bg-white shadow-panel">
+        <AiErrorBoundary title="Details du matching indisponibles" resetKey={matching?.score}>
+          <details className="group rounded-stitch border border-line bg-white shadow-panel">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 font-black text-ink focus-visible:ring-4 focus-visible:ring-primary/15 sm:px-7">
             <span>Voir les details et les preuves du matching IA</span>
             <span className="text-xl text-ai transition group-open:rotate-45" aria-hidden="true">+</span>
@@ -295,7 +312,8 @@ function StudentOfferDetailPage() {
             <DecisionTraceTimeline trace={matching.explainability?.decisionTrace} />
             <SkillGapSimulatorPanel matching={matching} />
           </div>
-        </details>
+          </details>
+        </AiErrorBoundary>
       ) : null}
 
       <ApplyDialog

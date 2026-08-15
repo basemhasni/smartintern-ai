@@ -105,7 +105,8 @@ curl http://localhost:5000/health
 AI-service :
 
 ```bash
-curl http://localhost:8000/ai/health
+curl http://localhost:8000/health
+curl http://localhost:5000/health/ai
 ```
 
 Frontend :

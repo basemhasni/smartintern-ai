@@ -49,8 +49,12 @@ function MotivationLetterDialog({
       return;
     }
 
-    await navigator.clipboard.writeText(letter.content);
-    setCopyMessage('Lettre copiee dans le presse-papiers.');
+    try {
+      await navigator.clipboard.writeText(letter.content);
+      setCopyMessage('Lettre copiee dans le presse-papiers.');
+    } catch {
+      setCopyMessage('La copie automatique a ete refusee par le navigateur.');
+    }
   };
 
   return (
@@ -59,8 +63,8 @@ function MotivationLetterDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Lettre de motivation</p>
-            <h2 id="letter-title" className="mt-2 text-2xl font-black text-ink">{application.offer.title}</h2>
-            <p className="mt-2 text-sm font-bold text-muted">{application.offer.company.companyName}</p>
+            <h2 id="letter-title" className="mt-2 text-2xl font-black text-ink">{application.offer?.title || 'Offre indisponible'}</h2>
+            <p className="mt-2 text-sm font-bold text-muted">{application.offer?.company?.companyName || 'Entreprise non renseignee'}</p>
           </div>
           <button ref={closeRef} className="grid h-10 w-10 place-items-center rounded-lg border border-line bg-white text-ink shadow-panel" type="button" aria-label="Fermer la lettre" onClick={onClose}>
             <X className="h-5 w-5" aria-hidden="true" />

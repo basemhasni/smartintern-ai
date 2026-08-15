@@ -1,5 +1,5 @@
 const prisma = require('../config/prisma');
-const { generateCareerAdvice, matchCandidateWithOffer } = require('./ai.service');
+const { generateCareerAdvice, matchCandidateWithOffer, toAiHttpError } = require('./ai.service');
 const { indexCareerAdvice, searchVectorDocuments } = require('./rag.service');
 
 const DEFAULT_QUESTION = "Analyse mon profil et propose un plan d'amélioration pour cette offre.";
@@ -145,7 +145,7 @@ const getOrCreateMatching = async ({
         explainability: {},
       };
     }
-    throw createHttpError(503, 'AI service is currently unavailable.');
+    throw toAiHttpError(matchingResult);
   }
 
   const matching = matchingResult.data;
@@ -297,7 +297,7 @@ const generateAdvice = async (userId, payload) => {
   });
 
   if (!adviceResult.success) {
-    throw createHttpError(503, 'AI service is currently unavailable.');
+    throw toAiHttpError(adviceResult);
   }
 
   try {

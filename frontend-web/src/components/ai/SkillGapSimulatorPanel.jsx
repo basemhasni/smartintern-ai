@@ -9,7 +9,9 @@ import AiSectionCard from './AiSectionCard.jsx';
 function SkillGapSimulatorPanel({ matching }) {
   const gaps = useMemo(() => matching?.v3?.criticalMissingSkills?.length
     ? matching.v3.criticalMissingSkills
-    : matching?.v3?.missingRequiredSkills || matching?.missingSkills || [], [matching]);
+    : Array.isArray(matching?.v3?.missingRequiredSkills)
+      ? matching.v3.missingRequiredSkills
+      : Array.isArray(matching?.missingSkills) ? matching.missingSkills : [], [matching]);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [mode, setMode] = useState('REALISTIC');
   const [result, setResult] = useState(null);
@@ -65,9 +67,9 @@ function SkillGapSimulatorPanel({ matching }) {
       {result ? (
         <div className="mt-5 space-y-5 border-t border-line pt-5" aria-live="polite">
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg bg-canvas p-4"><p className="text-xs font-black text-muted">Score actuel</p><p className="mt-2 text-2xl font-black text-ink">{result.currentScore}%</p></div>
-            <div className="rounded-lg bg-aiSoft p-4"><p className="text-xs font-black text-ai">Potentiel estime</p><p className="mt-2 text-2xl font-black text-ai">{result.potentialBestScore}%</p></div>
-            <div className="rounded-lg bg-green-50 p-4"><p className="text-xs font-black text-success">Gain estime</p><p className="mt-2 text-2xl font-black text-success">+{result.scoreGain}</p></div>
+            <div className="rounded-lg bg-canvas p-4"><p className="text-xs font-black text-muted">Score actuel</p><p className="mt-2 text-2xl font-black text-ink">{result.currentScore === null ? 'Non disponible' : `${result.currentScore}%`}</p></div>
+            <div className="rounded-lg bg-aiSoft p-4"><p className="text-xs font-black text-ai">Potentiel estime</p><p className="mt-2 text-2xl font-black text-ai">{result.potentialBestScore === null ? 'Non disponible' : `${result.potentialBestScore}%`}</p></div>
+            <div className="rounded-lg bg-green-50 p-4"><p className="text-xs font-black text-success">Gain estime</p><p className="mt-2 text-2xl font-black text-success">{result.scoreGain === null ? 'Non disponible' : `+${result.scoreGain}`}</p></div>
           </div>
           <p className="text-sm leading-6 text-muted">{result.summary}</p>
           {result.recommendedPath.length ? <div><h3 className="text-sm font-black text-ink">Chemin recommande</h3><ol className="mt-3 space-y-3">{result.recommendedPath.map((item) => <li key={item.order} className="rounded-lg border border-line p-4"><p className="font-black text-ink">{item.order}. {item.skill} <span className="text-primary">+{item.expectedGain}</span></p><p className="mt-1 text-xs leading-5 text-muted">{item.recommendedEvidence}</p></li>)}</ol></div> : null}

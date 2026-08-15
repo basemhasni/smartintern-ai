@@ -114,7 +114,10 @@ const normalizeCareerAdviceV2 = (v2) => {
     questionIntentLabel: questionIntentLabels[questionIntent] || 'Reponse personnalisee',
     answeredQuestion: value.answeredQuestion || '',
     directAnswer: value.directAnswer || '',
-    specificSkillAnalysis: value.specificSkillAnalysis && typeof value.specificSkillAnalysis === 'object' ? value.specificSkillAnalysis : null,
+    specificSkillAnalysis: value.specificSkillAnalysis && typeof value.specificSkillAnalysis === 'object' ? {
+      ...value.specificSkillAnalysis,
+      evidence: toArray(value.specificSkillAnalysis.evidence),
+    } : null,
     analysisSummary: value.analysisSummary && typeof value.analysisSummary === 'object' ? value.analysisSummary : null,
     skillEvidenceMap: value.skillEvidenceMap && typeof value.skillEvidenceMap === 'object' ? value.skillEvidenceMap : {},
     careerSignalMap: value.careerSignalMap && typeof value.careerSignalMap === 'object' ? value.careerSignalMap : {},
@@ -128,8 +131,8 @@ const normalizeCareerAdviceV2 = (v2) => {
     criticalGaps: normalizePriorityFocus(value.criticalGaps),
     requiredGaps: normalizePriorityFocus(value.requiredGaps),
     optionalImprovements: normalizePriorityFocus(value.optionalImprovements),
-    evidenceBasedStrengths: Array.isArray(value.evidenceBasedStrengths) ? value.evidenceBasedStrengths : [],
-    weakEvidenceAreas: Array.isArray(value.weakEvidenceAreas) ? value.weakEvidenceAreas : [],
+    evidenceBasedStrengths: (Array.isArray(value.evidenceBasedStrengths) ? value.evidenceBasedStrengths : []).filter((item) => item && typeof item === 'object'),
+    weakEvidenceAreas: (Array.isArray(value.weakEvidenceAreas) ? value.weakEvidenceAreas : []).filter((item) => item && typeof item === 'object'),
     recommendedProjects: normalizeProjects(value.recommendedProjects),
     cvImprovementTips: toArray(value.cvImprovementTips),
     interviewPreparationTips: normalizeInterviewTips(value.interviewPreparationTips),
@@ -157,7 +160,7 @@ const normalizeRagContext = (ragContext) => {
 };
 
 export const normalizeCareerAdviceResponse = (response) => {
-  const advice = response?.careerAdvice || {};
+  const advice = response?.careerAdvice && typeof response.careerAdvice === 'object' ? response.careerAdvice : {};
 
   return {
     message: response?.message || '',
@@ -176,7 +179,7 @@ export const normalizeCareerAdviceResponse = (response) => {
 export const buildCareerOfferOptions = ({ offers = [], recommendations = [], selectedOfferId }) => {
   const byId = new Map();
 
-  offers.forEach((offer) => {
+  (Array.isArray(offers) ? offers : []).filter(Boolean).forEach((offer) => {
     const normalized = normalizeOffer(offer);
 
     if (normalized?.id) {
@@ -188,7 +191,7 @@ export const buildCareerOfferOptions = ({ offers = [], recommendations = [], sel
     }
   });
 
-  recommendations.forEach((recommendation) => {
+  (Array.isArray(recommendations) ? recommendations : []).filter(Boolean).forEach((recommendation) => {
     const offer = recommendation.offer;
 
     if (!offer?.id) {
@@ -223,11 +226,23 @@ export const buildCareerOfferOptions = ({ offers = [], recommendations = [], sel
 };
 
 export const getCareerAssistantError = (error) => {
-  if (!error.response) {
-    return 'Impossible de contacter le serveur. Verifiez que le backend et le service IA sont demarres.';
+  if (error?.normalized?.code === 'AI_SERVICE_UNAVAILABLE') {
+    return 'L assistant carriere est temporairement indisponible. Reessayez dans quelques instants.';
   }
 
-  const message = error.response.data?.message || '';
+  if (['AI_SERVICE_TIMEOUT', 'TIMEOUT'].includes(error?.normalized?.code)) {
+    return "L'analyse prend plus de temps que prevu. Reessayez.";
+  }
+
+  if (error?.normalized?.code === 'RATE_LIMIT') {
+    return 'Trop de demandes ont ete envoyees. Reessayez dans quelques instants.';
+  }
+
+  if (!error.response) {
+    return 'Le serveur est inaccessible. Verifiez que le backend est demarre.';
+  }
+
+  const message = error.response.data?.error?.message || error.response.data?.message || '';
 
   if (error.response.status === 400 && (message.includes('No analyzed CV') || message.includes('No candidate skills'))) {
     return 'Un CV analyse est necessaire pour generer des conseils personnalises.';

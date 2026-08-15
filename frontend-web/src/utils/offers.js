@@ -39,7 +39,7 @@ export const buildOfferViewModels = ({ offers = [], recommendations = [], applic
   const appliedOfferIds = getAppliedOfferIds(applications);
   const byId = new Map();
 
-  offers.forEach((offer) => {
+  (Array.isArray(offers) ? offers : []).filter(Boolean).forEach((offer) => {
     const normalized = normalizeOffer(offer, {
       hasApplied: appliedOfferIds.has(offer.id),
     });
@@ -49,7 +49,7 @@ export const buildOfferViewModels = ({ offers = [], recommendations = [], applic
     }
   });
 
-  recommendations.forEach((recommendation) => {
+  (Array.isArray(recommendations) ? recommendations : []).filter(Boolean).forEach((recommendation) => {
     const recommendedOffer = recommendation.offer;
     const existing = byId.get(recommendedOffer?.id);
     const normalized = normalizeOffer(
@@ -134,7 +134,7 @@ export const filterAndSortOffers = (offers, filters) => {
 };
 
 export const getUniqueValues = (offers, field) => (
-  [...new Set(offers.map((offer) => offer[field]).filter(Boolean))].sort()
+  [...new Set((Array.isArray(offers) ? offers : []).map((offer) => offer?.[field]).filter(Boolean))].sort()
 );
 
 export const isNoCvRecommendationError = (message = '') => (

@@ -31,7 +31,7 @@ const readinessStyles = {
   INSUFFICIENT_DATA: 'border-line bg-canvas text-muted',
 };
 
-function PriorityList({ items }) {
+function PriorityList({ items = [] }) {
   if (!items.length) {
     return <p className="text-sm leading-6 text-muted">Aucune priorite technique supplementaire n a ete identifiee.</p>;
   }
@@ -61,7 +61,7 @@ function PriorityList({ items }) {
   );
 }
 
-function ProjectList({ projects }) {
+function ProjectList({ projects = [] }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {projects.map((project) => (
@@ -90,7 +90,7 @@ function ProjectList({ projects }) {
   );
 }
 
-function TipsList({ items, type }) {
+function TipsList({ items = [], type }) {
   return (
     <ul className="divide-y divide-line">
       {items.map((item, index) => {
@@ -108,7 +108,7 @@ function TipsList({ items, type }) {
 }
 
 function CareerFocusedAnswer({ advice, question }) {
-  const v2 = advice.v2;
+  const v2 = advice?.v2 || {};
   const IntentIcon = intentIcons[v2.questionIntent] || BookOpenCheck;
   const displayedQuestion = question || v2.answeredQuestion;
   const specificSkill = v2.specificSkillAnalysis;
@@ -133,11 +133,11 @@ function CareerFocusedAnswer({ advice, question }) {
         <p className="text-base font-bold leading-8 text-ink">{v2.directAnswer || advice.finalAdvice}</p>
 
         <div className="mt-6 border-t border-line pt-2">
-          {v2.questionIntent === 'PROJECT_IDEAS' && v2.recommendedProjects.length ? <ProjectList projects={v2.recommendedProjects} /> : null}
+          {v2.questionIntent === 'PROJECT_IDEAS' && v2.recommendedProjects?.length ? <ProjectList projects={v2.recommendedProjects} /> : null}
           {v2.questionIntent === 'CV_IMPROVEMENT' ? <TipsList items={v2.cvImprovementTips} type="cv" /> : null}
           {v2.questionIntent === 'INTERVIEW_PREP' ? <TipsList items={v2.interviewPreparationTips} type="interview" /> : null}
-          {v2.questionIntent === 'STRENGTHS' ? <TipsList items={v2.evidenceBasedStrengths.map((item) => ({ topic: item.skill, tip: item.statement }))} type="strength" /> : null}
-          {v2.questionIntent === 'LEARNING_PLAN' ? <TipsList items={v2.learningRoadmap.map((item) => ({ topic: item.period, tip: `${item.objective}${item.expectedOutcome ? ` - ${item.expectedOutcome}` : ''}` }))} type="roadmap" /> : null}
+          {v2.questionIntent === 'STRENGTHS' ? <TipsList items={(v2.evidenceBasedStrengths || []).map((item) => ({ topic: item.skill, tip: item.statement }))} type="strength" /> : null}
+          {v2.questionIntent === 'LEARNING_PLAN' ? <TipsList items={(v2.learningRoadmap || []).map((item) => ({ topic: item.period, tip: `${item.objective}${item.expectedOutcome ? ` - ${item.expectedOutcome}` : ''}` }))} type="roadmap" /> : null}
           {v2.questionIntent === 'SPECIFIC_SKILL' && specificSkill ? (
             <div className="py-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -153,7 +153,7 @@ function CareerFocusedAnswer({ advice, question }) {
           {['SKILL_GAPS', 'FULL_ANALYSIS'].includes(v2.questionIntent) ? <PriorityList items={v2.priorityFocus} /> : null}
         </div>
 
-        {v2.warnings.length ? (
+        {v2.warnings?.length ? (
           <div className="mt-5 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-900">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
             <p>{v2.warnings[0]}</p>

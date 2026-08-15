@@ -1,12 +1,13 @@
 const prisma = require('../config/prisma');
-const { generateMotivationLetter, matchCandidateWithOffer } = require('./ai.service');
+const { generateMotivationLetter, matchCandidateWithOffer, toAiHttpError } = require('./ai.service');
 const { indexMotivationLetter, searchVectorDocuments } = require('./rag.service');
 
 const TONES = ['PROFESSIONAL', 'DYNAMIC', 'SIMPLE'];
 
-const createHttpError = (statusCode, message) => {
+const createHttpError = (statusCode, message, code) => {
   const error = new Error(message);
   error.statusCode = statusCode;
+  error.code = code;
   return error;
 };
 
@@ -286,8 +287,12 @@ const generateLetterForApplication = async (userId, applicationId, payload = {})
     tone,
   });
 
-  if (!aiResult.success || !aiResult.data?.content) {
-    throw createHttpError(500, 'Motivation letter generation failed. Please make sure ai-service is running.');
+  if (!aiResult.success) {
+    throw toAiHttpError(aiResult);
+  }
+
+  if (!aiResult.data?.content || typeof aiResult.data.content !== 'string') {
+    throw createHttpError(502, 'Le service IA a retourne une lettre inexploitable.', 'AI_INVALID_RESPONSE');
   }
 
   const letter = await prisma.motivationLetter.upsert({

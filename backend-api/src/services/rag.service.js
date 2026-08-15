@@ -1,8 +1,6 @@
-const axios = require('axios');
-
 const prisma = require('../config/prisma');
+const { requestAi } = require('./aiClient');
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 const DEFAULT_DOCUMENT_LIMIT = 50;
 const MAX_DOCUMENT_LIMIT = 100;
 const DEFAULT_SEARCH_TOP_K = 5;
@@ -98,19 +96,21 @@ const generateEmbedding = async (text) => {
   }
 
   try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/rag/embed`,
-      { text },
-      { timeout: 5000 },
-    );
+    const response = await requestAi({
+      path: '/ai/rag/embed',
+      data: { text },
+      workflow: 'rag',
+      allowRetry: true,
+      validate: (value) => Array.isArray(value?.embedding),
+    });
 
-    if (!Array.isArray(response.data?.embedding)) {
+    if (!Array.isArray(response?.embedding)) {
       return null;
     }
 
-    return response.data.embedding;
+    return response.embedding;
   } catch (error) {
-    console.error('RAG embedding generation failed:', error.message);
+    console.error('RAG embedding generation failed:', error.code || 'AI_SERVICE_UNAVAILABLE');
     return null;
   }
 };
@@ -354,22 +354,17 @@ const searchVectorDocuments = async (query, options = {}) => {
 
 const generateRagAnswer = async (question, documents) => {
   try {
-    const response = await axios.post(
-      `${AI_SERVICE_URL}/ai/rag/answer`,
-      {
+    return await requestAi({
+      path: '/ai/rag/answer',
+      data: {
         question,
         documents,
       },
-      { timeout: 5000 },
-    );
-
-    return response.data;
+      workflow: 'rag',
+      validate: (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value),
+    });
   } catch (error) {
-    if (error.response?.status === 400) {
-      throw createHttpError(400, error.response.data?.detail || 'Invalid RAG answer request');
-    }
-
-    throw createHttpError(503, 'AI service is currently unavailable.');
+    throw error;
   }
 };
 
