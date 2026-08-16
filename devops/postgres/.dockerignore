@@ -1,0 +1,17 @@
+.env
+.env.*
+
+.git/
+.gitignore
+.vscode/
+.idea/
+
+data/
+tmp/
+backup/
+backups/
+
+*.log
+*.dump
+*.backup
+*.sql.gz

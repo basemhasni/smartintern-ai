@@ -32,6 +32,13 @@ uploads/
 logs/
 *.log
 
+# Database backups and local data
+backup/
+backups/
+*.dump
+*.backup
+*.sql.gz
+
 # OS and editor files
 .DS_Store
 Thumbs.db
