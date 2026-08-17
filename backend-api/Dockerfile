@@ -14,6 +14,14 @@ COPY prisma ./prisma
 RUN npm ci \
   && npx prisma generate
 
+FROM generator AS migrate
+
+ENV NODE_ENV=production
+
+USER node
+
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
+
 FROM base AS production-dependencies
 
 WORKDIR /app

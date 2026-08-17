@@ -1,0 +1,125 @@
+services:
+  postgres:
+    build:
+      context: ./devops/postgres
+    image: smartintern-postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - smartintern-network
+
+  migrate:
+    build:
+      context: ./backend-api
+      target: migrate
+    image: smartintern-backend-migrate:latest
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - smartintern-network
+
+  ai-service:
+    build:
+      context: ./ai-service
+    image: smartintern-ai:latest
+    restart: unless-stopped
+    environment:
+      APP_NAME: ${AI_APP_NAME:-SmartIntern AI Service}
+      APP_ENV: ${AI_APP_ENV:-production}
+      PORT: 8000
+      ALLOWED_ORIGINS: ${AI_ALLOWED_ORIGINS:-http://localhost:8088,http://localhost:5000}
+      SMARTINTERN_SENTENCE_MODEL: ${SMARTINTERN_SENTENCE_MODEL:-all-MiniLM-L6-v2}
+      SMARTINTERN_ALLOW_MODEL_DOWNLOAD: ${SMARTINTERN_ALLOW_MODEL_DOWNLOAD:-false}
+      RAG_ALLOW_MODEL_DOWNLOAD: ${RAG_ALLOW_MODEL_DOWNLOAD:-false}
+    ports:
+      - "${AI_SERVICE_HOST_PORT:-8000}:8000"
+    networks:
+      - smartintern-network
+
+  backend:
+    build:
+      context: ./backend-api
+      target: runtime
+    image: smartintern-backend:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_SERVICE_TIMEOUT_MS: ${AI_SERVICE_TIMEOUT_MS:-15000}
+      AI_SERVICE_HEALTH_TIMEOUT_MS: ${AI_SERVICE_HEALTH_TIMEOUT_MS:-2500}
+      AI_MATCHING_TIMEOUT_MS: ${AI_MATCHING_TIMEOUT_MS:-15000}
+      AI_SKILL_GAP_TIMEOUT_MS: ${AI_SKILL_GAP_TIMEOUT_MS:-20000}
+      AI_GENERATION_TIMEOUT_MS: ${AI_GENERATION_TIMEOUT_MS:-30000}
+      AI_RAG_TIMEOUT_MS: ${AI_RAG_TIMEOUT_MS:-15000}
+      FRONTEND_URL: http://localhost:${FRONTEND_HOST_PORT:-8088}
+      CORS_ORIGIN: http://localhost:${FRONTEND_HOST_PORT:-8088}
+      JSON_BODY_LIMIT: ${JSON_BODY_LIMIT:-1mb}
+      AUTH_RATE_LIMIT_WINDOW_MS: ${AUTH_RATE_LIMIT_WINDOW_MS:-900000}
+      AUTH_RATE_LIMIT_MAX: ${AUTH_RATE_LIMIT_MAX:-20}
+      AUTH_COOKIE_NAME: ${AUTH_COOKIE_NAME:-smartintern_token}
+      AUTH_COOKIE_MAX_AGE_MS: ${AUTH_COOKIE_MAX_AGE_MS:-86400000}
+      AUTH_COOKIE_SAME_SITE: ${AUTH_COOKIE_SAME_SITE:-lax}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      CSRF_COOKIE_NAME: ${CSRF_COOKIE_NAME:-smartintern_csrf}
+      CSRF_HEADER_NAME: ${CSRF_HEADER_NAME:-x-csrf-token}
+      CSRF_COOKIE_MAX_AGE_MS: ${CSRF_COOKIE_MAX_AGE_MS:-86400000}
+      CSRF_COOKIE_SAME_SITE: ${CSRF_COOKIE_SAME_SITE:-lax}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-false}
+    ports:
+      - "${BACKEND_HOST_PORT:-5000}:5000"
+    volumes:
+      - backend-uploads:/app/uploads/cvs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - smartintern-network
+
+  frontend:
+    build:
+      context: ./frontend-web
+      args:
+        VITE_API_BASE_URL: /
+        VITE_API_TIMEOUT_MS: ${VITE_API_TIMEOUT_MS:-15000}
+    image: smartintern-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_HOST_PORT:-8088}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - smartintern-network
+
+volumes:
+  postgres-data:
+    external: true
+    name: smartintern-postgres-data
+  backend-uploads:
+    name: smartintern-backend-uploads
+
+networks:
+  smartintern-network:
+    driver: bridge
