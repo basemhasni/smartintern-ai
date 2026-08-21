@@ -246,6 +246,35 @@ containers share `jenkins-data` at the same absolute path.
 Check that the `docker` service is healthy, the certificate volume is mounted
 and `DOCKER_HOST`, `DOCKER_CERT_PATH` and `DOCKER_TLS_VERIFY` are unchanged.
 
+Only one Docker-in-Docker daemon may use the `docker` network alias and write
+to `jenkins-docker-certs`. A second daemon causes intermittent DNS routing and
+can replace the shared client certificates, producing errors such as
+`x509: certificate signed by unknown authority`.
+
+Check for duplicate daemons:
+
+```powershell
+docker ps -a --filter "name=jenkins-docker" `
+  --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+docker compose -f devops/jenkins/compose.yaml ps
+```
+
+The Compose-managed daemon has Docker Compose labels and is normally named
+`jenkins-docker-1`. If an old manually-created `jenkins-docker` container is
+also attached to the `jenkins` network, remove only that old container and
+restart the Compose service so it regenerates a consistent certificate set:
+
+```powershell
+docker inspect jenkins-docker --format '{{json .Config.Labels}}'
+docker rm -f jenkins-docker
+docker compose -f devops/jenkins/compose.yaml restart docker
+docker compose -f devops/jenkins/compose.yaml exec jenkins docker version
+```
+
+Do not remove `jenkins-data`; it contains the Jenkins configuration, jobs,
+credentials and build history. Do not launch a separate DinD container with
+the `docker` alias while this Compose stack is running.
+
 ### Private repository checkout fails
 
 Verify the Multibranch source URL, credential selection, key permissions and
