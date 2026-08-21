@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 !.env.compose.example
+!.env.ci.example
 .env.compose
 
 # Node.js

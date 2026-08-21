@@ -21,6 +21,7 @@ const close = (server) => new Promise((resolve, reject) => server.close((error) 
 const getUrl = (server) => `http://127.0.0.1:${server.address().port}`;
 
 before(async () => {
+  await fs.mkdir(path.dirname(uploadedFixturePath), { recursive: true });
   await fs.writeFile(uploadedFixturePath, 'private audit fixture');
 
   fakeAiServer = http.createServer((req, res) => {

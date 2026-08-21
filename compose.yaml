@@ -2,7 +2,7 @@ services:
   postgres:
     build:
       context: ./devops/postgres
-    image: smartintern-postgres:latest
+    image: smartintern-postgres:${IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -25,7 +25,7 @@ services:
     build:
       context: ./backend-api
       target: migrate
-    image: smartintern-backend-migrate:latest
+    image: smartintern-backend-migrate:${IMAGE_TAG:-latest}
     restart: "no"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
@@ -38,7 +38,7 @@ services:
   ai-service:
     build:
       context: ./ai-service
-    image: smartintern-ai:latest
+    image: smartintern-ai:${IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
       APP_NAME: ${AI_APP_NAME:-SmartIntern AI Service}
@@ -57,7 +57,7 @@ services:
     build:
       context: ./backend-api
       target: runtime
-    image: smartintern-backend:latest
+    image: smartintern-backend:${IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-development}
@@ -103,7 +103,7 @@ services:
       args:
         VITE_API_BASE_URL: /
         VITE_API_TIMEOUT_MS: ${VITE_API_TIMEOUT_MS:-15000}
-    image: smartintern-frontend:latest
+    image: smartintern-frontend:${IMAGE_TAG:-latest}
     restart: unless-stopped
     ports:
       - "${FRONTEND_HOST_PORT:-8088}:8080"
@@ -115,10 +115,10 @@ services:
 
 volumes:
   postgres-data:
-    external: true
-    name: smartintern-postgres-data
+    external: ${POSTGRES_VOLUME_EXTERNAL:-true}
+    name: ${POSTGRES_VOLUME_NAME:-smartintern-postgres-data}
   backend-uploads:
-    name: smartintern-backend-uploads
+    name: ${BACKEND_UPLOADS_VOLUME_NAME:-smartintern-backend-uploads}
 
 networks:
   smartintern-network:
