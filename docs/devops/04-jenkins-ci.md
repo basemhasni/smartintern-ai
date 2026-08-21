@@ -135,7 +135,9 @@ new `Jenkinsfile`. This DevOps step deliberately does not create that commit.
 
 The root [`Jenkinsfile`](../../Jenkinsfile) is Declarative Pipeline syntax. It
 uses a 90-minute timeout, timestamps, build retention and one active build per
-branch. Every checkout receives:
+branch. Repeated build requests are queued instead of aborting the active build,
+and interrupted builds are not resumed after a controller restart. Every
+checkout receives:
 
 - a 12-character commit tag for Docker images;
 - a Compose project named `smartintern-ci-BUILD_NUMBER`;
@@ -222,6 +224,22 @@ Confirm that port `8090` is free or start with another port:
 $env:JENKINS_HTTP_PORT = "8091"
 docker compose -f devops/jenkins/compose.yaml up -d
 ```
+
+### Build is aborted or superseded
+
+An `Aborted by admin` message means the build was stopped from Jenkins; it is
+not a test failure. Let the first build finish because downloading runtime
+images and installing all monorepo dependencies can take several minutes. New
+requests now wait in the queue instead of replacing the running build.
+
+After an intentional abort, wait until the executor is idle before restarting
+Jenkins or launching another build. Pipelines interrupted by a controller
+restart are deliberately not resumed; rerun them from a clean checkout.
+
+The Docker Workflow warning saying that the controller workspace `could not be
+found among []` is expected with the separate TLS DinD daemon. It is harmless
+when the following `docker run` and `docker top` commands succeed, because both
+containers share `jenkins-data` at the same absolute path.
 
 ### Docker commands fail in Jenkins
 
