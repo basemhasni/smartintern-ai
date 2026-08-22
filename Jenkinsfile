@@ -13,6 +13,12 @@ pipeline {
   environment {
     CI = 'true'
     CI_ENV_FILE = '.env.ci.example'
+    CI_IMAGES = 'smartintern-frontend smartintern-backend smartintern-backend-migrate smartintern-ai smartintern-postgres'
+    DOCKER_REGISTRY = 'docker.io'
+    DOCKERHUB_CREDENTIALS_ID = 'dockerhub-smartintern'
+    REGISTRY_NAMESPACE = ''
+    REGISTRY_PUSH_STATUS = 'SKIPPED (branch not authorized)'
+    LATEST_PUSH_STATUS = 'not updated'
   }
 
   stages {
@@ -170,9 +176,100 @@ pipeline {
       }
     }
 
+    stage('Registry Publish') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-5-dockerhub-registry'
+        }
+      }
+      steps {
+        script {
+          withCredentials([
+            usernamePassword(
+              credentialsId: env.DOCKERHUB_CREDENTIALS_ID,
+              usernameVariable: 'DOCKERHUB_USERNAME',
+              passwordVariable: 'DOCKERHUB_TOKEN'
+            )
+          ]) {
+            env.REGISTRY_NAMESPACE = env.DOCKERHUB_USERNAME
+
+            sh '''
+              set -eu
+
+              registry_config="${WORKSPACE_TMP}/dockerhub-${BUILD_NUMBER}"
+              mkdir -p "${registry_config}"
+
+              cleanup_registry_session() {
+                set +x
+                for image in ${CI_IMAGES}; do
+                  for tag in "${CI_TAG}" latest; do
+                    registry_ref="${DOCKERHUB_USERNAME}/${image}:${tag}"
+                    if docker image inspect "${registry_ref}" >/dev/null 2>&1; then
+                      docker image rm "${registry_ref}" >/dev/null 2>&1 || true
+                    fi
+                  done
+                done
+                docker --config "${registry_config}" logout "${DOCKER_REGISTRY}" >/dev/null 2>&1 || true
+                rm -rf "${registry_config}"
+              }
+              trap cleanup_registry_session EXIT
+
+              set +x
+              printf '%s' "${DOCKERHUB_TOKEN}" | docker --config "${registry_config}" \
+                login "${DOCKER_REGISTRY}" --username "${DOCKERHUB_USERNAME}" --password-stdin
+              set -x
+
+              for image in ${CI_IMAGES}; do
+                registry_image="${DOCKERHUB_USERNAME}/${image}"
+                docker tag "${image}:${CI_TAG}" "${registry_image}:${CI_TAG}"
+                docker --config "${registry_config}" push "${registry_image}:${CI_TAG}"
+              done
+
+              if [ "${BRANCH_NAME}" = 'main' ]; then
+                for image in ${CI_IMAGES}; do
+                  registry_image="${DOCKERHUB_USERNAME}/${image}"
+                  docker tag "${image}:${CI_TAG}" "${registry_image}:latest"
+                  docker --config "${registry_config}" push "${registry_image}:latest"
+                done
+              fi
+            '''
+          }
+
+          env.REGISTRY_PUSH_STATUS = 'SUCCESS'
+          env.LATEST_PUSH_STATUS = env.BRANCH_NAME == 'main' ? 'updated' : 'not updated (non-main branch)'
+        }
+      }
+    }
+
     stage('Final Summary') {
       steps {
-        echo "CI validation completed for ${env.CI_TAG}. Images were built locally and were not pushed."
+        script {
+          def repositories = env.CI_IMAGES.tokenize()
+            .collect { image ->
+              env.REGISTRY_NAMESPACE?.trim()
+                ? "- ${env.REGISTRY_NAMESPACE}/${image}"
+                : "- ${image} (not published)"
+            }
+            .join('\n')
+
+          echo """SmartIntern AI CI/CD validation completed.
+
+Branch: ${env.BRANCH_NAME ?: 'detached'}
+Commit: ${env.CI_TAG}
+
+Docker images built:
+${env.CI_IMAGES.tokenize().collect { image -> "- ${image}" }.join('\n')}
+
+Registry: Docker Hub
+Docker Hub repositories:
+${repositories}
+
+Immutable tag: ${env.CI_TAG}
+Registry push: ${env.REGISTRY_PUSH_STATUS}
+latest: ${env.LATEST_PUSH_STATUS}"""
+        }
       }
     }
   }
@@ -192,13 +289,16 @@ pipeline {
 
         if (env.CI_TAG?.trim()) {
           sh '''
-            for image in \
-              smartintern-frontend \
-              smartintern-backend \
-              smartintern-backend-migrate \
-              smartintern-ai \
-              smartintern-postgres
-            do
+            for image in ${CI_IMAGES}; do
+              if [ -n "${REGISTRY_NAMESPACE:-}" ]; then
+                for tag in "${CI_TAG}" latest; do
+                  registry_ref="${REGISTRY_NAMESPACE}/${image}:${tag}"
+                  if docker image inspect "${registry_ref}" >/dev/null 2>&1; then
+                    docker image rm "${registry_ref}" >/dev/null 2>&1 || true
+                  fi
+                done
+              fi
+
               if docker image inspect "${image}:${CI_TAG}" >/dev/null 2>&1; then
                 docker image rm "${image}:${CI_TAG}"
               fi
