@@ -155,6 +155,7 @@ checkout receives:
 | Compose Validation | resolved CI Compose configuration |
 | Docker Build | frontend, backend runtime/migrate, AI and PostgreSQL |
 | Compose Smoke Test | DB, pgvector, migration and three health endpoints |
+| Registry Publish | Docker Hub publication on authorized branches after all validations |
 
 The four application validations run in parallel with pinned Node 20.19.4 and
 Python 3.11.9 containers. Evaluation scripts that may call external models or
@@ -172,8 +173,9 @@ smartintern-ai:COMMIT
 smartintern-postgres:COMMIT
 ```
 
-There is no registry login and no `docker push`. The final cleanup removes only
-images with the current build tag.
+Registry publication is added by DevOps Step 5 and is documented in
+[`05-dockerhub-registry.md`](05-dockerhub-registry.md). The final cleanup removes
+the current build tag and any temporary local registry tags.
 
 ## CI Isolation
 

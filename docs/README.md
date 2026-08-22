@@ -35,4 +35,9 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [../frontend-web/README.md](../frontend-web/README.md) : prise en main frontend.
 - [../ai-service/README.md](../ai-service/README.md) : prise en main service IA.
 - [../DEV_TESTING_GUIDE.md](../DEV_TESTING_GUIDE.md) : guide de tests de développement, si présent sur la branche.
+- [devops/01-docker-images.md](devops/01-docker-images.md) : images Docker applicatives.
+- [devops/02-postgres-pgvector.md](devops/02-postgres-pgvector.md) : PostgreSQL et pgvector.
+- [devops/03-docker-compose.md](devops/03-docker-compose.md) : stack Docker Compose.
+- [devops/04-jenkins-ci.md](devops/04-jenkins-ci.md) : intégration continue Jenkins.
+- [devops/05-dockerhub-registry.md](devops/05-dockerhub-registry.md) : publication Docker Hub depuis Jenkins.
 
