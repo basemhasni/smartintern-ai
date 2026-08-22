@@ -16,9 +16,6 @@ pipeline {
     CI_IMAGES = 'smartintern-frontend smartintern-backend smartintern-backend-migrate smartintern-ai smartintern-postgres'
     DOCKER_REGISTRY = 'docker.io'
     DOCKERHUB_CREDENTIALS_ID = 'dockerhub-smartintern'
-    REGISTRY_NAMESPACE = ''
-    REGISTRY_PUSH_STATUS = 'SKIPPED (branch not authorized)'
-    LATEST_PUSH_STATUS = 'not updated'
   }
 
   stages {
@@ -246,6 +243,8 @@ pipeline {
     stage('Final Summary') {
       steps {
         script {
+          def registryPushStatus = env.REGISTRY_PUSH_STATUS ?: 'SKIPPED (branch not authorized)'
+          def latestPushStatus = env.LATEST_PUSH_STATUS ?: 'not updated'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -267,8 +266,8 @@ Docker Hub repositories:
 ${repositories}
 
 Immutable tag: ${env.CI_TAG}
-Registry push: ${env.REGISTRY_PUSH_STATUS}
-latest: ${env.LATEST_PUSH_STATUS}"""
+Registry push: ${registryPushStatus}
+latest: ${latestPushStatus}"""
         }
       }
     }
