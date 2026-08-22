@@ -40,4 +40,5 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [devops/03-docker-compose.md](devops/03-docker-compose.md) : stack Docker Compose.
 - [devops/04-jenkins-ci.md](devops/04-jenkins-ci.md) : intégration continue Jenkins.
 - [devops/05-dockerhub-registry.md](devops/05-dockerhub-registry.md) : publication Docker Hub depuis Jenkins.
+- [devops/06-sonarqube-quality-gate.md](devops/06-sonarqube-quality-gate.md) : analyse SonarQube et Quality Gate Jenkins bloquant.
 

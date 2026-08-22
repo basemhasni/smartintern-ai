@@ -5,3 +5,4 @@ credentials-binding:728.v902a_273b_8947
 docker-workflow:653.v2f2c08eff0ec
 github-branch-source:1983.vfa_27ed961853
 timestamper:1.30
+sonar:2.18.3

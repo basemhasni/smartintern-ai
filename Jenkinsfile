@@ -16,6 +16,8 @@ pipeline {
     CI_IMAGES = 'smartintern-frontend smartintern-backend smartintern-backend-migrate smartintern-ai smartintern-postgres'
     DOCKER_REGISTRY = 'docker.io'
     DOCKERHUB_CREDENTIALS_ID = 'dockerhub-smartintern'
+    SONARQUBE_INSTALLATION = 'SmartIntern SonarQube'
+    SONAR_SCANNER_INSTALLATION = 'SmartIntern SonarScanner'
   }
 
   stages {
@@ -28,6 +30,12 @@ pipeline {
             returnStdout: true
           ).trim()
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
+          env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
+            ? 'smartintern-ai'
+            : 'smartintern-ai-step6'
+          env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
+            ? 'SmartIntern AI'
+            : 'SmartIntern AI Step 6'
         }
       }
     }
@@ -56,7 +64,7 @@ pipeline {
             dir('frontend-web') {
               sh 'node --version && npm --version'
               sh 'npm ci'
-              sh 'npm test'
+              sh 'npm run test:coverage'
               sh 'npm run build'
             }
           }
@@ -75,7 +83,7 @@ pipeline {
               sh 'node --version && npm --version'
               sh 'npm ci'
               sh 'npx --no-install prisma generate'
-              sh 'npm test'
+              sh 'npm run test:coverage'
             }
           }
         }
@@ -91,9 +99,10 @@ pipeline {
           steps {
             dir('ai-service') {
               sh 'python --version && python -m pip --version'
-              sh 'python -m pip install --user --no-cache-dir --requirement requirements.txt'
+              sh 'python -m pip install --user --no-cache-dir --requirement requirements-dev.txt'
               sh 'python -m compileall -q app'
-              sh 'python -m unittest discover -s tests -p "test*.py"'
+              sh 'python -m coverage run --branch --source=app -m unittest discover -s tests -p "test*.py"'
+              sh 'python -m coverage xml -o coverage.xml'
             }
           }
         }
@@ -126,6 +135,57 @@ pipeline {
           export BACKEND_UPLOADS_VOLUME_NAME="${CI_PROJECT_NAME}-backend-uploads"
           docker compose -p "${CI_PROJECT_NAME}" --env-file "${CI_ENV_FILE}" config --quiet
         '''
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-6-sonarqube-quality-gate'
+        }
+      }
+      steps {
+        script {
+          def scannerHome = tool name: env.SONAR_SCANNER_INSTALLATION,
+            type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+
+          withSonarQubeEnv(env.SONARQUBE_INSTALLATION) {
+            sh """
+              export SONAR_TOKEN="\${SONAR_AUTH_TOKEN}"
+              export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx512m'
+              '${scannerHome}/bin/sonar-scanner' \\
+                -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
+                -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
+                -Dsonar.projectVersion='${env.CI_TAG}'
+            """
+          }
+
+          env.SONAR_ANALYSIS_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Quality Gate') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-6-sonarqube-quality-gate'
+        }
+      }
+      steps {
+        timeout(time: 15, unit: 'MINUTES') {
+          script {
+            def gate = waitForQualityGate abortPipeline: false
+            env.QUALITY_GATE_STATUS = gate.status
+
+            if (gate.status != 'OK') {
+              error "SonarQube Quality Gate failed with status: ${gate.status}"
+            }
+          }
+        }
       }
     }
 
@@ -179,6 +239,7 @@ pipeline {
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
+          branch 'devops/step-6-sonarqube-quality-gate'
         }
       }
       steps {
@@ -245,6 +306,8 @@ pipeline {
         script {
           def registryPushStatus = env.REGISTRY_PUSH_STATUS ?: 'SKIPPED (branch not authorized)'
           def latestPushStatus = env.LATEST_PUSH_STATUS ?: 'not updated'
+          def sonarStatus = env.SONAR_ANALYSIS_STATUS ?: 'SKIPPED (branch not analyzed)'
+          def qualityGateStatus = env.QUALITY_GATE_STATUS ?: 'SKIPPED (branch not analyzed)'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -257,6 +320,12 @@ pipeline {
 
 Branch: ${env.BRANCH_NAME ?: 'detached'}
 Commit: ${env.CI_TAG}
+
+Application CI: SUCCESS
+SonarQube: ${sonarStatus}
+Quality Gate: ${qualityGateStatus}
+Docker Build: SUCCESS
+Smoke Tests: SUCCESS
 
 Docker images built:
 ${env.CI_IMAGES.tokenize().collect { image -> "- ${image}" }.join('\n')}
