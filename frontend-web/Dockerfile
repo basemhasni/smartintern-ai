@@ -1,9 +1,15 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:20.19.4-bookworm-slim AS build
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=secret,id=ci_ca \
+  if [ -s /run/secrets/ci_ca ]; then \
+    export NODE_EXTRA_CA_CERTS=/run/secrets/ci_ca; \
+  fi; \
+  npm ci
 
 COPY . .
 

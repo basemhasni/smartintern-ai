@@ -18,6 +18,7 @@ pipeline {
     DOCKERHUB_CREDENTIALS_ID = 'dockerhub-smartintern'
     SONARQUBE_INSTALLATION = 'SmartIntern SonarQube'
     SONAR_SCANNER_INSTALLATION = 'SmartIntern SonarScanner'
+    CI_CA_BUNDLE = '/var/jenkins_home/certs/ci-ca-bundle.crt'
   }
 
   stages {
@@ -37,6 +38,16 @@ pipeline {
             ? 'SmartIntern AI'
             : 'SmartIntern AI Step 6'
         }
+        sh '''
+          set -eu
+          cert_dir="$(dirname "${CI_CA_BUNDLE}")"
+          mkdir -p "${cert_dir}"
+          cp /etc/ssl/certs/ca-certificates.crt "${CI_CA_BUNDLE}"
+          if [ -s "${cert_dir}/local-root-ca.crt" ]; then
+            cat "${cert_dir}/local-root-ca.crt" >> "${CI_CA_BUNDLE}"
+          fi
+          chmod 0644 "${CI_CA_BUNDLE}"
+        '''
       }
     }
 
@@ -56,7 +67,7 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm-slim'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
@@ -74,7 +85,7 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
@@ -92,7 +103,7 @@ pipeline {
           agent {
             docker {
               image 'python:3.11.9-slim-bookworm'
-              args '--user 1000:1000 --env HOME=/tmp'
+              args '--user 1000:1000 --env HOME=/tmp --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env PIP_CERT=/var/jenkins_home/certs/ci-ca-bundle.crt --env REQUESTS_CA_BUNDLE=/var/jenkins_home/certs/ci-ca-bundle.crt --env SSL_CERT_FILE=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
@@ -111,7 +122,7 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm-slim'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
@@ -192,10 +203,11 @@ pipeline {
     stage('Docker Build') {
       steps {
         sh '''
-          docker build --target runtime -t "smartintern-backend:${CI_TAG}" ./backend-api
-          docker build --target migrate -t "smartintern-backend-migrate:${CI_TAG}" ./backend-api
-          docker build -t "smartintern-ai:${CI_TAG}" ./ai-service
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" --target runtime -t "smartintern-backend:${CI_TAG}" ./backend-api
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" --target migrate -t "smartintern-backend-migrate:${CI_TAG}" ./backend-api
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" -t "smartintern-ai:${CI_TAG}" ./ai-service
           docker build \
+            --secret id=ci_ca,src="${CI_CA_BUNDLE}" \
             --build-arg VITE_API_BASE_URL=/ \
             --build-arg VITE_API_TIMEOUT_MS=15000 \
             -t "smartintern-frontend:${CI_TAG}" \

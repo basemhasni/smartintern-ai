@@ -140,6 +140,17 @@ une opération courante.
   `jenkins:8080`.
 - rapport coverage absent : exécuter les scripts CI avant le scanner et ne pas
   inventer de rapport vide.
+- erreurs TLS simultanées npm/PyPI : si un antivirus ou proxy intercepte HTTPS,
+  déposer sa CA publique locale dans
+  `/var/jenkins_home/certs/local-root-ca.crt`. Le wrapper DinD et le pipeline
+  ainsi que le wrapper Jenkins l'ajoutent alors au bundle de confiance sans
+  désactiver la validation TLS. Recréer les deux services Jenkins après l'ajout
+  afin d'appliquer la CA aux opérations Git, npm, pip et BuildKit. Ce
+  fichier local n'est jamais versionné ni copié dans les images finales ; les
+  Dockerfiles le consomment uniquement comme secret BuildKit éphémère.
+  Pour reconstruire l'image du contrôleur dans cet environnement, fournir la CA
+  publique avec `docker build --secret id=local_ca,src=<chemin-ca>`. En réseau
+  sans interception TLS, ce secret optionnel n'est pas nécessaire.
 
 ## 19. Validation finale
 

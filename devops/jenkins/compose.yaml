@@ -1,6 +1,8 @@
 services:
   docker:
-    image: docker:28.3.2-dind
+    build:
+      context: docker
+    image: smartintern-jenkins-dind:28.3.2
     privileged: true
     restart: unless-stopped
     environment:
