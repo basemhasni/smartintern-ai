@@ -171,6 +171,16 @@ pipeline {
       }
       steps {
         script {
+          [
+            'frontend-web/node_modules',
+            'backend-api/node_modules',
+            'mobile-app/node_modules'
+          ].each { dependencyDirectory ->
+            dir(dependencyDirectory) {
+              deleteDir()
+            }
+          }
+
           def scannerHome = tool name: env.SONAR_SCANNER_INSTALLATION,
             type: 'hudson.plugins.sonar.SonarRunnerInstallation'
 

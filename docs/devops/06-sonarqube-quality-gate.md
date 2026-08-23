@@ -75,6 +75,10 @@ Frontend et backend produisent LCOV avec `c8`. Le service IA produit
 statiquement car il ne possède pas encore de suite de tests générant une
 couverture fiable.
 
+Avant l'analyse, Jenkins supprime uniquement les répertoires `node_modules`
+créés par les agents CI. Le code et les rapports de couverture restent dans le
+workspace, tandis que l'analyse TypeScript évite de parcourir les dépendances.
+
 ## 11. Quality Gate
 
 Le Quality Gate `Sonar way` reste actif. Jenkins attend le résultat avec
