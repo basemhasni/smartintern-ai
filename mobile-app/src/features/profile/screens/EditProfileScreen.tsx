@@ -20,7 +20,7 @@ import { confirmAction } from '@/shared/utils/confirmAction';
 import type { StudentProfileUpdate } from '../models/profileUpdate';
 import { useStudentProfile } from '../state/StudentProfileContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'EditProfile'>>;
 type FormState = Record<keyof StudentProfileUpdate, string>;
 
 export function EditProfileScreen({ navigation }: Props) {
@@ -30,7 +30,7 @@ export function EditProfileScreen({ navigation }: Props) {
   return <EditProfileForm key={profile.updatedAt ?? profile.id} navigation={navigation} profile={profile} />;
 }
 
-function EditProfileForm({ navigation, profile }: { navigation: Props['navigation']; profile: StudentProfile }) {
+function EditProfileForm({ navigation, profile }: Readonly<{ navigation: Props['navigation']; profile: StudentProfile }>) {
   const { theme } = useAppTheme(); const styles = createStyles(theme);
   const { updateProfile, isSavingProfile, error, successMessage, clearMessages } = useStudentProfile();
   const initial = useMemo<FormState>(() => ({ phone: profile.phone ?? '', location: profile.location ?? '', educationLevel: profile.educationLevel ?? '', targetJob: profile.targetJob ?? '', bio: profile.bio ?? '', availabilityDate: profile.availabilityDate?.slice(0, 10) ?? '' }), [profile]);

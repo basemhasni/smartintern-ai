@@ -56,16 +56,18 @@ DOCKERHUB_USERNAME/smartintern-ai:COMMIT_SHA
 DOCKERHUB_USERNAME/smartintern-postgres:COMMIT_SHA
 ```
 
-Le tag `latest` est publié uniquement depuis `main`. Une exécution directe de
-`devops/step-5-dockerhub-registry` publie seulement le tag SHA afin de valider
-la Step 5 sans modifier les images stables. Toutes les autres branches ignorent
-le stage de publication.
+Le tag `latest` est publié uniquement depuis `main`. Une exécution directe des
+branches de validation DevOps autorisées publie seulement le tag SHA, sans
+modifier les images stables. Toutes les autres branches ignorent le stage de
+publication.
 
 ## Branches autorisées
 
 La publication est limitée à :
 
 - `devops/step-5-dockerhub-registry` : cinq tags SHA, aucun `latest` ;
+- `devops/step-6-sonarqube-quality-gate` : cinq tags SHA après Quality Gate
+  `OK`, aucun `latest` ;
 - `main` : cinq tags SHA et cinq tags `latest`.
 
 Les Pull Requests et les autres branches conservent les tests, builds et smoke
@@ -96,6 +98,8 @@ Checkout
 Preflight
 Application CI
 Compose Validation
+SonarQube Analysis
+Quality Gate
 Docker Build
 Compose Smoke Test
 Registry Publish

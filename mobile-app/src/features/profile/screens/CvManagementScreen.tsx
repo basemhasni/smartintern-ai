@@ -20,7 +20,7 @@ import type { CvDocument } from '../models/cvDocument';
 import { useStudentProfile } from '../state/StudentProfileContext';
 import { formatFileSize } from '../utils/validateCvFile';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CvManagement'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'CvManagement'>>;
 
 export function CvManagementScreen({ navigation }: Props) {
   const { theme } = useAppTheme();
@@ -113,7 +113,7 @@ export function CvManagementScreen({ navigation }: Props) {
   );
 }
 
-function Rule({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
+function Rule({ icon, text }: Readonly<{ icon: keyof typeof Ionicons.glyphMap; text: string }>) {
   const { theme } = useAppTheme();
   return <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}><Ionicons color={theme.colors.emerald} name={icon} size={18} /><Text style={{ flex: 1, color: theme.colors.textSecondary, ...theme.typography.caption }}>{text}</Text></View>;
 }

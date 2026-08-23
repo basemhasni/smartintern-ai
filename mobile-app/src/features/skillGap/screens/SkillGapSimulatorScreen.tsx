@@ -24,7 +24,7 @@ import type { SimulationMode } from '../models/skillGapSimulation';
 import { useSkillGap } from '../state/SkillGapContext';
 import { ProfileRequirementsCard } from '@/features/profile/components/ProfileRequirementsCard';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'SkillGapSimulator'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'SkillGapSimulator'>>;
 
 export function SkillGapSimulatorScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();

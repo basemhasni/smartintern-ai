@@ -1,0 +1,83 @@
+name: smartintern-sonarqube
+
+services:
+  database:
+    image: postgres:17.11-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${SONAR_DB_NAME:-sonarqube}
+      POSTGRES_USER: ${SONAR_DB_USER:-sonarqube}
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD:?Set SONAR_DB_PASSWORD in .env.sonarqube}
+    volumes:
+      - sonarqube-postgres-data:/var/lib/postgresql/data
+    networks:
+      - sonarqube-internal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  sonarqube:
+    image: sonarqube:26.8.0.126808-community
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://database:5432/${SONAR_DB_NAME:-sonarqube}
+      SONAR_JDBC_USERNAME: ${SONAR_DB_USER:-sonarqube}
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:?Set SONAR_DB_PASSWORD in .env.sonarqube}
+      SONAR_WEB_JAVAOPTS: -Xms128m -Xmx512m
+      SONAR_CE_JAVAOPTS: -Xms128m -Xmx512m
+      SONAR_SEARCH_JAVAOPTS: -Xms512m -Xmx512m
+    ports:
+      - "${SONAR_HTTP_PORT:-9000}:9000"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    networks:
+      sonarqube-internal:
+      jenkins:
+        aliases:
+          - smartintern-sonarqube
+    ulimits:
+      nofile:
+        soft: 131072
+        hard: 131072
+      nproc: 8192
+    stop_grace_period: 60s
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail --silent http://127.0.0.1:9000/api/system/status | grep --quiet '\"status\":\"UP\"'",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 90s
+
+volumes:
+  sonarqube-postgres-data:
+    name: smartintern-sonarqube-postgres-data
+  sonarqube-data:
+    name: smartintern-sonarqube-data
+  sonarqube-extensions:
+    name: smartintern-sonarqube-extensions
+  sonarqube-logs:
+    name: smartintern-sonarqube-logs
+
+networks:
+  sonarqube-internal:
+    name: smartintern-sonarqube-internal
+    internal: true
+  jenkins:
+    name: jenkins
+    external: true

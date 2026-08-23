@@ -20,7 +20,7 @@ import { ProfileCompletionCard } from './components/ProfileCompletionCard';
 import { ProfileHeaderCard } from './components/ProfileHeaderCard';
 import { useStudentProfile } from './state/StudentProfileContext';
 
-type Props = BottomTabScreenProps<StudentTabParamList, 'Profile'>;
+type Props = Readonly<BottomTabScreenProps<StudentTabParamList, 'Profile'>>;
 const themeOptions: { label: string; value: ThemePreference; icon: keyof typeof Ionicons.glyphMap }[] = [
   { label: 'Auto', value: 'system', icon: 'phone-portrait-outline' },
   { label: 'Clair', value: 'light', icon: 'sunny-outline' },

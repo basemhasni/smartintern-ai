@@ -18,7 +18,7 @@ import { getApplicationStatusConfig } from './config/applicationStatusConfig';
 import { applicationStatuses, type ApplicationStatusFilter } from './models/applicationStatus';
 import { useApplications } from './state/ApplicationsContext';
 
-type Props = BottomTabScreenProps<StudentTabParamList, 'Applications'>;
+type Props = Readonly<BottomTabScreenProps<StudentTabParamList, 'Applications'>>;
 
 export function ApplicationsScreen({ navigation }: Props) {
   const { theme } = useAppTheme();

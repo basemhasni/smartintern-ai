@@ -21,7 +21,7 @@ import { CriticalGapsCard, PriorityFocusCard } from '../components/PriorityCards
 import { ReadinessCard } from '../components/ReadinessCard';
 import { useCareerAssistant } from '../state/CareerAssistantContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CareerAssistant'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'CareerAssistant'>>;
 
 export function CareerAssistantScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme(); const styles = createStyles(theme);

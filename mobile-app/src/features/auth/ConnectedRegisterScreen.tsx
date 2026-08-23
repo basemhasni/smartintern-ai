@@ -12,7 +12,7 @@ import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Register'>>;
 
 const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

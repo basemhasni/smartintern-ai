@@ -19,7 +19,7 @@ import { OfferMatchSummary } from './components/OfferMatchSummary';
 import { SkillsSection } from './components/SkillsSection';
 import { useOfferDetail } from './state/useOfferDetail';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'OfferDetail'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'OfferDetail'>>;
 
 export function OfferDetailScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
@@ -138,7 +138,7 @@ export function OfferDetailScreen({ navigation, route }: Props) {
   );
 }
 
-function Information({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string }) {
+function Information({ icon, label, value }: Readonly<{ icon: keyof typeof Ionicons.glyphMap; label: string; value: string }>) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   return (

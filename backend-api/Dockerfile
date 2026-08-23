@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:20.19.4-bookworm-slim AS base
 
 RUN apt-get update \
@@ -11,7 +13,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 
-RUN npm ci \
+RUN --mount=type=secret,id=ci_ca \
+  if [ -s /run/secrets/ci_ca ]; then \
+    export NODE_EXTRA_CA_CERTS=/run/secrets/ci_ca; \
+  fi; \
+  npm ci \
   && npx prisma generate
 
 FROM generator AS migrate
@@ -28,7 +34,11 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN PRISMA_SKIP_POSTINSTALL_GENERATE=true npm ci --omit=dev --omit=optional \
+RUN --mount=type=secret,id=ci_ca \
+  if [ -s /run/secrets/ci_ca ]; then \
+    export NODE_EXTRA_CA_CERTS=/run/secrets/ci_ca; \
+  fi; \
+  PRISMA_SKIP_POSTINSTALL_GENERATE=true npm ci --omit=dev --omit=optional \
   && npm cache clean --force
 
 FROM base AS runtime

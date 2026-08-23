@@ -9,7 +9,7 @@ import type { AppTheme } from '@/core/theme/theme';
 import { AppBackground } from '@/shared/components/AppBackground';
 import { GradientButton } from '@/shared/components/GradientButton';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Splash'>>;
 
 export function SplashScreen({ navigation }: Props) {
   const { theme } = useAppTheme();
@@ -33,7 +33,7 @@ export function SplashScreen({ navigation }: Props) {
   );
 }
 
-function AppBadgeLine({ theme }: { theme: AppTheme }) { return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}><View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: theme.colors.emerald }} /><Text style={{ color: theme.colors.textSecondary, ...theme.typography.caption }}>Matching intelligent</Text></View>; }
+function AppBadgeLine({ theme }: Readonly<{ theme: AppTheme }>) { return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}><View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: theme.colors.emerald }} /><Text style={{ color: theme.colors.textSecondary, ...theme.typography.caption }}>Matching intelligent</Text></View>; }
 
 const createStyles = (theme: AppTheme, height: number) => StyleSheet.create({
   root: { width: '100%', maxWidth: 680, alignSelf: 'center', flex: 1, justifyContent: 'space-between', paddingHorizontal: theme.spacing.xl, paddingTop: theme.spacing.lg, paddingBottom: theme.spacing.xxl, gap: theme.spacing.xl },

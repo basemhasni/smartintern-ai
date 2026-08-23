@@ -23,7 +23,7 @@ import { LetterQualityCard } from '../components/LetterQualityCard';
 import { LetterWarningsCard } from '../components/LetterWarningsCard';
 import { useMotivationLetters } from '../state/MotivationLettersContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MotivationLetterDetail'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'MotivationLetterDetail'>>;
 
 export function MotivationLetterDetailScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();

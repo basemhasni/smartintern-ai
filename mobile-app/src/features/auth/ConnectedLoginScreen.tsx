@@ -11,7 +11,7 @@ import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Login'>>;
 
 export function ConnectedLoginScreen({ navigation }: Props) {
   const { theme } = useAppTheme();

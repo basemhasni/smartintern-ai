@@ -27,7 +27,7 @@ import { SkillEvidenceMapCard } from './components/SkillEvidenceMapCard';
 import { useAiInsights } from './state/useAiInsights';
 import { ProfileRequirementsCard } from '@/features/profile/components/ProfileRequirementsCard';
 
-type Props = BottomTabScreenProps<StudentTabParamList, 'AiInsights'>;
+type Props = Readonly<BottomTabScreenProps<StudentTabParamList, 'AiInsights'>>;
 
 export function AiInsightsScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();

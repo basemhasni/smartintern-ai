@@ -19,7 +19,7 @@ import { Screen } from '@/shared/components/Screen';
 import { SectionHeader } from '@/shared/components/SectionHeader';
 import { GradientButton } from '@/shared/components/GradientButton';
 
-type Props = BottomTabScreenProps<StudentTabParamList, 'StudentHome'>;
+type Props = Readonly<BottomTabScreenProps<StudentTabParamList, 'StudentHome'>>;
 
 const shortcuts = [
   { icon: 'briefcase-outline', label: 'Offres', route: 'Offers' },

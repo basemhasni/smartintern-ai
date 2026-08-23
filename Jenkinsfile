@@ -16,19 +16,42 @@ pipeline {
     CI_IMAGES = 'smartintern-frontend smartintern-backend smartintern-backend-migrate smartintern-ai smartintern-postgres'
     DOCKER_REGISTRY = 'docker.io'
     DOCKERHUB_CREDENTIALS_ID = 'dockerhub-smartintern'
+    SONARQUBE_INSTALLATION = 'SmartIntern SonarQube'
+    SONAR_SCANNER_INSTALLATION = 'SmartIntern SonarScanner'
+    CI_CA_BUNDLE = '/var/jenkins_home/certs/ci-ca-bundle.crt'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        checkout scm
+        retry(3) {
+          timeout(time: 5, unit: 'MINUTES') {
+            checkout scm
+          }
+        }
         script {
           env.CI_TAG = sh(
             script: 'git rev-parse --short=12 HEAD',
             returnStdout: true
           ).trim()
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
+          env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
+            ? 'smartintern-ai'
+            : 'smartintern-ai-step6'
+          env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
+            ? 'SmartIntern AI'
+            : 'SmartIntern AI Step 6'
         }
+        sh '''
+          set -eu
+          cert_dir="$(dirname "${CI_CA_BUNDLE}")"
+          mkdir -p "${cert_dir}"
+          cp /etc/ssl/certs/ca-certificates.crt "${CI_CA_BUNDLE}"
+          if [ -s "${cert_dir}/local-root-ca.crt" ]; then
+            cat "${cert_dir}/local-root-ca.crt" >> "${CI_CA_BUNDLE}"
+          fi
+          chmod 0644 "${CI_CA_BUNDLE}"
+        '''
       }
     }
 
@@ -48,15 +71,17 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm-slim'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
           steps {
             dir('frontend-web') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
-              sh 'npm test'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
+              sh 'npm run test:coverage'
               sh 'npm run build'
             }
           }
@@ -66,16 +91,18 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
           steps {
             dir('backend-api') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
               sh 'npx --no-install prisma generate'
-              sh 'npm test'
+              sh 'npm run test:coverage'
             }
           }
         }
@@ -84,16 +111,19 @@ pipeline {
           agent {
             docker {
               image 'python:3.11.9-slim-bookworm'
-              args '--user 1000:1000 --env HOME=/tmp'
+              args '--user 1000:1000 --env HOME=/tmp --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env PIP_CERT=/var/jenkins_home/certs/ci-ca-bundle.crt --env REQUESTS_CA_BUNDLE=/var/jenkins_home/certs/ci-ca-bundle.crt --env SSL_CERT_FILE=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
           steps {
             dir('ai-service') {
               sh 'python --version && python -m pip --version'
-              sh 'python -m pip install --user --no-cache-dir --requirement requirements.txt'
+              retry(3) {
+                sh 'python -m pip install --user --requirement requirements-dev.txt'
+              }
               sh 'python -m compileall -q app'
-              sh 'python -m unittest discover -s tests -p "test*.py"'
+              sh 'python -m coverage run --branch --source=app -m unittest discover -s tests -p "test*.py"'
+              sh 'python -m coverage xml -o coverage.xml'
             }
           }
         }
@@ -102,14 +132,16 @@ pipeline {
           agent {
             docker {
               image 'node:20.19.4-bookworm-slim'
-              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache'
+              args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
           }
           steps {
             dir('mobile-app') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
               sh 'npm run lint'
               sh 'npm run typecheck'
               sh 'npx --yes expo-doctor@1.20.1 .'
@@ -129,13 +161,75 @@ pipeline {
       }
     }
 
+    stage('SonarQube Analysis') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-6-sonarqube-quality-gate'
+        }
+      }
+      steps {
+        script {
+          [
+            'frontend-web/node_modules',
+            'backend-api/node_modules',
+            'mobile-app/node_modules'
+          ].each { dependencyDirectory ->
+            dir(dependencyDirectory) {
+              deleteDir()
+            }
+          }
+
+          def scannerHome = tool name: env.SONAR_SCANNER_INSTALLATION,
+            type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+
+          withSonarQubeEnv(env.SONARQUBE_INSTALLATION) {
+            sh """
+              export SONAR_TOKEN="\${SONAR_AUTH_TOKEN}"
+              export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx512m'
+              '${scannerHome}/bin/sonar-scanner' \\
+                -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
+                -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
+                -Dsonar.projectVersion='${env.CI_TAG}'
+            """
+          }
+
+          env.SONAR_ANALYSIS_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Quality Gate') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-6-sonarqube-quality-gate'
+        }
+      }
+      steps {
+        timeout(time: 15, unit: 'MINUTES') {
+          script {
+            def gate = waitForQualityGate abortPipeline: false
+            env.QUALITY_GATE_STATUS = gate.status
+
+            if (gate.status != 'OK') {
+              error "SonarQube Quality Gate failed with status: ${gate.status}"
+            }
+          }
+        }
+      }
+    }
+
     stage('Docker Build') {
       steps {
         sh '''
-          docker build --target runtime -t "smartintern-backend:${CI_TAG}" ./backend-api
-          docker build --target migrate -t "smartintern-backend-migrate:${CI_TAG}" ./backend-api
-          docker build -t "smartintern-ai:${CI_TAG}" ./ai-service
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" --target runtime -t "smartintern-backend:${CI_TAG}" ./backend-api
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" --target migrate -t "smartintern-backend-migrate:${CI_TAG}" ./backend-api
+          docker build --secret id=ci_ca,src="${CI_CA_BUNDLE}" -t "smartintern-ai:${CI_TAG}" ./ai-service
           docker build \
+            --secret id=ci_ca,src="${CI_CA_BUNDLE}" \
             --build-arg VITE_API_BASE_URL=/ \
             --build-arg VITE_API_TIMEOUT_MS=15000 \
             -t "smartintern-frontend:${CI_TAG}" \
@@ -179,6 +273,7 @@ pipeline {
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
+          branch 'devops/step-6-sonarqube-quality-gate'
         }
       }
       steps {
@@ -245,6 +340,8 @@ pipeline {
         script {
           def registryPushStatus = env.REGISTRY_PUSH_STATUS ?: 'SKIPPED (branch not authorized)'
           def latestPushStatus = env.LATEST_PUSH_STATUS ?: 'not updated'
+          def sonarStatus = env.SONAR_ANALYSIS_STATUS ?: 'SKIPPED (branch not analyzed)'
+          def qualityGateStatus = env.QUALITY_GATE_STATUS ?: 'SKIPPED (branch not analyzed)'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -257,6 +354,12 @@ pipeline {
 
 Branch: ${env.BRANCH_NAME ?: 'detached'}
 Commit: ${env.CI_TAG}
+
+Application CI: SUCCESS
+SonarQube: ${sonarStatus}
+Quality Gate: ${qualityGateStatus}
+Docker Build: SUCCESS
+Smoke Tests: SUCCESS
 
 Docker images built:
 ${env.CI_IMAGES.tokenize().collect { image -> "- ${image}" }.join('\n')}
