@@ -24,7 +24,11 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        checkout scm
+        retry(3) {
+          timeout(time: 2, unit: 'MINUTES') {
+            checkout scm
+          }
+        }
         script {
           env.CI_TAG = sh(
             script: 'git rev-parse --short=12 HEAD',

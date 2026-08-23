@@ -154,6 +154,8 @@ une opération courante.
 - coupure réseau brève pendant npm ou pip : les installations CI sont reprises
   au maximum trois fois. Une panne persistante reste bloquante et fait échouer
   le pipeline ; aucune vérification TLS n'est désactivée.
+- connexion GitHub lente ou figée : le checkout est limité à deux minutes par
+  tentative et repris au maximum trois fois avant de bloquer la CI.
 
 ## 19. Validation finale
 
