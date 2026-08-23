@@ -25,7 +25,7 @@ pipeline {
     stage('Checkout') {
       steps {
         retry(3) {
-          timeout(time: 2, unit: 'MINUTES') {
+          timeout(time: 5, unit: 'MINUTES') {
             checkout scm
           }
         }
