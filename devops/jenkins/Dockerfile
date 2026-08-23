@@ -28,7 +28,6 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
   && rm -rf /var/lib/apt/lists/* /tmp/build-ca.crt
 
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
-COPY --chmod=0755 trust-local-ca-entrypoint.sh /usr/local/bin/trust-local-ca-entrypoint
 
 USER jenkins
 
@@ -48,5 +47,7 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
   rm -f /tmp/jenkins-cacerts
 
 USER root
+
+COPY --chmod=0755 trust-local-ca-entrypoint.sh /usr/local/bin/trust-local-ca-entrypoint
 
 ENTRYPOINT ["/usr/local/bin/trust-local-ca-entrypoint"]

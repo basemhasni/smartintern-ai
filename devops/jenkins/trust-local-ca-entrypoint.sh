@@ -17,5 +17,9 @@ cp /etc/ssl/certs/ca-certificates.crt "${ca_bundle}"
 chown -R jenkins:jenkins "${cert_dir}"
 chmod 0644 "${ca_bundle}"
 
+export HOME="${jenkins_home}"
+export USER=jenkins
+export LOGNAME=jenkins
+
 exec setpriv --reuid=jenkins --regid=jenkins --init-groups \
   /usr/bin/tini -- /usr/local/bin/jenkins.sh "$@"
