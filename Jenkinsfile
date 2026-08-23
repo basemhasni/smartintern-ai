@@ -74,7 +74,9 @@ pipeline {
           steps {
             dir('frontend-web') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
               sh 'npm run test:coverage'
               sh 'npm run build'
             }
@@ -92,7 +94,9 @@ pipeline {
           steps {
             dir('backend-api') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
               sh 'npx --no-install prisma generate'
               sh 'npm run test:coverage'
             }
@@ -110,7 +114,9 @@ pipeline {
           steps {
             dir('ai-service') {
               sh 'python --version && python -m pip --version'
-              sh 'python -m pip install --user --no-cache-dir --requirement requirements-dev.txt'
+              retry(3) {
+                sh 'python -m pip install --user --requirement requirements-dev.txt'
+              }
               sh 'python -m compileall -q app'
               sh 'python -m coverage run --branch --source=app -m unittest discover -s tests -p "test*.py"'
               sh 'python -m coverage xml -o coverage.xml'
@@ -129,7 +135,9 @@ pipeline {
           steps {
             dir('mobile-app') {
               sh 'node --version && npm --version'
-              sh 'npm ci'
+              retry(3) {
+                sh 'npm ci --prefer-offline --no-audit'
+              }
               sh 'npm run lint'
               sh 'npm run typecheck'
               sh 'npx --yes expo-doctor@1.20.1 .'

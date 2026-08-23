@@ -151,6 +151,9 @@ une opération courante.
   Pour reconstruire l'image du contrôleur dans cet environnement, fournir la CA
   publique avec `docker build --secret id=local_ca,src=<chemin-ca>`. En réseau
   sans interception TLS, ce secret optionnel n'est pas nécessaire.
+- coupure réseau brève pendant npm ou pip : les installations CI sont reprises
+  au maximum trois fois. Une panne persistante reste bloquante et fait échouer
+  le pipeline ; aucune vérification TLS n'est désactivée.
 
 ## 19. Validation finale
 
