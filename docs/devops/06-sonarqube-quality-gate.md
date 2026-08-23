@@ -78,6 +78,8 @@ couverture fiable.
 Avant l'analyse, Jenkins supprime uniquement les répertoires `node_modules`
 créés par les agents CI. Le code et les rapports de couverture restent dans le
 workspace, tandis que l'analyse TypeScript évite de parcourir les dépendances.
+L'image Jenkins embarque aussi le plugin Docker Buildx versionné afin que les
+secrets BuildKit utilisés par les builds restent disponibles après redémarrage.
 
 ## 11. Quality Gate
 

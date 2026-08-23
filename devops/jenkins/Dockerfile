@@ -4,6 +4,7 @@ FROM jenkins/jenkins:2.568.1-lts-jdk21
 
 ARG DOCKER_CLI_VERSION=5:29.7.2-1~debian.13~trixie
 ARG DOCKER_COMPOSE_VERSION=5.5.0-1~debian.13~trixie
+ARG DOCKER_BUILDX_VERSION=0.36.1-1~debian.13~trixie
 
 USER root
 
@@ -24,6 +25,7 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
   && apt-get update \
   && apt-get install --yes --no-install-recommends \
     docker-ce-cli="${DOCKER_CLI_VERSION}" \
+    docker-buildx-plugin="${DOCKER_BUILDX_VERSION}" \
     docker-compose-plugin="${DOCKER_COMPOSE_VERSION}" \
   && rm -rf /var/lib/apt/lists/* /tmp/build-ca.crt
 
