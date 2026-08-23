@@ -19,7 +19,7 @@ import { ApplicationStatusBadge } from '../components/ApplicationStatusBadge';
 import { getApplicationStatusConfig } from '../config/applicationStatusConfig';
 import { useApplications } from '../state/ApplicationsContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ApplicationDetail'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'ApplicationDetail'>>;
 
 export function ApplicationDetailScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
@@ -121,13 +121,13 @@ export function ApplicationDetailScreen({ navigation, route }: Props) {
   );
 }
 
-function TimelineItem({ icon, label, date }: { icon: keyof typeof Ionicons.glyphMap; label: string; date?: string | null }) {
+function TimelineItem({ icon, label, date }: Readonly<{ icon: keyof typeof Ionicons.glyphMap; label: string; date?: string | null }>) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   return <View style={styles.timelineItem}><View style={styles.timelineIcon}><Ionicons color={theme.colors.primary} name={icon} size={17} /></View><View style={styles.flex}><Text style={styles.timelineLabel}>{label}</Text><Text style={styles.timelineDate}>{date ? formatDateTime(date) : 'Date non renseignee'}</Text></View></View>;
 }
 
-function Fact({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string }) {
+function Fact({ icon, label, value }: Readonly<{ icon: keyof typeof Ionicons.glyphMap; label: string; value: string }>) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   return <View style={styles.fact}><Ionicons color={theme.colors.primary} name={icon} size={18} /><View style={styles.flex}><Text style={styles.factLabel}>{label}</Text><Text numberOfLines={2} style={styles.factValue}>{value}</Text></View></View>;

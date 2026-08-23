@@ -11,7 +11,7 @@ import { StatusMessage } from '@/shared/components/StatusMessage';
 import { AuthShell } from './AuthShell';
 import { useAuth } from './state/AuthContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>>;
 
 const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const genericMessage = 'Si un compte existe avec cet email, un lien de reinitialisation a ete envoye.';

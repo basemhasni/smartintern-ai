@@ -15,7 +15,7 @@ import { LoadingState } from '@/shared/components/LoadingState';
 import { LetterCard } from '../components/LetterCard';
 import { useMotivationLetters } from '../state/MotivationLettersContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MotivationLetters'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'MotivationLetters'>>;
 
 export function MotivationLettersScreen({ navigation }: Props) {
   const { theme } = useAppTheme();

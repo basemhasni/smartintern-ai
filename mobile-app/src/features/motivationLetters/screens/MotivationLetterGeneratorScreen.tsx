@@ -23,7 +23,7 @@ import { LetterWarningsCard } from '../components/LetterWarningsCard';
 import type { MotivationLetter, MotivationLetterTone } from '../models/motivationLetter';
 import { useMotivationLetters } from '../state/MotivationLettersContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MotivationLetterGenerator'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'MotivationLetterGenerator'>>;
 
 export function MotivationLetterGeneratorScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme();
@@ -66,7 +66,7 @@ export function MotivationLetterGeneratorScreen({ navigation, route }: Props) {
   </Screen>;
 }
 
-function Requirement({ label, ready }: { label: string; ready: boolean }) {
+function Requirement({ label, ready }: Readonly<{ label: string; ready: boolean }>) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
   return <View style={styles.requirement}><Ionicons color={ready ? theme.colors.success : theme.colors.warning} name={ready ? 'checkmark-circle' : 'alert-circle'} size={19} /><Text style={styles.requirementLabel}>{label}</Text><AppBadge label={ready ? 'Pret' : 'Requis'} tone={ready ? 'success' : 'warning'} /></View>;

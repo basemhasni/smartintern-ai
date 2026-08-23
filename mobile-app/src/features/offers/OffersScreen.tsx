@@ -16,7 +16,7 @@ import { OfferCard } from './components/OfferCard';
 import type { Offer } from './models/offer';
 import { useOffers } from './state/OffersContext';
 
-type Props = BottomTabScreenProps<StudentTabParamList, 'Offers'>;
+type Props = Readonly<BottomTabScreenProps<StudentTabParamList, 'Offers'>>;
 type FilterMode = 'all' | 'matched' | 'hybrid';
 
 const filters: { label: string; value: FilterMode }[] = [

@@ -17,7 +17,7 @@ import { StatusMessage } from '@/shared/components/StatusMessage';
 import type { CvDocument } from '../models/cvDocument';
 import { useStudentProfile } from '../state/StudentProfileContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CvAnalysis'>;
+type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'CvAnalysis'>>;
 
 export function CvAnalysisScreen({ navigation, route }: Props) {
   const { theme } = useAppTheme(); const styles = createStyles(theme);
@@ -56,13 +56,13 @@ export function CvAnalysisScreen({ navigation, route }: Props) {
   </Screen>;
 }
 
-function TagSection({ title, values, empty }: { title: string; values: string[]; empty?: string }) {
+function TagSection({ title, values, empty }: Readonly<{ title: string; values: string[]; empty?: string }>) {
   const { theme } = useAppTheme(); const styles = createStyles(theme);
   if (!values.length && !empty) return null;
   return <GlassCard><SectionHeader title={title} /><View style={styles.tags}>{values.length ? values.map((value) => <AppBadge key={value} label={value} tone="violet" />) : <Text style={styles.muted}>{empty}</Text>}</View></GlassCard>;
 }
 
-function FactCard({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value?: string | null }) {
+function FactCard({ icon, label, value }: Readonly<{ icon: keyof typeof Ionicons.glyphMap; label: string; value?: string | null }>) {
   const { theme } = useAppTheme(); const styles = createStyles(theme);
   return <GlassCard style={styles.factCard}><Ionicons color={theme.colors.primary} name={icon} size={22} /><Text style={styles.factLabel}>{label}</Text><Text numberOfLines={3} style={styles.factValue}>{value || 'Non detecte'}</Text></GlassCard>;
 }
