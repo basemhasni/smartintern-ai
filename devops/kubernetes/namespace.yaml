@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartintern
+  labels:
+    app.kubernetes.io/name: smartintern
+    app.kubernetes.io/part-of: smartintern-ai
