@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smartintern-backend-config
+  labels:
+    app.kubernetes.io/name: smartintern-backend
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: smartintern-ai
+data:
+  NODE_ENV: production
+  PORT: "5000"
+  AI_SERVICE_URL: http://ai-service:8000
+  AI_SERVICE_TIMEOUT_MS: "15000"
+  AI_SERVICE_HEALTH_TIMEOUT_MS: "2500"
+  AI_MATCHING_TIMEOUT_MS: "15000"
+  AI_SKILL_GAP_TIMEOUT_MS: "20000"
+  AI_GENERATION_TIMEOUT_MS: "30000"
+  AI_RAG_TIMEOUT_MS: "15000"
+  FRONTEND_URL: http://localhost:30080
+  CORS_ORIGIN: http://localhost:30080,http://127.0.0.1:30080
+  JSON_BODY_LIMIT: 1mb
+  AUTH_RATE_LIMIT_WINDOW_MS: "900000"
+  AUTH_RATE_LIMIT_MAX: "20"
+  AUTH_COOKIE_NAME: smartintern_token
+  AUTH_COOKIE_MAX_AGE_MS: "86400000"
+  AUTH_COOKIE_SAME_SITE: lax
+  AUTH_COOKIE_SECURE: "false"
+  CSRF_COOKIE_NAME: smartintern_csrf
+  CSRF_HEADER_NAME: x-csrf-token
+  CSRF_COOKIE_MAX_AGE_MS: "86400000"
+  CSRF_COOKIE_SAME_SITE: lax
+  CSRF_COOKIE_SECURE: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smartintern-ai-config
+  labels:
+    app.kubernetes.io/name: smartintern-ai-service
+    app.kubernetes.io/component: ai-service
+    app.kubernetes.io/part-of: smartintern-ai
+data:
+  APP_NAME: SmartIntern AI Service
+  APP_ENV: production
+  PORT: "8000"
+  ALLOWED_ORIGINS: http://frontend:8080,http://backend:5000
+  SMARTINTERN_SENTENCE_MODEL: all-MiniLM-L6-v2
+  SMARTINTERN_ALLOW_MODEL_DOWNLOAD: "false"
+  RAG_ALLOW_MODEL_DOWNLOAD: "false"

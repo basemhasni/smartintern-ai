@@ -41,4 +41,5 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [devops/04-jenkins-ci.md](devops/04-jenkins-ci.md) : intégration continue Jenkins.
 - [devops/05-dockerhub-registry.md](devops/05-dockerhub-registry.md) : publication Docker Hub depuis Jenkins.
 - [devops/06-sonarqube-quality-gate.md](devops/06-sonarqube-quality-gate.md) : analyse SonarQube et Quality Gate Jenkins bloquant.
+- [devops/07-kubernetes-minikube.md](devops/07-kubernetes-minikube.md) : déploiement Kubernetes Minikube et validation Jenkins.
 

@@ -7,6 +7,9 @@
 !devops/sonarqube/.env.sonarqube.example
 .env.compose
 devops/sonarqube/.env.sonarqube
+devops/kubernetes/.rendered/
+devops/kubernetes/*.kubeconfig
+devops/kubernetes/secret*.yaml
 
 # Node.js
 node_modules/

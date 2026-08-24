@@ -4,7 +4,7 @@ pipeline {
   options {
     skipDefaultCheckout(true)
     timestamps()
-    timeout(time: 90, unit: 'MINUTES')
+    timeout(time: 120, unit: 'MINUTES')
     disableConcurrentBuilds()
     disableResume()
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
@@ -19,6 +19,8 @@ pipeline {
     SONARQUBE_INSTALLATION = 'SmartIntern SonarQube'
     SONAR_SCANNER_INSTALLATION = 'SmartIntern SonarScanner'
     CI_CA_BUNDLE = '/var/jenkins_home/certs/ci-ca-bundle.crt'
+    KUBECONFIG_CREDENTIALS_ID = 'smartintern-minikube-kubeconfig'
+    KUBERNETES_NAMESPACE = 'smartintern'
   }
 
   stages {
@@ -37,10 +39,10 @@ pipeline {
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
           env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
             ? 'smartintern-ai'
-            : 'smartintern-ai-step6'
+            : 'smartintern-ai-step7'
           env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
             ? 'SmartIntern AI'
-            : 'SmartIntern AI Step 6'
+            : 'SmartIntern AI Step 7'
         }
         sh '''
           set -eu
@@ -62,6 +64,7 @@ pipeline {
         sh 'git rev-parse HEAD'
         sh 'docker version'
         sh 'docker compose version'
+        sh 'kubectl version --client'
       }
     }
 
@@ -166,7 +169,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-6-sonarqube-quality-gate'
+          branch 'devops/step-7-kubernetes-minikube'
         }
       }
       steps {
@@ -205,7 +208,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-6-sonarqube-quality-gate'
+          branch 'devops/step-7-kubernetes-minikube'
         }
       }
       steps {
@@ -273,7 +276,7 @@ pipeline {
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
-          branch 'devops/step-6-sonarqube-quality-gate'
+          branch 'devops/step-7-kubernetes-minikube'
         }
       }
       steps {
@@ -335,6 +338,46 @@ pipeline {
       }
     }
 
+    stage('Kubernetes Validation') {
+      steps {
+        sh '''
+          devops/kubernetes/scripts/validate.sh --image-tag "${CI_TAG}"
+        '''
+      }
+    }
+
+    stage('Minikube Deployment / Smoke Test') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-7-kubernetes-minikube'
+        }
+      }
+      steps {
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh '''
+            devops/kubernetes/scripts/deploy.sh \
+              --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
+              --image-tag "${CI_TAG}"
+            devops/kubernetes/scripts/smoke-test.sh \
+              --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
+              --image-tag "${CI_TAG}" \
+              --test-persistence
+          '''
+        }
+        script {
+          env.KUBERNETES_DEPLOY_STATUS = 'SUCCESS'
+          env.KUBERNETES_SMOKE_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
     stage('Final Summary') {
       steps {
         script {
@@ -342,6 +385,8 @@ pipeline {
           def latestPushStatus = env.LATEST_PUSH_STATUS ?: 'not updated'
           def sonarStatus = env.SONAR_ANALYSIS_STATUS ?: 'SKIPPED (branch not analyzed)'
           def qualityGateStatus = env.QUALITY_GATE_STATUS ?: 'SKIPPED (branch not analyzed)'
+          def kubernetesDeployStatus = env.KUBERNETES_DEPLOY_STATUS ?: 'SKIPPED (branch not authorized)'
+          def kubernetesSmokeStatus = env.KUBERNETES_SMOKE_STATUS ?: 'SKIPPED (branch not authorized)'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -370,7 +415,11 @@ ${repositories}
 
 Immutable tag: ${env.CI_TAG}
 Registry push: ${registryPushStatus}
-latest: ${latestPushStatus}"""
+latest: ${latestPushStatus}
+
+Kubernetes namespace: ${env.KUBERNETES_NAMESPACE}
+Kubernetes deployment: ${kubernetesDeployStatus}
+Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
         }
       }
     }

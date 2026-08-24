@@ -4,15 +4,14 @@ Le dossier `devops` est prévu pour regrouper les éléments de déploiement et 
 
 ## Statut actuel
 
-Le projet dispose de dossiers backend, frontend et ai-service, mais le pipeline DevOps complet reste à finaliser.
+Le projet dispose d'images Docker, d'une stack Compose, d'une CI Jenkins avec
+Quality Gate SonarQube, d'une publication Docker Hub et d'un déploiement local
+Kubernetes dans le profil Minikube `smartintern-ai`.
 
 ## Objectifs futurs
 
-- Dockerfiles par service ;
-- Docker Compose complet ;
-- configuration production ;
-- CI/CD ;
-- migrations contrôlées ;
+- déploiement cloud ;
+- stratégie CD de production ;
 - monitoring ;
 - logs centralisés.
 

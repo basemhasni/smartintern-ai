@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: smartintern
+resources:
+  - ../../../base/apps
+images:
+  - name: bessem785/smartintern-backend
+    newTag: IMAGE_TAG_PLACEHOLDER
+  - name: bessem785/smartintern-ai
+    newTag: IMAGE_TAG_PLACEHOLDER
+  - name: bessem785/smartintern-frontend
+    newTag: IMAGE_TAG_PLACEHOLDER

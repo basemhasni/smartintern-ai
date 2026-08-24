@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: smartintern
+resources:
+  - ../../../base/platform
+images:
+  - name: bessem785/smartintern-postgres
+    newTag: IMAGE_TAG_PLACEHOLDER
