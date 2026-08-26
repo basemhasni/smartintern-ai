@@ -72,7 +72,7 @@ pipeline {
     }
 
     stage('Application CI') {
-      parallel {
+      stages {
         stage('Frontend CI') {
           agent {
             docker {
