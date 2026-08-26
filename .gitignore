@@ -10,6 +10,10 @@ devops/sonarqube/.env.sonarqube
 devops/kubernetes/.rendered/
 devops/kubernetes/*.kubeconfig
 devops/kubernetes/secret*.yaml
+devops/helm/.runtime/
+devops/helm/**/*.key
+devops/helm/**/*.crt
+devops/helm/**/*.pem
 
 # Node.js
 node_modules/

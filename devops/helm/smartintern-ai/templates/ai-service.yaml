@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ai-service
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-ai-service" "component" "ai-service") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.ai.service.port }}
+      targetPort: http
+{{- if .Values.apps.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ai-service
+spec:
+  replicas: {{ .Values.ai.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector:
+    matchLabels:
+      {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-ai-service" "component" "ai-service") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-ai-service" "component" "ai-service") | nindent 8 }}
+        app.kubernetes.io/part-of: smartintern-ai
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps.yaml") . | sha256sum }}
+        smartintern.ai/image-tag: {{ include "smartintern.imageTag" . | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: ai-service
+          image: "{{ .Values.ai.image.repository }}:{{ include "smartintern.imageTag" . }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ai.service.port }}
+          envFrom:
+            - configMapRef: {name: smartintern-ai-config}
+          startupProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.ai.probes.startup | nindent 12 }}
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.ai.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.ai.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.ai.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

@@ -20,7 +20,9 @@ pipeline {
     SONAR_SCANNER_INSTALLATION = 'SmartIntern SonarScanner'
     CI_CA_BUNDLE = '/var/jenkins_home/certs/ci-ca-bundle.crt'
     KUBECONFIG_CREDENTIALS_ID = 'smartintern-minikube-kubeconfig'
-    KUBERNETES_NAMESPACE = 'smartintern'
+    KUBERNETES_NAMESPACE = 'smartintern-dev'
+    HELM_RELEASE = 'smartintern-dev'
+    HELM_CHART = 'devops/helm/smartintern-ai'
   }
 
   stages {
@@ -39,10 +41,10 @@ pipeline {
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
           env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
             ? 'smartintern-ai'
-            : 'smartintern-ai-step7'
+            : 'smartintern-ai-step8'
           env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
             ? 'SmartIntern AI'
-            : 'SmartIntern AI Step 7'
+            : 'SmartIntern AI Step 8'
         }
         sh '''
           set -eu
@@ -65,6 +67,7 @@ pipeline {
         sh 'docker version'
         sh 'docker compose version'
         sh 'kubectl version --client'
+        sh 'helm version --short'
       }
     }
 
@@ -169,7 +172,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-7-kubernetes-minikube'
+          branch 'devops/step-8-helm-ingress-environments'
         }
       }
       steps {
@@ -208,7 +211,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-7-kubernetes-minikube'
+          branch 'devops/step-8-helm-ingress-environments'
         }
       }
       steps {
@@ -276,7 +279,7 @@ pipeline {
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
-          branch 'devops/step-7-kubernetes-minikube'
+          branch 'devops/step-8-helm-ingress-environments'
         }
       }
       steps {
@@ -338,20 +341,29 @@ pipeline {
       }
     }
 
-    stage('Kubernetes Validation') {
+    stage('Helm Validation') {
       steps {
-        sh '''
-          devops/kubernetes/scripts/validate.sh --image-tag "${CI_TAG}"
-        '''
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh '''
+            devops/helm/scripts/validate.sh \
+              --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
+              --image-tag "${CI_TAG}"
+          '''
+        }
       }
     }
 
-    stage('Minikube Deployment / Smoke Test') {
+    stage('Helm Deployment') {
       when {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-7-kubernetes-minikube'
+          branch 'devops/step-8-helm-ingress-environments'
         }
       }
       steps {
@@ -362,18 +374,43 @@ pipeline {
           )
         ]) {
           sh '''
-            devops/kubernetes/scripts/deploy.sh \
+            devops/helm/scripts/deploy.sh \
               --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
               --image-tag "${CI_TAG}"
-            devops/kubernetes/scripts/smoke-test.sh \
+          '''
+        }
+        script {
+          env.HELM_DEPLOY_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Ingress / TLS Smoke Test') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-8-helm-ingress-environments'
+        }
+      }
+      steps {
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh '''
+            devops/helm/scripts/smoke-test.sh \
               --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
               --image-tag "${CI_TAG}" \
               --test-persistence
           '''
         }
         script {
-          env.KUBERNETES_DEPLOY_STATUS = 'SUCCESS'
           env.KUBERNETES_SMOKE_STATUS = 'SUCCESS'
+          env.INGRESS_STATUS = 'SUCCESS'
+          env.TLS_STATUS = 'SUCCESS'
         }
       }
     }
@@ -385,8 +422,10 @@ pipeline {
           def latestPushStatus = env.LATEST_PUSH_STATUS ?: 'not updated'
           def sonarStatus = env.SONAR_ANALYSIS_STATUS ?: 'SKIPPED (branch not analyzed)'
           def qualityGateStatus = env.QUALITY_GATE_STATUS ?: 'SKIPPED (branch not analyzed)'
-          def kubernetesDeployStatus = env.KUBERNETES_DEPLOY_STATUS ?: 'SKIPPED (branch not authorized)'
+          def helmDeployStatus = env.HELM_DEPLOY_STATUS ?: 'SKIPPED (branch not authorized)'
           def kubernetesSmokeStatus = env.KUBERNETES_SMOKE_STATUS ?: 'SKIPPED (branch not authorized)'
+          def ingressStatus = env.INGRESS_STATUS ?: 'SKIPPED (branch not authorized)'
+          def tlsStatus = env.TLS_STATUS ?: 'SKIPPED (branch not authorized)'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -418,7 +457,10 @@ Registry push: ${registryPushStatus}
 latest: ${latestPushStatus}
 
 Kubernetes namespace: ${env.KUBERNETES_NAMESPACE}
-Kubernetes deployment: ${kubernetesDeployStatus}
+Helm release: ${env.HELM_RELEASE}
+Helm deployment: ${helmDeployStatus}
+Ingress: ${ingressStatus}
+TLS: ${tlsStatus}
 Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
         }
       }

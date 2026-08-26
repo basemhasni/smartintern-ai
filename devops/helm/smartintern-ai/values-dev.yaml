@@ -1,0 +1,11 @@
+backendConfig:
+  frontendUrl: https://smartintern.local
+  corsOrigin: https://smartintern.local,https://smartintern.local:8443
+
+aiConfig:
+  allowedOrigins: http://frontend:8080,http://backend:5000,https://smartintern.local,https://smartintern.local:8443
+
+ingress:
+  host: smartintern.local
+  tls:
+    secretName: smartintern-dev-tls

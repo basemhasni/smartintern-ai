@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-postgres" "component" "database") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-postgres" "component" "database") | nindent 8 }}
+        app.kubernetes.io/part-of: smartintern-ai
+      annotations:
+        smartintern.ai/image-tag: {{ include "smartintern.imageTag" . | quote }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ include "smartintern.imageTag" . }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.service.port }}
+          env:
+            {{- range $key := list "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.runtimeSecrets.name }}
+                  key: {{ $key }}
+            {{- end }}
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "exec pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            {{- toYaml .Values.postgres.probes.startup | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "exec pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            {{- toYaml .Values.postgres.probes.readiness | nindent 12 }}
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "exec pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            {{- toYaml .Values.postgres.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+        labels:
+          {{- include "smartintern.labels" . | nindent 10 }}
+          app.kubernetes.io/component: database
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgres.persistence.storageClass }}
+        storageClassName: {{ .Values.postgres.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.persistence.size }}

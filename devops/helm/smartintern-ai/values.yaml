@@ -1,0 +1,177 @@
+global:
+  imageTag: ""
+  imagePullPolicy: IfNotPresent
+
+runtimeSecrets:
+  name: smartintern-secrets
+
+apps:
+  enabled: true
+
+backendConfig:
+  nodeEnv: production
+  aiServiceUrl: http://ai-service:8000
+  aiServiceTimeoutMs: "15000"
+  aiServiceHealthTimeoutMs: "2500"
+  aiMatchingTimeoutMs: "15000"
+  aiSkillGapTimeoutMs: "20000"
+  aiGenerationTimeoutMs: "30000"
+  aiRagTimeoutMs: "15000"
+  frontendUrl: https://smartintern.local
+  corsOrigin: https://smartintern.local,https://smartintern.local:8443
+  jsonBodyLimit: 1mb
+  authRateLimitWindowMs: "900000"
+  authRateLimitMax: "20"
+  authCookieName: smartintern_token
+  authCookieMaxAgeMs: "86400000"
+  authCookieSameSite: lax
+  authCookieSecure: "true"
+  csrfCookieName: smartintern_csrf
+  csrfHeaderName: x-csrf-token
+  csrfCookieMaxAgeMs: "86400000"
+  csrfCookieSameSite: lax
+  csrfCookieSecure: "true"
+
+aiConfig:
+  appName: SmartIntern AI Service
+  appEnv: production
+  allowedOrigins: http://frontend:8080,http://backend:5000,https://smartintern.local
+  sentenceModel: all-MiniLM-L6-v2
+  allowModelDownload: "false"
+  ragAllowModelDownload: "false"
+
+postgres:
+  image:
+    repository: bessem785/smartintern-postgres
+  service:
+    port: 5432
+  persistence:
+    size: 3Gi
+    storageClass: ""
+  probes:
+    startup:
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 5
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+migration:
+  enabled: true
+  image:
+    repository: bessem785/smartintern-backend-migrate
+  activeDeadlineSeconds: 300
+  backoffLimit: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+backend:
+  replicas: 1
+  image:
+    repository: bessem785/smartintern-backend
+  service:
+    port: 5000
+  uploads:
+    size: 1Gi
+    storageClass: ""
+  probes:
+    startup:
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 30
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 5
+  resources:
+    requests:
+      cpu: 150m
+      memory: 192Mi
+    limits:
+      cpu: "1"
+      memory: 768Mi
+
+ai:
+  replicas: 1
+  image:
+    repository: bessem785/smartintern-ai
+  service:
+    port: 8000
+  probes:
+    startup:
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 36
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 5
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1500m
+      memory: 1Gi
+
+frontend:
+  replicas: 1
+  image:
+    repository: bessem785/smartintern-frontend
+  service:
+    type: ClusterIP
+    port: 8080
+  probes:
+    startup:
+      periodSeconds: 3
+      timeoutSeconds: 2
+      failureThreshold: 20
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 5
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  host: smartintern.local
+  tls:
+    enabled: true
+    secretName: smartintern-dev-tls

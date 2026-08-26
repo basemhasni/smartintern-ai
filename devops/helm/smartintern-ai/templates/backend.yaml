@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-backend" "component" "backend") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: http
+{{- if .Values.apps.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-backend" "component" "backend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-backend" "component" "backend") | nindent 8 }}
+        app.kubernetes.io/part-of: smartintern-ai
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps.yaml") . | sha256sum }}
+        smartintern.ai/image-tag: {{ include "smartintern.imageTag" . | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ include "smartintern.imageTag" . }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+          envFrom:
+            - configMapRef:
+                name: smartintern-backend-config
+          env:
+            {{- range $key := list "DATABASE_URL" "JWT_SECRET" }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.runtimeSecrets.name }}
+                  key: {{ $key }}
+            {{- end }}
+          startupProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.backend.probes.startup | nindent 12 }}
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.backend.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            {{- toYaml .Values.backend.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/uploads/cvs
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: backend-uploads
+        - name: tmp
+          emptyDir: {}
+{{- end }}

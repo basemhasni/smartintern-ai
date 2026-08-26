@@ -1,0 +1,5 @@
+SmartIntern AI release {{ .Release.Name }} is installed in {{ .Release.Namespace }}.
+
+Host: https://{{ .Values.ingress.host }}
+TLS secret: {{ .Values.ingress.tls.secretName }} (created externally at runtime)
+Image tag: {{ include "smartintern.imageTag" . }}

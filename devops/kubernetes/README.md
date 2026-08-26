@@ -1,4 +1,8 @@
-# SmartIntern AI Kubernetes
+# SmartIntern AI Kubernetes (Step 7 reference)
+
+> Deprecated for active deployments since DevOps Step 8. These Kustomize
+> manifests remain as a historical and troubleshooting reference. The Helm
+> chart in `devops/helm/smartintern-ai` is now the deployment source of truth.
 
 This directory contains the Kubernetes deployment used by the dedicated
 Minikube profile `smartintern-ai`. Workloads run only in the `smartintern`

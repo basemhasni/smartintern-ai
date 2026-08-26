@@ -1,0 +1,47 @@
+backendConfig:
+  frontendUrl: https://smartintern.prod.local
+  corsOrigin: https://smartintern.prod.local
+
+aiConfig:
+  allowedOrigins: http://frontend:8080,http://backend:5000,https://smartintern.prod.local
+
+backend:
+  replicas: 2
+  uploads:
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 300m
+      memory: 384Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+ai:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+frontend:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 96Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+postgres:
+  persistence:
+    size: 10Gi
+
+ingress:
+  host: smartintern.prod.local
+  tls:
+    secretName: smartintern-prod-tls
