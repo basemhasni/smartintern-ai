@@ -62,8 +62,8 @@ spec:
     - metadata:
         name: postgres-data
         labels:
-          {{- include "smartintern.labels" . | nindent 10 }}
-          app.kubernetes.io/component: database
+          {{- include "smartintern.selectorLabels" (dict "root" . "name" "smartintern-postgres" "component" "database") | nindent 10 }}
+          app.kubernetes.io/part-of: smartintern-ai
       spec:
         accessModes: ["ReadWriteOnce"]
         {{- if .Values.postgres.persistence.storageClass }}

@@ -21,13 +21,20 @@ kube() {
 }
 
 helm_cli() {
+  local -a helm_command
   if command -v helm >/dev/null 2>&1; then
-    helm "$@"
+    helm_command=(helm)
   elif [[ -x "${HOME}/.local/bin/helm" ]]; then
-    "${HOME}/.local/bin/helm" "$@"
+    helm_command=("${HOME}/.local/bin/helm")
   else
     printf 'Required command not found: helm\n' >&2
     exit 1
+  fi
+
+  if [[ -n "${KUBECONFIG_PATH}" ]]; then
+    KUBECONFIG="${KUBECONFIG_PATH}" "${helm_command[@]}" "$@"
+  else
+    "${helm_command[@]}" "$@"
   fi
 }
 

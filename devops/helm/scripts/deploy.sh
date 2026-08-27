@@ -34,6 +34,18 @@ if ! helm_cli status "${RELEASE}" -n "${NAMESPACE}" >/dev/null 2>&1; then
     --set ingress.enabled=false \
     --wait --rollback-on-failure --timeout 10m
   kube rollout status statefulset/postgres -n "${NAMESPACE}" --timeout=300s
+else
+  # The database may have been paused while resource-intensive CI checks ran.
+  # Restore it before Helm executes the pre-upgrade migration hook.
+  kube scale statefulset/postgres -n "${NAMESPACE}" --replicas=1 >/dev/null
+  kube rollout status statefulset/postgres -n "${NAMESPACE}" --timeout=300s
+
+  claim_template_version="$(kube get statefulset/postgres -n "${NAMESPACE}" \
+    -o jsonpath='{.spec.volumeClaimTemplates[0].metadata.labels.app\.kubernetes\.io/version}' 2>/dev/null || :)"
+  if [[ -n "${claim_template_version}" ]]; then
+    printf 'Migrating legacy PostgreSQL claim template labels without deleting its pod or PVC.\n'
+    kube delete statefulset/postgres -n "${NAMESPACE}" --cascade=orphan --wait=true >/dev/null
+  fi
 fi
 
 helm_cli upgrade "${RELEASE}" "${CHART_ROOT}" \
