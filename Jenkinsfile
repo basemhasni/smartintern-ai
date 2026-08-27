@@ -373,6 +373,27 @@ pipeline {
             variable: 'SMARTINTERN_KUBECONFIG'
           )
         ]) {
+          timeout(time: 10, unit: 'MINUTES') {
+            waitUntil(initialRecurrencePeriod: 10000) {
+              script {
+                def clusterReady = sh(
+                  script: '''
+                    kubectl \
+                      --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
+                      get --raw=/readyz >/dev/null 2>&1
+                  ''',
+                  returnStatus: true
+                ) == 0
+
+                if (!clusterReady) {
+                  echo 'Kubernetes API is not ready yet; retrying in 10 seconds.'
+                }
+
+                return clusterReady
+              }
+            }
+          }
+
           sh '''
             devops/helm/scripts/deploy.sh \
               --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
