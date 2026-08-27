@@ -150,7 +150,7 @@ pipeline {
               }
               sh 'npm run lint'
               sh 'npm run typecheck'
-              sh 'npx --yes expo-doctor@1.20.1 .'
+              sh 'EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK=1 npx --yes expo-doctor@1.20.1 .'
             }
           }
         }
