@@ -6,7 +6,7 @@ pipeline {
     timestamps()
     timeout(time: 120, unit: 'MINUTES')
     disableConcurrentBuilds()
-    disableResume()
+    durabilityHint('MAX_SURVIVABILITY')
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
   }
 
@@ -193,7 +193,7 @@ pipeline {
           withSonarQubeEnv(env.SONARQUBE_INSTALLATION) {
             sh """
               export SONAR_TOKEN="\${SONAR_AUTH_TOKEN}"
-              export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx512m'
+              export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx384m'
               '${scannerHome}/bin/sonar-scanner' \\
                 -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
                 -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
