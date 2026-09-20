@@ -1,0 +1,38 @@
+{{- if and .Values.apps.enabled .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smartintern-health
+  labels:
+    {{- include "smartintern.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /health$1$2
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /api/health(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend
+                port:
+                  number: {{ .Values.backend.service.port }}
+          - path: /ai/health(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ai-service
+                port:
+                  number: {{ .Values.ai.service.port }}
+{{- end }}

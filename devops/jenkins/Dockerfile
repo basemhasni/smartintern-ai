@@ -59,6 +59,23 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
 
 USER root
 
+ARG HELM_VERSION=4.1.4
+
+RUN --mount=type=secret,id=local_ca,uid=0,gid=0,mode=0400 \
+  set -eu; \
+  test "${TARGETARCH:-amd64}" = "amd64"; \
+  if [ -s /run/secrets/local_ca ]; then \
+    cat /etc/ssl/certs/ca-certificates.crt /run/secrets/local_ca > /tmp/build-ca.crt; \
+    export CURL_CA_BUNDLE=/tmp/build-ca.crt SSL_CERT_FILE=/tmp/build-ca.crt; \
+  fi; \
+  curl -fsSLo /tmp/helm.tar.gz \
+    "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz"; \
+  echo "70b2c30a19da4db264dfd68c8a3664e05093a361cefd89572ffb36f8abfa3d09  /tmp/helm.tar.gz" \
+    | sha256sum --check; \
+  tar -xzf /tmp/helm.tar.gz -C /tmp; \
+  install -m 0755 /tmp/linux-amd64/helm /usr/local/bin/helm; \
+  rm -rf /tmp/build-ca.crt /tmp/helm.tar.gz /tmp/linux-amd64
+
 COPY --chmod=0755 trust-local-ca-entrypoint.sh /usr/local/bin/trust-local-ca-entrypoint
 RUN sed -i 's/\r$//' /usr/local/bin/trust-local-ca-entrypoint
 
