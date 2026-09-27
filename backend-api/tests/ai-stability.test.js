@@ -64,6 +64,23 @@ after(async () => {
   await fs.rm(uploadedFixturePath, { force: true });
 });
 
+test('metrics endpoint reports normalized routes and keeps health available', async () => {
+  const base = getUrl(backendServer);
+  const health = await fetch(`${base}/health`);
+  assert.equal(health.status, 200);
+
+  const missing = await fetch(`${base}/unmatched/sensitive-identifier-do-not-export`);
+  assert.equal(missing.status, 404);
+
+  const metrics = await fetch(`${base}/metrics`);
+  assert.equal(metrics.status, 200);
+  assert.match(metrics.headers.get('content-type'), /text\/plain/);
+  const body = await metrics.text();
+  assert.match(body, /smartintern_backend_http_requests_total/);
+  assert.match(body, /route="\/health"/);
+  assert.doesNotMatch(body, /sensitive-identifier-do-not-export/);
+});
+
 test('maps an AI timeout to a stable public error', async () => {
   await assert.rejects(
     requestAi({ method: 'get', path: '/slow', workflow: 'matching', timeoutMs: 20 }),

@@ -17,7 +17,7 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
     export CURL_CA_BUNDLE=/tmp/build-ca.crt SSL_CERT_FILE=/tmp/build-ca.crt; \
   fi \
   && DEBIAN_FRONTEND=noninteractive apt-get update \
-  && apt-get install --yes --no-install-recommends ca-certificates curl git gnupg \
+  && apt-get install --yes --no-install-recommends ca-certificates curl git gnupg jq \
   && install -m 0755 -d /etc/apt/keyrings \
   && curl -fsSL https://download.docker.com/linux/debian/gpg \
     -o /etc/apt/keyrings/docker.asc \

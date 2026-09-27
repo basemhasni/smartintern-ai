@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const { getAllowedOrigins } = require('./config/env');
 const { csrfProtection } = require('./middlewares/csrf.middleware');
 const { requestContextMiddleware } = require('./middlewares/requestContext.middleware');
+const { metricsMiddleware, metricsEndpoint } = require('./middlewares/metrics.middleware');
 const adminRoutes = require('./routes/admin.routes');
 const aiRoutes = require('./routes/ai.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -31,6 +32,8 @@ const app = express();
 const allowedOrigins = getAllowedOrigins();
 
 app.use(requestContextMiddleware);
+app.use(metricsMiddleware);
+app.get('/metrics', metricsEndpoint);
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {

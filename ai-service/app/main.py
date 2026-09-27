@@ -23,6 +23,7 @@ from app.api import (
     workflow_routes,
 )
 from app.core.config import settings
+from app.core.metrics import metrics_response, observe_request
 
 logger = logging.getLogger("smartintern.ai-service")
 REQUEST_ID_PATTERN = re.compile(r"^[a-zA-Z0-9._:-]{8,128}$")
@@ -40,7 +41,12 @@ async def request_context_middleware(request: Request, call_next):
     request.state.request_id = request_id
     started_at = time.perf_counter()
 
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception:
+        observe_request(request, 500, started_at)
+        raise
+    observe_request(request, response.status_code, started_at)
     response.headers["X-Request-ID"] = request_id
     logger.info(
         "ai-request requestId=%s method=%s path=%s status=%s durationMs=%s",
@@ -72,6 +78,8 @@ app.include_router(orchestrator_routes.router)
 app.include_router(workflow_routes.router)
 app.include_router(rag_routes.router)
 app.include_router(skill_gap_routes.router)
+
+app.add_api_route("/metrics", metrics_response, methods=["GET"], include_in_schema=False)
 
 
 @app.exception_handler(RequestValidationError)

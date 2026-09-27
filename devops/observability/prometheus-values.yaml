@@ -1,0 +1,39 @@
+alertmanager:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+
+server:
+  retention: 7d
+  retentionSize: 1500MB
+  persistentVolume:
+    enabled: true
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 600m
+      memory: 640Mi
+  global:
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 192Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 96Mi

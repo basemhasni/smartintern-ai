@@ -1,0 +1,28 @@
+service:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "80"
+
+rbac:
+  create: false
+
+config:
+  datasource:
+    host: postgres
+    port: "5432"
+    sslmode: disable
+    userSecret:
+      name: smartintern-secrets
+      key: POSTGRES_USER
+    passwordSecret:
+      name: smartintern-secrets
+      key: POSTGRES_PASSWORD
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 96Mi
