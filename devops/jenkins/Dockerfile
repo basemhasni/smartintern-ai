@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
+FROM node:20.19.4-bookworm-slim AS sonar-node
+
 FROM jenkins/jenkins:2.568.1-lts-jdk21
 
 ARG DOCKER_CLI_VERSION=5:29.7.2-1~debian.13~trixie
@@ -60,6 +62,8 @@ RUN --mount=type=secret,id=local_ca,uid=1000,gid=1000,mode=0400 \
 USER root
 
 ARG HELM_VERSION=4.1.4
+
+COPY --from=sonar-node /usr/local/bin/node /usr/local/bin/node
 
 RUN --mount=type=secret,id=local_ca,uid=0,gid=0,mode=0400 \
   set -eu; \
