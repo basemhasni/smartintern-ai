@@ -269,7 +269,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"smartintern-dev\",pod=~\"postgres-.*\",container=\"postgres\"}[5m]))",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{job=\"kubernetes-nodes-resource\",namespace=\"smartintern-dev\",pod=~\"postgres-.*\",container=\"postgres\"}[5m]))",
           "refId": "A",
           "legendFormat": ""
         }
@@ -315,7 +315,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"smartintern-dev\",pod=~\"postgres-.*\",container=\"postgres\"})",
+          "expr": "sum(container_memory_working_set_bytes{job=\"kubernetes-nodes-resource\",namespace=\"smartintern-dev\",pod=~\"postgres-.*\",container=\"postgres\"})",
           "refId": "A",
           "legendFormat": ""
         }

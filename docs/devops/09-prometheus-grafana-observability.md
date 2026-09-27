@@ -46,7 +46,8 @@ survivent aux upgrades Helm et aux redemarrages des pods.
   postgres-exporter. La verification pgvector reste dans le smoke applicatif.
 - Kubernetes : etat des pods, Deployments, StatefulSets, Jobs, PVC et restarts
   via kube-state-metrics; CPU, memoire et filesystem via node-exporter;
-  conteneurs via cAdvisor lorsque le kubelet expose ces metriques.
+  conteneurs via cAdvisor et `/metrics/resource` du kubelet. Ce second job
+  fournit notamment CPU et memoire du pod PostgreSQL.
 - Ingress NGINX : `nginx_ingress_controller_requests` et metriques de latence
   via le port 10254. Le deploiement active `--enable-metrics=true` de facon
   idempotente et cree un Service interne annote.

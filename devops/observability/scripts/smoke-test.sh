@@ -105,7 +105,9 @@ for metric in \
   'smartintern_ai_http_requests_total' \
   'pg_up{namespace="smartintern-dev"}' \
   'kube_pod_status_phase{namespace="smartintern-dev"}' \
-  'node_cpu_seconds_total'; do
+  'node_cpu_seconds_total' \
+  'container_cpu_usage_seconds_total{job="kubernetes-nodes-resource",namespace="smartintern-dev",pod="postgres-0",container="postgres"}' \
+  'container_memory_working_set_bytes{job="kubernetes-nodes-resource",namespace="smartintern-dev",pod="postgres-0",container="postgres"}'; do
   check_query "${metric}"
 done
 check_query 'nginx_ingress_controller_requests'
