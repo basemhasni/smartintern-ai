@@ -9,7 +9,7 @@ sans copier de mot de passe dans un autre namespace. Prometheus utilise la
 decouverte Kubernetes des Services annotes; aucun Operator ni ServiceMonitor
 n'est requis.
 
-Sur le profil Minikube de 3 Gio, les charts separes sont plus economes que
+Sur le profil Minikube local, les charts separes sont plus economes que
 `kube-prometheus-stack`. Alertmanager et Pushgateway sont desactives. Le
 metrics-server Minikube fournit `kubectl top`; Prometheus collecte les series
 historiques via kubelet/cAdvisor, node-exporter et kube-state-metrics.
@@ -103,7 +103,7 @@ Ajouter `127.0.0.1 grafana.smartintern.local` au fichier hosts Windows, puis
 lancer dans WSL :
 
 ```bash
-kubectl port-forward --address=0.0.0.0 -n ingress-nginx service/ingress-nginx-controller 8443:443
+kubectl port-forward --address=127.0.0.1 -n ingress-nginx service/ingress-nginx-controller 8443:443
 ```
 
 Le certificat auto-signe est cree au deploiement avec SAN
