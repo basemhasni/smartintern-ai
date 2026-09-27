@@ -43,4 +43,5 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [devops/06-sonarqube-quality-gate.md](devops/06-sonarqube-quality-gate.md) : analyse SonarQube et Quality Gate Jenkins bloquant.
 - [devops/07-kubernetes-minikube.md](devops/07-kubernetes-minikube.md) : déploiement Kubernetes Minikube et validation Jenkins.
 - [devops/08-helm-ingress-environments.md](devops/08-helm-ingress-environments.md) : Helm, environnements, Ingress HTTPS et déploiement Jenkins.
+- [devops/09-prometheus-grafana-observability.md](devops/09-prometheus-grafana-observability.md) : métriques Kubernetes et SmartIntern, Prometheus, Grafana et validation Jenkins.
 

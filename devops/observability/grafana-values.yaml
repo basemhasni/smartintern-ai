@@ -1,0 +1,64 @@
+admin:
+  existingSecret: smartintern-grafana-admin
+  userKey: admin-user
+  passwordKey: admin-password
+
+rbac:
+  create: false
+automountServiceAccountToken: false
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 400m
+    memory: 384Mi
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - grafana.smartintern.local
+  tls:
+    - secretName: smartintern-grafana-tls
+      hosts:
+        - grafana.smartintern.local
+
+grafana.ini:
+  server:
+    root_url: https://grafana.smartintern.local/
+  analytics:
+    reporting_enabled: false
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://smartintern-prometheus-server.smartintern-observability.svc.cluster.local
+        isDefault: true
+        editable: false
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: smartintern
+        orgId: 1
+        folder: SmartIntern AI
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/smartintern
+
+dashboardsConfigMaps:
+  smartintern: smartintern-dashboards

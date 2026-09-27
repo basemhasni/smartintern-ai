@@ -41,10 +41,10 @@ pipeline {
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
           env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
             ? 'smartintern-ai'
-            : 'smartintern-ai-step8'
+            : 'smartintern-ai-step9'
           env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
             ? 'SmartIntern AI'
-            : 'SmartIntern AI Step 8'
+            : 'SmartIntern AI Step 9'
         }
         sh '''
           set -eu
@@ -172,7 +172,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-8-helm-ingress-environments'
+          branch 'devops/step-9-prometheus-grafana'
         }
       }
       steps {
@@ -211,7 +211,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-8-helm-ingress-environments'
+          branch 'devops/step-9-prometheus-grafana'
         }
       }
       steps {
@@ -279,7 +279,7 @@ pipeline {
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
-          branch 'devops/step-8-helm-ingress-environments'
+          branch 'devops/step-9-prometheus-grafana'
         }
       }
       steps {
@@ -363,7 +363,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-8-helm-ingress-environments'
+          branch 'devops/step-9-prometheus-grafana'
         }
       }
       steps {
@@ -411,7 +411,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-8-helm-ingress-environments'
+          branch 'devops/step-9-prometheus-grafana'
         }
       }
       steps {
@@ -436,6 +436,65 @@ pipeline {
       }
     }
 
+    stage('Observability Validation') {
+      steps {
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh 'devops/observability/scripts/validate.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+        }
+      }
+    }
+
+    stage('Observability Deployment') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-9-prometheus-grafana'
+        }
+      }
+      steps {
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh 'devops/observability/scripts/deploy.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+        }
+        script {
+          env.OBSERVABILITY_DEPLOY_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Observability Smoke Test') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'devops/step-9-prometheus-grafana'
+        }
+      }
+      steps {
+        withCredentials([
+          file(
+            credentialsId: env.KUBECONFIG_CREDENTIALS_ID,
+            variable: 'SMARTINTERN_KUBECONFIG'
+          )
+        ]) {
+          sh 'devops/observability/scripts/smoke-test.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+        }
+        script {
+          env.OBSERVABILITY_SMOKE_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
     stage('Final Summary') {
       steps {
         script {
@@ -447,6 +506,8 @@ pipeline {
           def kubernetesSmokeStatus = env.KUBERNETES_SMOKE_STATUS ?: 'SKIPPED (branch not authorized)'
           def ingressStatus = env.INGRESS_STATUS ?: 'SKIPPED (branch not authorized)'
           def tlsStatus = env.TLS_STATUS ?: 'SKIPPED (branch not authorized)'
+          def observabilityDeployStatus = env.OBSERVABILITY_DEPLOY_STATUS ?: 'SKIPPED (branch not authorized)'
+          def observabilitySmokeStatus = env.OBSERVABILITY_SMOKE_STATUS ?: 'SKIPPED (branch not authorized)'
           def repositories = env.CI_IMAGES.tokenize()
             .collect { image ->
               env.REGISTRY_NAMESPACE?.trim()
@@ -483,6 +544,7 @@ Helm deployment: ${helmDeployStatus}
 Ingress: ${ingressStatus}
 TLS: ${tlsStatus}
 Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
+          echo "Observability deployment: ${observabilityDeployStatus}; smoke: ${observabilitySmokeStatus}"
         }
       }
     }
