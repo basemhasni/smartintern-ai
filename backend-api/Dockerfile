@@ -3,7 +3,7 @@
 FROM node:20.19.4-bookworm-slim AS base
 
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends openssl \
+  && apt-get install --yes --no-install-recommends openssl libgnutls30 \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS generator
@@ -23,6 +23,8 @@ RUN --mount=type=secret,id=ci_ca \
 FROM generator AS migrate
 
 ENV NODE_ENV=production
+
+RUN rm -rf /usr/local/lib/node_modules/npm
 
 USER node
 
@@ -50,6 +52,8 @@ WORKDIR /app
 
 RUN groupadd --gid 10001 smartintern \
   && useradd --uid 10001 --gid smartintern --no-create-home --home-dir /app --shell /usr/sbin/nologin smartintern
+
+RUN rm -rf /usr/local/lib/node_modules/npm
 
 COPY --from=production-dependencies --chown=smartintern:smartintern /app/node_modules ./node_modules
 COPY --from=generator --chown=smartintern:smartintern /app/node_modules/.prisma ./node_modules/.prisma

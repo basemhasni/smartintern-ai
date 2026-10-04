@@ -12,6 +12,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends --only-upgrade libexpat1 libgnutls30 libssl3 openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --gid 10001 smartintern \
   && useradd --uid 10001 --gid smartintern --no-create-home --home-dir /app --shell /usr/sbin/nologin smartintern
 
