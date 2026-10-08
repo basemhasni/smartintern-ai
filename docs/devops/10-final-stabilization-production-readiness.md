@@ -10,6 +10,7 @@ Elle ne constitue pas une homologation cloud ni un SLA de production publique.
 - `npm run test:e2e` depuis `frontend-web` utilise `E2E_BASE_URL` (par défaut `http://localhost:8088`). En CI, Playwright `1.63.0` tourne sur le réseau Compose et utilise `http://frontend:8080`.
 - Les tests unitaires backend, frontend, IA et les contrôles mobile restent dans `Application CI`. Les workflows IA sont couverts par les tests Python déterministes existants, sans API LLM payante.
 - Le rapport JUnit E2E est publié par Jenkins. Les traces et captures ne sont conservées qu'en échec.
+- Le stage SonarQube utilise le Node installé dans Jenkins et un verrou partagé pour éviter deux analyses concurrentes sur le même hôte.
 
 ## Sécurité
 

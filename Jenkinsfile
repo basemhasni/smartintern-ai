@@ -194,10 +194,12 @@ pipeline {
             sh """
               export SONAR_TOKEN="\${SONAR_AUTH_TOKEN}"
               export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx384m'
-              '${scannerHome}/bin/sonar-scanner' \\
+              flock -w 900 -x /var/jenkins_home/.sonar/analysis.lock \\
+                '${scannerHome}/bin/sonar-scanner' \\
                 -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
                 -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
-                -Dsonar.projectVersion='${env.CI_TAG}'
+                -Dsonar.projectVersion='${env.CI_TAG}' \\
+                -Dsonar.nodejs.executable=/usr/local/bin/node
             """
           }
 
