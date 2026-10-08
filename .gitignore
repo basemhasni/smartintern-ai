@@ -54,6 +54,9 @@ backups/
 *.dump
 *.backup
 *.sql.gz
+artifacts/backups/
+frontend-web/playwright-report/
+frontend-web/test-results/
 
 # OS and editor files
 .DS_Store

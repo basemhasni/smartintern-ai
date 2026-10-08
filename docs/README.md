@@ -44,4 +44,7 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [devops/07-kubernetes-minikube.md](devops/07-kubernetes-minikube.md) : déploiement Kubernetes Minikube et validation Jenkins.
 - [devops/08-helm-ingress-environments.md](devops/08-helm-ingress-environments.md) : Helm, environnements, Ingress HTTPS et déploiement Jenkins.
 - [devops/09-prometheus-grafana-observability.md](devops/09-prometheus-grafana-observability.md) : métriques Kubernetes et SmartIntern, Prometheus, Grafana et validation Jenkins.
+- [devops/10-final-stabilization-production-readiness.md](devops/10-final-stabilization-production-readiness.md) : tests E2E, sécurité, charge, sauvegarde/restauration et release.
+- [operations/RUNBOOK.md](operations/RUNBOOK.md) : exploitation et dépannage du cluster local.
+- [release/RELEASE_CHECKLIST.md](release/RELEASE_CHECKLIST.md) : critères vérifiables avant v1.0.0.
 

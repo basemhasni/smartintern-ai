@@ -4,7 +4,7 @@ pipeline {
   options {
     skipDefaultCheckout(true)
     timestamps()
-    timeout(time: 120, unit: 'MINUTES')
+    timeout(time: 180, unit: 'MINUTES')
     disableConcurrentBuilds()
     durabilityHint('MAX_SURVIVABILITY')
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
@@ -41,10 +41,10 @@ pipeline {
           env.CI_PROJECT_NAME = "smartintern-ci-${env.BUILD_NUMBER}"
           env.SONAR_PROJECT_KEY = env.BRANCH_NAME == 'main'
             ? 'smartintern-ai'
-            : 'smartintern-ai-step9'
+            : 'smartintern-ai-step10'
           env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
             ? 'SmartIntern AI'
-            : 'SmartIntern AI Step 9'
+            : 'SmartIntern AI Step 10'
         }
         sh '''
           set -eu
@@ -172,7 +172,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -194,10 +194,12 @@ pipeline {
             sh """
               export SONAR_TOKEN="\${SONAR_AUTH_TOKEN}"
               export SONAR_SCANNER_JAVA_OPTS='-Xms128m -Xmx384m'
-              '${scannerHome}/bin/sonar-scanner' \\
+              flock -w 900 -x /var/jenkins_home/.sonar/analysis.lock \\
+                '${scannerHome}/bin/sonar-scanner' \\
                 -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
                 -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
-                -Dsonar.projectVersion='${env.CI_TAG}'
+                -Dsonar.projectVersion='${env.CI_TAG}' \\
+                -Dsonar.nodejs.executable=/usr/local/bin/node
             """
           }
 
@@ -211,7 +213,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -245,6 +247,21 @@ pipeline {
       }
     }
 
+    stage('Security Validation') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'release/step-10-final-stabilization'
+        }
+      }
+      steps {
+        timeout(time: 25, unit: 'MINUTES') {
+          sh 'bash devops/release/scripts/scan-images.sh "${CI_TAG}"'
+        }
+      }
+    }
+
     stage('Compose Smoke Test') {
       steps {
         sh '''
@@ -273,13 +290,64 @@ pipeline {
       }
     }
 
+    stage('Application E2E and API Integration') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'release/step-10-final-stabilization'
+        }
+      }
+      agent {
+        docker {
+          image 'mcr.microsoft.com/playwright:v1.63.0-noble'
+          args "--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --network ${env.CI_PROJECT_NAME}_smartintern-network --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt"
+          reuseNode true
+        }
+      }
+      steps {
+        dir('frontend-web') {
+          retry(3) {
+            sh 'npm ci --prefer-offline --no-audit'
+          }
+          timeout(time: 8, unit: 'MINUTES') {
+            sh 'E2E_BASE_URL=http://frontend:8080 npm run test:e2e'
+          }
+        }
+      }
+      post {
+        always {
+          junit allowEmptyResults: true, testResults: 'frontend-web/test-results/e2e-junit.xml'
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'frontend-web/test-results/**', onlyIfSuccessful: false
+        }
+      }
+    }
+
+    stage('Performance Smoke') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'release/step-10-final-stabilization'
+        }
+      }
+      steps {
+        timeout(time: 3, unit: 'MINUTES') {
+          sh '''
+            docker run --rm -i --network "${CI_PROJECT_NAME}_smartintern-network" \
+              grafana/k6:0.55.2 run - < devops/release/performance/smoke.js
+          '''
+        }
+      }
+    }
+
     stage('Registry Publish') {
       when {
         beforeAgent true
         anyOf {
           branch 'main'
           branch 'devops/step-5-dockerhub-registry'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -363,7 +431,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -411,7 +479,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -424,14 +492,61 @@ pipeline {
           sh '''
             devops/helm/scripts/smoke-test.sh \
               --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
-              --image-tag "${CI_TAG}" \
-              --test-persistence
+              --image-tag "${CI_TAG}"
           '''
         }
         script {
           env.KUBERNETES_SMOKE_STATUS = 'SUCCESS'
           env.INGRESS_STATUS = 'SUCCESS'
           env.TLS_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Backup / Restore Validation') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'release/step-10-final-stabilization'
+        }
+      }
+      steps {
+        withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
+          timeout(time: 10, unit: 'MINUTES') {
+            sh '''
+              set -eu
+              backup="${WORKSPACE}/artifacts/backups/step10-${CI_TAG}.dump"
+              trap 'rm -f -- "${backup}"' EXIT
+              bash devops/release/scripts/backup-postgres.sh \
+                --kubeconfig "${SMARTINTERN_KUBECONFIG}" --output "${backup}"
+              bash devops/release/scripts/verify-restore-postgres.sh \
+                --kubeconfig "${SMARTINTERN_KUBECONFIG}" --input "${backup}"
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Recovery Validation') {
+      when {
+        beforeAgent true
+        anyOf {
+          branch 'main'
+          branch 'release/step-10-final-stabilization'
+        }
+      }
+      steps {
+        withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
+          timeout(time: 25, unit: 'MINUTES') {
+            sh '''
+              bash devops/release/scripts/verify-app-recovery.sh \
+                --kubeconfig "${SMARTINTERN_KUBECONFIG}"
+              devops/helm/scripts/smoke-test.sh \
+                --kubeconfig "${SMARTINTERN_KUBECONFIG}" \
+                --image-tag "${CI_TAG}" --test-persistence
+            '''
+          }
         }
       }
     }
@@ -454,7 +569,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
@@ -477,7 +592,7 @@ pipeline {
         beforeAgent true
         anyOf {
           branch 'main'
-          branch 'devops/step-9-prometheus-grafana'
+          branch 'release/step-10-final-stabilization'
         }
       }
       steps {
