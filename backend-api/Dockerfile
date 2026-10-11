@@ -3,7 +3,7 @@
 FROM node:20.19.4-bookworm-slim AS base
 
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends openssl libgnutls30 \
+  && apt-get install --yes --no-install-recommends openssl libgnutls30 perl-base \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS generator

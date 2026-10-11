@@ -16,6 +16,8 @@ Elle ne constitue pas une homologation cloud ni un SLA de production publique.
 
 Trivy `0.68.2` scanne les cinq images runtime pour les vulnérabilités HIGH/CRITICAL. Les résultats non corrigés restent visibles ; le pipeline échoue sur les vulnérabilités CRITICAL avec correctif disponible. Le scan local du 4 octobre 2026 passe ce seuil sur les cinq images. Il reste des avis HIGH et des CRITICAL sans correctif publié, notamment dans les images de base ; ils exigent un suivi régulier. Ce contrôle ne constitue pas une promesse de zéro risque.
 
+Le scan CI du 8 octobre a ensuite détecté deux correctifs publiés après cette validation : `perl-base` et `proxy-addr` dans les images backend. La mise à jour vers `perl-base 5.36.0-7+deb12u4` et `proxy-addr 2.0.8` a été vérifiée dans l'image runtime ; les images backend et migration reconstruites passent le gate CRITICAL local du 11 octobre 2026. Le pipeline complet doit encore confirmer ce résultat sur le SHA final.
+
 Les audits npm sont exécutés séparément. Le frontend de production n'a pas de vulnérabilité connue après mise à jour des dépendances ; des avis sur les outils de développement restent documentés. Le backend runtime est contrôlé par le scan de l'image, car `npm audit --omit=dev` peut encore signaler la chaîne Prisma CLI du lockfile. Aucun secret ou dump n'est archivé par la CI.
 
 ## Performance
