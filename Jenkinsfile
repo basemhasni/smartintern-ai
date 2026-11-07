@@ -368,6 +368,16 @@ pipeline {
         }
       }
       steps {
+        // Compose is disposable and has completed its E2E/performance checks.
+        // Free its memory before the Kubernetes validations on this laptop.
+        sh '''
+          set -eu
+          export IMAGE_TAG="${CI_TAG}"
+          export POSTGRES_VOLUME_NAME="${CI_PROJECT_NAME}-postgres-data"
+          export BACKEND_UPLOADS_VOLUME_NAME="${CI_PROJECT_NAME}-backend-uploads"
+          docker compose -p "${CI_PROJECT_NAME}" --env-file "${CI_ENV_FILE}" \
+            down --volumes --remove-orphans
+        '''
         script {
           withCredentials([
             usernamePassword(
@@ -743,7 +753,7 @@ Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
 
   post {
     always {
-      archiveArtifacts allowEmptyArchive: true, artifacts: 'artifacts/security/*.summary.json,artifacts/validation/performance-*.json,frontend-web/coverage/lcov.info,backend-api/coverage/lcov.info,ai-service/coverage.xml', onlyIfSuccessful: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: 'artifacts/security/*.summary.json,artifacts/validation/performance-*.json,artifacts/validation/sonar-*.json,frontend-web/coverage/lcov.info,backend-api/coverage/lcov.info,ai-service/coverage.xml', onlyIfSuccessful: false
       script {
         if (env.CI_PROJECT_NAME?.trim() && fileExists(env.CI_ENV_FILE)) {
           sh '''
