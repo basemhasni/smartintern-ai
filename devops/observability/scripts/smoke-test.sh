@@ -122,7 +122,7 @@ query_prometheus 'pg_up{namespace="smartintern-dev"}' | jq -e '[.data.result[] |
 forward_service "${OBS_NAMESPACE}" smartintern-grafana 80
 grafana_url="http://127.0.0.1:${FORWARD_PORT}"
 wait_http "${grafana_url}/api/health"
-grafana_password="$(kube get secret smartintern-grafana-admin -n "${OBS_NAMESPACE}" -o jsonpath='{.data.admin-password}' | base64 --decode)"
+grafana_password="$(kube get secret smartintern-grafana-admin -n "${OBS_NAMESPACE}" -o jsonpath='{.data.admin-password}' | base64 -d)"
 curl --fail --silent --show-error --user "admin:${grafana_password}" \
   "${grafana_url}/api/datasources/uid/prometheus/health" | jq -e '.status == "OK"' >/dev/null
 dashboards="$(curl --fail --silent --show-error --user "admin:${grafana_password}" \

@@ -30,7 +30,7 @@ vector ; Helm 4 ; scripts Kubernetes/observabilité Step 9 conservés.
 | Lettre V2 | Tests Python du service | Graphe, claims, génération depuis UI | Tests graphe complet/erreur contrôlée et UI génération avec backend+IA réels |
 | RAG V2 | Tests Python chunk/embedding/rerank | Persistance et isolation via API | Upload/indexation, recherche topK=1, locataire différent, résultat vide |
 | Career Assistant, Skill Gap, Offer Quality, Orchestrator | Tests Python existants + smoke mobile | Conserver la régression | Suite complète et smoke mobile existant |
-| Admin : dashboard/users/companies | Routes et pages réelles | Pas de compte administrateur synthétique provisionné dans la suite navigateur | Refus non-admin testés ; parcours admin positif reste à valider |
+| Admin : dashboard/users/companies | Routes et pages réelles | Pas de compte administrateur synthétique provisionné dans la suite navigateur | Provisionnement CLI temporaire, login UI, vues admin et logout vérifiés en E2E HTTPS, puis nettoyage ciblé |
 | Mobile | lint/typecheck/Expo Doctor et script smoke | Tests unitaires des utilitaires | 3 tests avec TypeScript existant, sans infrastructure supplémentaire |
 | Sauvegarde/restore | pg_dump et base temporaire | Comparaison fragile aux données actives après dump | Schéma/tables/migrations/vector validés dans le dump restauré, données synthétiques vérifiables |
 | Recovery | Suppression pods + marqueur PostgreSQL | Race de recréation, identité PVC après redémarrage | Nouveau UID pod, même UID PVC Bound, marqueur et calcul vectoriel après redémarrage |
@@ -51,5 +51,8 @@ Le profil Windows `minikube` existant était arrêté. Le profil demandé `smart
 était absent, y compris des outils WSL inspectés. Un profil de validation distinct
 `smartintern-ai` a été créé : Kubernetes 1.37.0, 4 CPU, 4 Go, Ingress activé.
 Le refus GitHub non interactif confirme l'absence d'identifiants de push disponibles.
+Les 6 E2E HTTPS du cluster, le smoke k6, les recoveries applicatifs et PostgreSQL,
+et les régressions Prometheus/Grafana ont effectivement réussi sur `2dfff41b9034`.
+La validation des derniers correctifs runtime est consignée séparément dans le rapport.
 Les succès historiques indiqués dans les anciens documents ne remplacent pas les preuves
 des builds Jenkins feature/main sur le SHA final.

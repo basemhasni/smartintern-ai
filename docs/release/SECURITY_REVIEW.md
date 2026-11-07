@@ -11,10 +11,16 @@ et archivables dans Jenkins. Les extraits et valeurs des secrets ne sont pas pub
 - JWT production : rejet des placeholders et secrets composés d'un seul caractère.
 - CV : aucun texte ou compétence déduit d'un nom de fichier après échec du parsing.
 - Lockfiles npm : mises à jour compatibles, notamment multer, body-parser,
-  follow-redirects et shell-quote. Aucune mise à jour majeure forcée.
+  follow-redirects, shell-quote et brace-expansion 1.1.21. L'alignement des correctifs
+  Expo SDK 57/React Native a aussi supprimé l'avis image-size. Aucune mise à jour
+  majeure forcée.
 - Correctifs OS disponibles installés dans les quatre images runtime applicatives
   et l'image de migration, dont nginx et bibliothèques système.
 - Node 20 EOL remplacé par Node 22.23.4 LTS épinglé dans les images et agents CI.
+- Nginx : remplacement du paquet vendor 1.28.3-r1, bloqué par ses dépendances,
+  par le paquet Alpine corrigé 1.28.3-r7. Configuration applicative identique.
+- IA : retrait de setuptools/wheel inutiles au runtime, supprimant les avis
+  jaraco.context et wheel ; `pip check` et les 102 tests IA valident cette suppression.
 
 ## CRITICAL sans correctif retournées par Trivy
 
@@ -37,9 +43,6 @@ images sous le SHA de validation reste la référence pour le commit testé.
 - `deepmerge-ts 7.1.5` : correctif 8.0.0 ; dépendance de Prisma CLI/config.
   L'audit npm propose une migration majeure Prisma pour la supprimer. Cette migration
   n'est pas forcée dans une stabilisation ; l'API/runtime est scannée séparément.
-- `image-size 1.2.1` : CVE-2025-71329 et CVE-2025-71330, correctif 2.0.3.
-  Dépendance transitive des outils mobile ; le changement majeur doit être validé
-  par la chaîne Expo. Ne pas ajouter un override incompatible pour masquer l'avis.
 - Les audits npm signalent aussi des avis modérés sur les outils de développement.
   Le gate natif échoue à partir de CRITICAL ; les autres résultats restent visibles.
 

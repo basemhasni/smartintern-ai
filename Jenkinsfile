@@ -128,7 +128,7 @@ pipeline {
             dir('ai-service') {
               sh 'python --version && python -m pip --version'
               retry(3) {
-                sh 'python -m pip install --user --requirement requirements-dev.txt'
+                sh 'python -m pip install --user --constraint requirements.lock.txt --requirement requirements-dev.txt'
               }
               sh 'python -m compileall -q app'
               sh 'python -m coverage run --branch --source=app -m unittest discover -s tests -p "test*.py"'
@@ -155,7 +155,7 @@ pipeline {
               sh 'npm run typecheck'
               sh 'npm run test:logic'
               sh 'npm audit --audit-level=critical'
-              sh 'EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK=1 npx --yes expo-doctor@1.20.1 .'
+              sh 'npx --yes expo-doctor@1.20.1 .'
             }
           }
         }
@@ -530,6 +530,18 @@ pipeline {
       }
     }
 
+    stage('Kubernetes Performance Smoke') {
+      when { anyOf { branch 'main'; branch 'release/step-10-final-stabilization' } }
+      steps {
+        withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
+          timeout(time: 6, unit: 'MINUTES') {
+            sh 'bash devops/release/scripts/run-kubernetes-performance.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+          }
+        }
+        script { env.KUBERNETES_PERFORMANCE_STATUS = 'SUCCESS' }
+      }
+    }
+
     stage('Backup / Restore Validation') {
       when {
         beforeAgent true
@@ -649,6 +661,7 @@ pipeline {
             QUALITY_GATE_STATUS: 'OK', SECURITY_STATUS: 'SUCCESS',
             COMPOSE_E2E_STATUS: 'SUCCESS', PERFORMANCE_STATUS: 'SUCCESS',
             KUBERNETES_E2E_STATUS: 'SUCCESS',
+            KUBERNETES_PERFORMANCE_STATUS: 'SUCCESS',
             RESTORE_STATUS: 'SUCCESS', RECOVERY_STATUS: 'SUCCESS',
             HELM_DEPLOY_STATUS: 'SUCCESS', KUBERNETES_SMOKE_STATUS: 'SUCCESS',
             OBSERVABILITY_SMOKE_STATUS: 'SUCCESS'
@@ -722,7 +735,7 @@ Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
 
   post {
     always {
-      archiveArtifacts allowEmptyArchive: true, artifacts: 'artifacts/security/*.summary.json,frontend-web/coverage/lcov.info,backend-api/coverage/lcov.info,ai-service/coverage.xml', onlyIfSuccessful: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: 'artifacts/security/*.summary.json,artifacts/validation/performance-*.json,frontend-web/coverage/lcov.info,backend-api/coverage/lcov.info,ai-service/coverage.xml', onlyIfSuccessful: false
       script {
         if (env.CI_PROJECT_NAME?.trim() && fileExists(env.CI_ENV_FILE)) {
           sh '''

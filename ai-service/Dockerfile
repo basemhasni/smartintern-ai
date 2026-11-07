@@ -20,14 +20,16 @@ RUN apt-get update \
 RUN groupadd --gid 10001 smartintern \
   && useradd --uid 10001 --gid smartintern --no-create-home --home-dir /app --shell /usr/sbin/nologin smartintern
 
-COPY requirements.txt ./
+COPY requirements.txt requirements.lock.txt ./
 RUN --mount=type=secret,id=ci_ca \
   if [ -s /run/secrets/ci_ca ]; then \
     export PIP_CERT=/run/secrets/ci_ca \
       REQUESTS_CA_BUNDLE=/run/secrets/ci_ca \
       SSL_CERT_FILE=/run/secrets/ci_ca; \
   fi; \
-  python -m pip install --no-cache-dir --requirement requirements.txt
+  python -m pip install --no-cache-dir --constraint requirements.lock.txt --requirement requirements.txt \
+  && python -m pip uninstall --yes setuptools wheel \
+  && python -m pip check
 
 COPY --chown=smartintern:smartintern app ./app
 

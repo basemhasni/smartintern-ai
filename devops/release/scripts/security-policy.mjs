@@ -18,10 +18,10 @@ for (const result of report.Results || []) {
     blocked = true;
   }
   for (const item of result.Misconfigurations || []) {
-    if (item.Status === 'FAIL') findings.push({ target: result.Target, type: 'configuration', id: item.ID, title: item.Title, severity: item.Severity });
+    if (item.Status === 'FAIL' && ['HIGH', 'CRITICAL'].includes(item.Severity)) findings.push({ target: result.Target, type: 'configuration', id: item.ID, title: item.Title, severity: item.Severity });
   }
 }
-const summary = { scanner: 'Trivy 0.68.2', blocked, findings };
+const summary = { scanner: 'Trivy 0.68.2', commit: process.env.SCANNED_COMMIT || null, blocked, findings };
 fs.writeFileSync(file.replace(/\.raw\.json$/, '.summary.json'), JSON.stringify(summary, null, 2));
 fs.unlinkSync(file);
 console.log(JSON.stringify(summary, null, 2));

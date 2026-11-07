@@ -25,7 +25,9 @@ test('unfixed critical vulnerabilities stay visible without being hidden by excl
   assert.equal(result.summary.findings[0].fixed, null);
 });
 test('secret matches block the release and are redacted from logs and reports', () => {
-  const result = run({ Target: 'fixture', Secrets: [{ RuleID: 'synthetic', StartLine: 1, Severity: 'HIGH', Match: 'SYNTHETIC_DO_NOT_PRINT', Code: { Lines: [{ Content: 'SYNTHETIC_DO_NOT_PRINT' }] } }] });
+  for (const severity of ['HIGH', 'MEDIUM', 'LOW']) {
+  const result = run({ Target: 'fixture', Secrets: [{ RuleID: 'synthetic', StartLine: 1, Severity: severity, Match: 'SYNTHETIC_DO_NOT_PRINT', Code: { Lines: [{ Content: 'SYNTHETIC_DO_NOT_PRINT' }] } }] });
   assert.equal(result.status, 1);
   assert.doesNotMatch(result.stdout + JSON.stringify(result.summary), /SYNTHETIC_DO_NOT_PRINT/);
+  }
 });

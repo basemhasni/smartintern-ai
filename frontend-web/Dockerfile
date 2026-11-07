@@ -20,9 +20,11 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
 
 RUN npm run build
 
-FROM nginx:1.28.3-alpine AS runtime
+FROM alpine:3.23.3 AS runtime
 
-RUN apk upgrade --no-cache
+# Use Alpine's patched Nginx build; the vendor image pins an older apk revision.
+RUN apk upgrade --no-cache \
+  && apk add --no-cache nginx=1.28.3-r7
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html

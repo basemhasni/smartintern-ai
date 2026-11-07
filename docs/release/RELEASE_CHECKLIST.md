@@ -9,7 +9,7 @@ Cocher seulement après vérification réelle et conserver les références de b
 - [ ] Audit dépendances et résultats Trivy HIGH/CRITICAL examinés ; aucun CRITICAL corrigeable restant.
 - [ ] Aucun secret ni dump suivi par Git.
 - [ ] Cinq images Docker construites et scans validés.
-- [ ] k6 : erreurs < 1 %, p95 < 500 ms ; p50/p95/p99 consignés.
+- [ ] k6 : erreurs < 1 %, p95 < 150 ms ; p50/p95/p99 consignés.
 - [ ] Dump PostgreSQL produit, archive valide et restore temporaire réussi.
 - [ ] Tables, données de test et pgvector vérifiés après restore.
 - [ ] Recovery frontend, backend, AI et PostgreSQL réussi ; PVC Bound.

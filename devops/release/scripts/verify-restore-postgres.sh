@@ -44,6 +44,7 @@ pg_exec sh -c \
 restored_count="$(query_temp 'SELECT COUNT(*) FROM "User";')"
 restored_tables="$(query_temp "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")"
 restored_migrations="$(query_temp 'SELECT COUNT(*) FROM "_prisma_migrations";')"
+restored_documents="$(query_temp 'SELECT COUNT(*) FROM "VectorDocument";')"
 vector="$(query_temp "SELECT extname FROM pg_extension WHERE extname = 'vector';")"
 distance="$(query_temp "SELECT '[1,2,3]'::vector <-> '[1,2,4]'::vector;")"
 
@@ -62,8 +63,11 @@ if [[ "$expect_test_data" == true ]]; then
   test_user_query="SELECT COUNT(*) FROM \"User\" WHERE email LIKE '%@example.invalid';"
   [[ "$(query_temp "$test_user_query")" -gt 0 ]]
   [[ "$(query_temp 'SELECT COUNT(*) FROM "Application";')" -gt 0 ]]
+  [[ "$restored_documents" -gt 0 ]]
+  embedding_query="SELECT COUNT(*) FROM \"VectorDocument\" WHERE CASE WHEN jsonb_typeof(\"embeddingJson\") = 'array' THEN jsonb_array_length(\"embeddingJson\") ELSE 0 END > 0;"
+  [[ "$(query_temp "$embedding_query")" -gt 0 ]]
 fi
 [[ "$vector" == vector ]]
 [[ "$distance" == 1 ]]
-printf 'Restore verified in temporary database: users=%s, tables=%s, migrations=%s, pgvector=%s, vector distance=%s.\n' \
-  "$restored_count" "$restored_tables" "$restored_migrations" "$vector" "$distance"
+printf 'Restore verified in temporary database: users=%s, tables=%s, migrations=%s, RAG documents=%s, pgvector=%s, vector distance=%s.\n' \
+  "$restored_count" "$restored_tables" "$restored_migrations" "$restored_documents" "$vector" "$distance"

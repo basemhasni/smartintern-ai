@@ -21,6 +21,12 @@ Si Minikube est arrêté : `minikube start -p smartintern-ai --driver=docker`. N
 
 Le frontend utilise `https://smartintern.local` via Ingress local. Le nom doit résoudre vers le contrôleur Ingress Minikube ; voir [Step 8](../devops/08-helm-ingress-environments.md). Le certificat local n'est pas signé par une autorité publique. Vérifier les services :
 
+Sous Windows avec port-forward 8443, le navigateur utilise
+`https://smartintern.local:8443`. Le nom doit résoudre vers `127.0.0.1`.
+L'ajout au fichier hosts exige un terminal administrateur ; si ces droits sont
+absents, la commande `curl --resolve` ci-dessous valide le service sans modifier
+le DNS système. Le certificat reste une exception locale de test.
+
 ```bash
 kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 8443:443
 curl -k --resolve smartintern.local:8443:127.0.0.1 https://smartintern.local:8443/api/health

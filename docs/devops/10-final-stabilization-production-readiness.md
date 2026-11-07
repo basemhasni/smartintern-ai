@@ -53,6 +53,11 @@ les propriétaires étrangers, statuts, champs protégés, CV privés et l'isola
 Les PDF sans texte exploitable sont refusés ; leur nom de fichier ne constitue
 plus une preuve de compétence.
 
+Le contrôle Expo Doctor est désormais complet, sans le flag qui omettait les
+versions SDK : les correctifs document-picker 57.0.3, linear-gradient 57.0.2,
+secure-store 57.0.4 et React Native 0.86.3 ont été alignés sur SDK 57 ; les vingt
+vérifications passent. Le lockfile fixe aussi les dépendances transitives corrigibles.
+
 La suite IA exécute réellement les graphes compilés LangGraph de matching et lettre,
 y compris les erreurs de validation/claims, sans fournisseur payant. Le mobile a
 trois tests de logique utilisant son compilateur TypeScript existant.
@@ -64,7 +69,10 @@ de supprimer seulement les comptes synthétiques de ce run, leurs CV et document
 Les rapports sont copiés avant suppression du pod. Aucun PVC n'est supprimé.
 
 Trivy conserve sa version `0.68.2`. Les scans filesystem, secrets et configurations
-complètent les cinq scans d'images. Le gate bloque toute détection de secret et toute
+complètent les cinq scans d'images. Le filesystem scanné est un `git archive HEAD` :
+le rapport identifie le commit exact, tous ses fichiers suivis sont inclus, et les
+secrets runtime, dumps et rapports temporaires ne font pas partie de ce snapshot.
+Le gate bloque toute détection de secret, quelle que soit sa sévérité, et toute
 CRITICAL avec correctif ; les HIGH et CRITICAL sans correctif restent visibles dans
 les rapports JSON. La politique est elle-même testée. Les valeurs et extraits de
 secrets sont supprimés des sorties et des rapports publiables. Les audits npm natifs
@@ -73,8 +81,16 @@ ont le même seuil CRITICAL, sans `audit fix --force`.
 Le smoke k6 conserve trois VU pendant vingt secondes et ajoute `GET /api/offers`
 aux deux endpoints `/health`. Baseline Compose du 7 novembre, pendant la préparation
 du cluster : 180 requêtes, 8,749 req/s, erreurs 0 %, p50 4,64 ms, p95 19,59 ms,
-p99 115,21 ms. Le gate existant p95 < 500 ms reste adapté au smoke sur laptop ;
-il ne constitue pas un objectif de capacité de production publique.
+p99 115,21 ms. Après ces mesures, le gate final est resserré à p95 < 150 ms,
+avec erreurs < 1 % et 100 % des checks fonctionnels réussis. Il garde de la marge
+pour le laptop et les premiers appels, sans accepter une dégradation de plusieurs
+centaines de millisecondes sur ces routes légères. Ce smoke ne constitue pas un
+objectif de capacité de production publique.
+
+Le même scénario est aussi lancé dans un pod Kubernetes jetable, après les E2E
+HTTPS. Les rapports JSON de performance sont conservés comme petits artefacts.
+Mesure initiale sur le cluster au SHA `2dfff41b9034` : 180 requêtes, 8,809 req/s,
+erreurs 0 %, p50 3,66 ms, p95 11,01 ms et p99 96,19 ms.
 
 Le gate final Jenkins exige explicitement les statuts Quality Gate, sécurité,
 E2E Compose et Kubernetes, performance, restauration, recovery et observabilité.
@@ -90,6 +106,10 @@ Le client kubectl Jenkins est aligné sur le cluster de validation 1.37.0.
 Le service IA et son agent CI restent sur Python 3.11 avec le correctif
 `3.11.18` épinglé, vérifié dans le
 [Dockerfile Python officiel](https://github.com/docker-library/python/blob/master/3.11/slim-bookworm/Dockerfile).
+`requirements.lock.txt` enregistre les contraintes transitives du runtime testé ;
+Docker et Jenkins les appliquent avec `pip --constraint`, tout en conservant
+`requirements.txt` comme manifeste portable. Les outils de build inutiles
+setuptools/wheel sont retirés du runtime et `pip check` vérifie sa cohérence.
 La connexion du Jenkins historique à un autre cluster doit être vérifiée avant
 le build complet ; aucune réussite distante n'est déduite de ces contrôles locaux.
 

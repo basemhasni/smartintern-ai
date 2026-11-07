@@ -36,7 +36,7 @@ services:
     volumes:
       - ./mobile-app:/workspace
       - mobile-test-deps:/workspace/node_modules
-    command: sh -ec 'npm ci --no-audit; npm run lint; npm run typecheck; npm run test:logic; EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK=1 npx --yes expo-doctor@1.20.1 .; npm audit --audit-level=critical'
+    command: sh -ec 'npm ci --no-audit; npm run lint; npm run typecheck; npm run test:logic; npx --yes expo-doctor@1.20.1 .; npm audit --audit-level=critical'
   e2e-tests:
     profiles: [validation]
     image: mcr.microsoft.com/playwright:v1.63.0-noble
@@ -68,16 +68,18 @@ services:
     image: grafana/k6:0.55.2
     volumes:
       - ./devops/release/performance:/scripts:ro
+      - ./artifacts/validation:/reports
     networks: [smartintern-network]
-    command: run /scripts/smoke.js
+    command: run --summary-export /reports/performance-compose.json /scripts/smoke.js
   security-filesystem:
     profiles: [validation]
-    image: aquasec/trivy:0.68.2
+    image: smartintern-release-tools:local
+    working_dir: /workspace
+    entrypoint: sh
     volumes:
-      - .:/workspace:ro
-      - ./artifacts/security:/reports
-      - trivy-cache:/root/.cache/trivy
-    command: fs --scanners vuln,secret,misconfig --helm-kube-version 1.37.0 --helm-set global.imageTag=000000000000 --skip-dirs /workspace/.git,/workspace/artifacts,/workspace/devops/helm/.runtime,/workspace/frontend-web/test-results,/workspace/frontend-web/test-results-kubernetes,/workspace/frontend-web/playwright-report,/workspace/frontend-web/node_modules,/workspace/backend-api/node_modules,/workspace/mobile-app/node_modules,/workspace/frontend-web/dist,/workspace/frontend-web/coverage,/workspace/backend-api/coverage --severity HIGH,CRITICAL --format json --output /reports/filesystem.raw.json /workspace
+      - .:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -ec 'bash devops/release/scripts/scan-filesystem.sh'
   release-tools:
     profiles: [validation]
     image: smartintern-release-tools:local
@@ -95,7 +97,6 @@ volumes:
   frontend-test-deps:
   backend-test-deps:
   mobile-test-deps:
-  trivy-cache:
 networks:
   minikube-tools:
     external: true
