@@ -91,9 +91,20 @@ cas d'échec.
 ## 12. New Code
 
 La définition de New Code utilise `Previous version`. Une analyse de référence
-du commit `main` précédent initialise chaque projet, puis chaque SHA Jenkins est
-fourni comme `sonar.projectVersion`. Cette stratégie protège les changements
-nouveaux sans masquer la dette historique dans les métriques globales.
+du commit `main` précédent initialise chaque projet. Pour la release Step 10,
+`sonar.projectVersion` reste `1.0.0-rc` sur la branche et `1.0.0` sur main,
+y compris après un échec ou une relance. Le SHA exact reste enregistré dans
+la révision SCM Sonar et le build Jenkins. Une relance ne peut ainsi déplacer
+la référence au-delà des changements Step 10 déjà analysés.
+
+Après le formatage du poste, la référence Step 9 `a5f9c34be650` est rejouée
+avec `sonar.projectDate=2026-09-28`, après le merge main du 27 septembre et
+avant les premiers commits Step 10 d'octobre. Cette date est celle de la
+référence historique ; le journal Jenkins conserve la date réelle du rejeu.
+Une référence créée à la date courante avait produit zéro nouvelle ligne,
+car les corrections applicatives avaient été commitées avant sa création.
+Cette référence incorrecte a été remplacée avant publication. Vérifier les
+métriques `new_lines` et la période du gate, pas seulement son statut `OK`.
 
 ## 13. Webhook
 

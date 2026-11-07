@@ -45,6 +45,11 @@ pipeline {
           env.SONAR_PROJECT_NAME = env.BRANCH_NAME == 'main'
             ? 'SmartIntern AI'
             : 'SmartIntern AI Step 10'
+          // Keep the same release version across retries so a failed analysis
+          // cannot move the Previous Version reference past Step 9.
+          env.SONAR_PROJECT_VERSION = env.BRANCH_NAME == 'main'
+            ? '1.0.0'
+            : '1.0.0-rc'
         }
         sh '''
           set -eu
@@ -203,7 +208,7 @@ pipeline {
                 '${scannerHome}/bin/sonar-scanner' \\
                 -Dsonar.projectKey='${env.SONAR_PROJECT_KEY}' \\
                 -Dsonar.projectName='${env.SONAR_PROJECT_NAME}' \\
-                -Dsonar.projectVersion='${env.CI_TAG}' \\
+                -Dsonar.projectVersion='${env.SONAR_PROJECT_VERSION}' \\
                 -Dsonar.nodejs.executable=/usr/local/bin/node
             """
           }
