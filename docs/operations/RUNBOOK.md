@@ -21,16 +21,16 @@ Si Minikube est arrêté : `minikube start -p smartintern-ai --driver=docker`. N
 
 Le frontend utilise `https://smartintern.local` via Ingress local. Le nom doit résoudre vers le contrôleur Ingress Minikube ; voir [Step 8](../devops/08-helm-ingress-environments.md). Le certificat local n'est pas signé par une autorité publique. Vérifier les services :
 
-Sous Windows avec port-forward 8443, le navigateur utilise
-`https://smartintern.local:8443`. Le nom doit résoudre vers `127.0.0.1`.
+Sous Windows avec port-forward 443, le navigateur utilise
+`https://smartintern.local`. Le nom doit résoudre vers `127.0.0.1`.
 L'ajout au fichier hosts exige un terminal administrateur ; si ces droits sont
 absents, la commande `curl --resolve` ci-dessous valide le service sans modifier
 le DNS système. Le certificat reste une exception locale de test.
 
 ```bash
-kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 8443:443
-curl -k --resolve smartintern.local:8443:127.0.0.1 https://smartintern.local:8443/api/health
-curl -k --resolve smartintern.local:8443:127.0.0.1 https://smartintern.local:8443/ai/health
+kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 443:443 --address=127.0.0.1
+curl -k --resolve smartintern.local:443:127.0.0.1 https://smartintern.local/api/health
+curl -k --resolve smartintern.local:443:127.0.0.1 https://smartintern.local/ai/health
 ```
 
 Jenkins : `http://localhost:8090` ; SonarQube : `http://localhost:9000`. Prometheus : `kubectl port-forward -n smartintern-observability service/smartintern-prometheus-server 9090:80`, puis `http://localhost:9090`. Grafana : `kubectl port-forward -n smartintern-observability service/smartintern-grafana 3000:80`, puis `http://localhost:3000`. L'utilisateur Grafana est `admin` ; sous PowerShell, copier son mot de passe sans l'afficher, puis effacer le presse-papiers après connexion :
