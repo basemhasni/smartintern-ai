@@ -105,6 +105,9 @@ Une référence créée à la date courante avait produit zéro nouvelle ligne,
 car les corrections applicatives avaient été commitées avant sa création.
 Cette référence incorrecte a été remplacée avant publication. Vérifier les
 métriques `new_lines` et la période du gate, pas seulement son statut `OK`.
+Le pipeline vérifie aussi la révision SCM complète, un nombre de nouvelles
+lignes strictement positif pour Step 10 et le gate `OK` via l'API Sonar.
+Les trois réponses JSON sans credential sont archivées avec le build.
 
 ## 13. Webhook
 

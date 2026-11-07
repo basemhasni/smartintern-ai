@@ -235,6 +235,9 @@ pipeline {
             if (gate.status != 'OK') {
               error "SonarQube Quality Gate failed with status: ${gate.status}"
             }
+            withSonarQubeEnv(env.SONARQUBE_INSTALLATION) {
+              sh 'bash devops/release/scripts/verify-sonar-analysis.sh'
+            }
           }
         }
       }
