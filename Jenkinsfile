@@ -575,7 +575,6 @@ pipeline {
           branch 'main'
           branch 'release/step-10-final-stabilization'
         }
-        script { env.RECOVERY_STATUS = 'SUCCESS' }
       }
       steps {
         withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
@@ -589,6 +588,7 @@ pipeline {
             '''
           }
         }
+        script { env.RECOVERY_STATUS = 'SUCCESS' }
       }
     }
 
