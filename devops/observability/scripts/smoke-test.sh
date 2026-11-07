@@ -111,6 +111,12 @@ for metric in \
   check_query "${metric}"
 done
 check_query 'nginx_ingress_controller_requests'
+for traffic_query in \
+  'sum(smartintern_backend_http_requests_total) > 0' \
+  'sum(smartintern_ai_http_requests_total) > 0' \
+  'sum(smartintern_backend_http_request_duration_seconds_count) > 0'; do
+  check_query "${traffic_query}"
+done
 query_prometheus 'pg_up{namespace="smartintern-dev"}' | jq -e '[.data.result[] | select(.value[1] == "1")] | length > 0' >/dev/null
 
 forward_service "${OBS_NAMESPACE}" smartintern-grafana 80

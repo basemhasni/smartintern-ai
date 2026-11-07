@@ -68,6 +68,7 @@ pipeline {
         sh 'docker compose version'
         sh 'kubectl version --client'
         sh 'helm version --short'
+        sh 'node --test devops/release/tests/*.test.mjs'
       }
     }
 
@@ -76,7 +77,7 @@ pipeline {
         stage('Frontend CI') {
           agent {
             docker {
-              image 'node:20.19.4-bookworm-slim'
+              image 'node:22.23.4-bookworm-slim'
               args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
@@ -89,6 +90,7 @@ pipeline {
               }
               sh 'npm run test:coverage'
               sh 'npm run build'
+              sh 'npm audit --audit-level=critical'
             }
           }
         }
@@ -96,7 +98,7 @@ pipeline {
         stage('Backend CI') {
           agent {
             docker {
-              image 'node:20.19.4-bookworm'
+              image 'node:22.23.4-bookworm'
               args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
@@ -109,6 +111,7 @@ pipeline {
               }
               sh 'npx --no-install prisma generate'
               sh 'npm run test:coverage'
+              sh 'npm audit --audit-level=critical'
             }
           }
         }
@@ -116,7 +119,7 @@ pipeline {
         stage('AI Service CI') {
           agent {
             docker {
-              image 'python:3.11.9-slim-bookworm'
+              image 'python:3.11.18-slim-bookworm'
               args '--user 1000:1000 --env HOME=/tmp --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env PIP_CERT=/var/jenkins_home/certs/ci-ca-bundle.crt --env REQUESTS_CA_BUNDLE=/var/jenkins_home/certs/ci-ca-bundle.crt --env SSL_CERT_FILE=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
@@ -137,7 +140,7 @@ pipeline {
         stage('Mobile CI') {
           agent {
             docker {
-              image 'node:20.19.4-bookworm-slim'
+              image 'node:22.23.4-bookworm-slim'
               args '--user 1000:1000 --env HOME=/tmp --env npm_config_cache=/tmp/npm-cache --volume /var/jenkins_home/certs:/var/jenkins_home/certs:ro --env NODE_EXTRA_CA_CERTS=/var/jenkins_home/certs/ci-ca-bundle.crt'
               reuseNode true
             }
@@ -150,6 +153,8 @@ pipeline {
               }
               sh 'npm run lint'
               sh 'npm run typecheck'
+              sh 'npm run test:logic'
+              sh 'npm audit --audit-level=critical'
               sh 'EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK=1 npx --yes expo-doctor@1.20.1 .'
             }
           }
@@ -257,8 +262,10 @@ pipeline {
       }
       steps {
         timeout(time: 25, unit: 'MINUTES') {
+          sh 'bash devops/release/scripts/scan-filesystem.sh'
           sh 'bash devops/release/scripts/scan-images.sh "${CI_TAG}"'
         }
+        script { env.SECURITY_STATUS = 'SUCCESS' }
       }
     }
 
@@ -314,6 +321,7 @@ pipeline {
             sh 'E2E_BASE_URL=http://frontend:8080 npm run test:e2e'
           }
         }
+        script { env.COMPOSE_E2E_STATUS = 'SUCCESS' }
       }
       post {
         always {
@@ -338,6 +346,7 @@ pipeline {
               grafana/k6:0.55.2 run - < devops/release/performance/smoke.js
           '''
         }
+        script { env.PERFORMANCE_STATUS = 'SUCCESS' }
       }
     }
 
@@ -503,6 +512,24 @@ pipeline {
       }
     }
 
+    stage('Kubernetes Application E2E') {
+      when { anyOf { branch 'main'; branch 'release/step-10-final-stabilization' } }
+      steps {
+        withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
+          timeout(time: 16, unit: 'MINUTES') {
+            sh 'bash devops/release/scripts/run-kubernetes-e2e.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+          }
+        }
+        script { env.KUBERNETES_E2E_STATUS = 'SUCCESS' }
+      }
+      post {
+        always {
+          junit allowEmptyResults: true, testResults: 'frontend-web/test-results-kubernetes/e2e-junit.xml'
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'frontend-web/test-results-kubernetes/**', onlyIfSuccessful: false
+        }
+      }
+    }
+
     stage('Backup / Restore Validation') {
       when {
         beforeAgent true
@@ -525,6 +552,7 @@ pipeline {
             '''
           }
         }
+        script { env.RESTORE_STATUS = 'SUCCESS' }
       }
     }
 
@@ -535,6 +563,7 @@ pipeline {
           branch 'main'
           branch 'release/step-10-final-stabilization'
         }
+        script { env.RECOVERY_STATUS = 'SUCCESS' }
       }
       steps {
         withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'SMARTINTERN_KUBECONFIG')]) {
@@ -602,10 +631,35 @@ pipeline {
             variable: 'SMARTINTERN_KUBECONFIG'
           )
         ]) {
-          sh 'devops/observability/scripts/smoke-test.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+          timeout(time: 15, unit: 'MINUTES') {
+            sh 'devops/observability/scripts/smoke-test.sh --kubeconfig "${SMARTINTERN_KUBECONFIG}"'
+          }
         }
         script {
           env.OBSERVABILITY_SMOKE_STATUS = 'SUCCESS'
+        }
+      }
+    }
+
+    stage('Final Release Validation') {
+      when { anyOf { branch 'main'; branch 'release/step-10-final-stabilization' } }
+      steps {
+        script {
+          [
+            QUALITY_GATE_STATUS: 'OK', SECURITY_STATUS: 'SUCCESS',
+            COMPOSE_E2E_STATUS: 'SUCCESS', PERFORMANCE_STATUS: 'SUCCESS',
+            KUBERNETES_E2E_STATUS: 'SUCCESS',
+            RESTORE_STATUS: 'SUCCESS', RECOVERY_STATUS: 'SUCCESS',
+            HELM_DEPLOY_STATUS: 'SUCCESS', KUBERNETES_SMOKE_STATUS: 'SUCCESS',
+            OBSERVABILITY_SMOKE_STATUS: 'SUCCESS'
+          ].each { name, expected ->
+            if (env[name] != expected) { error "Release validation missing or failed: ${name}" }
+          }
+          sh '''
+            git diff --exit-code
+            test -z "$(git ls-files '*.dump' '*.backup' '*.key' '*.pem' '*kubeconfig*')"
+          '''
+          env.RELEASE_VALIDATION_STATUS = 'SUCCESS'
         }
       }
     }
@@ -660,6 +714,7 @@ Ingress: ${ingressStatus}
 TLS: ${tlsStatus}
 Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
           echo "Observability deployment: ${observabilityDeployStatus}; smoke: ${observabilitySmokeStatus}"
+          echo "Release validation: ${env.RELEASE_VALIDATION_STATUS ?: 'SKIPPED'}"
         }
       }
     }
@@ -667,6 +722,7 @@ Kubernetes smoke tests: ${kubernetesSmokeStatus}"""
 
   post {
     always {
+      archiveArtifacts allowEmptyArchive: true, artifacts: 'artifacts/security/*.summary.json,frontend-web/coverage/lcov.info,backend-api/coverage/lcov.info,ai-service/coverage.xml', onlyIfSuccessful: false
       script {
         if (env.CI_PROJECT_NAME?.trim() && fileExists(env.CI_ENV_FILE)) {
           sh '''

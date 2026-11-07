@@ -31,7 +31,7 @@
     "prisma:studio": "prisma studio",
     "db:check": "node src/config/check-db.js",
     "rag:reindex": "node scripts/reindex-rag.js",
-    "test": "node --test tests/ai-stability.test.js",
+    "test": "node --test tests/*.test.js",
     "test:coverage": "c8 --all --include=src/** --reporter=lcov --reporter=text-summary --reports-dir=coverage npm test"
   },
   "keywords": [],

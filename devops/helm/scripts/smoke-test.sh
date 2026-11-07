@@ -57,15 +57,35 @@ vector="$(kube exec -n "${NAMESPACE}" statefulset/postgres -- sh -c \
 [[ "${vector}" == "vector" ]]
 
 if [[ "${TEST_PERSISTENCE}" == "true" ]]; then
-  kube exec -n "${NAMESPACE}" statefulset/postgres -- sh -c \
-    "psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\" -v ON_ERROR_STOP=1 -c \"CREATE TABLE IF NOT EXISTS helm_persistence_probe (marker text NOT NULL); TRUNCATE helm_persistence_probe; INSERT INTO helm_persistence_probe VALUES ('${IMAGE_TAG}');\"" >/dev/null
+  pg_query() {
+    kube exec -n "${NAMESPACE}" statefulset/postgres -- sh -c \
+      'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "$1"' sh "$1"
+  }
+  probe="step10_probe_${IMAGE_TAG}_${RANDOM}"
+  cleanup_probe() { pg_query "DROP TABLE IF EXISTS $probe;" >/dev/null; }
+  pvc_uid="$(kube get pvc postgres-data-postgres-0 -n "${NAMESPACE}" -o jsonpath='{.metadata.uid}')"
+  pod_uid="$(kube get pod postgres-0 -n "${NAMESPACE}" -o jsonpath='{.metadata.uid}')"
+  pg_query "CREATE TABLE $probe (marker text NOT NULL); INSERT INTO $probe VALUES ('${IMAGE_TAG}');" >/dev/null
+  trap cleanup_probe EXIT
   kube delete pod postgres-0 -n "${NAMESPACE}" --wait=true --timeout=120s
+  replaced=false
+  for _ in {1..60}; do
+    current_uid="$(kube get pod postgres-0 -n "${NAMESPACE}" --ignore-not-found -o jsonpath='{.metadata.uid}')"
+    if [[ -n "$current_uid" && "$current_uid" != "$pod_uid" ]]; then
+      replaced=true
+      break
+    fi
+    sleep 2
+  done
+  [[ "$replaced" == true ]]
   kube wait pod/postgres-0 -n "${NAMESPACE}" --for=condition=Ready --timeout=300s
-  marker="$(kube exec -n "${NAMESPACE}" statefulset/postgres -- sh -c \
-    'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT marker FROM helm_persistence_probe LIMIT 1;"')"
-  [[ "${marker}" == "${IMAGE_TAG}" ]]
-  kube exec -n "${NAMESPACE}" statefulset/postgres -- sh -c \
-    'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -c "DROP TABLE helm_persistence_probe;"' >/dev/null
+  [[ "$(pg_query "SELECT marker FROM $probe;")" == "${IMAGE_TAG}" ]]
+  [[ "$(kube get pvc postgres-data-postgres-0 -n "${NAMESPACE}" -o jsonpath='{.metadata.uid}')" == "$pvc_uid" ]]
+  [[ "$(kube get pvc postgres-data-postgres-0 -n "${NAMESPACE}" -o jsonpath='{.status.phase}')" == Bound ]]
+  [[ "$(pg_query "SELECT '[1,2,3]'::vector <-> '[1,2,4]'::vector;")" == 1 ]]
+  cleanup_probe
+  trap - EXIT
+  printf 'PostgreSQL replacement UID, retained PVC UID, marker and pgvector verified.\n'
 fi
 
 local_port="$((20000 + RANDOM % 10000))"

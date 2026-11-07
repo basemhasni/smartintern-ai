@@ -1,6 +1,6 @@
 # SmartIntern AI : runbook local
 
-Toutes les commandes Kubernetes se lancent dans Ubuntu/WSL avec le contexte `smartintern-ai`. Ne jamais afficher ou copier les Secrets Kubernetes dans un ticket ou un log.
+Les scripts Bash utilisent le contexte `smartintern-ai` dans un environnement disposant de Helm, kubectl, curl, jq et openssl. Sous Windows, le conteneur facultatif `devops/release/Dockerfile.tools` fournit ces outils, avec un kubeconfig privé ignoré par Git. Ne jamais afficher ou copier les Secrets Kubernetes dans un ticket ou un log.
 
 ## Etat rapide
 
@@ -27,10 +27,14 @@ curl -k --resolve smartintern.local:8443:127.0.0.1 https://smartintern.local:844
 curl -k --resolve smartintern.local:8443:127.0.0.1 https://smartintern.local:8443/ai/health
 ```
 
-Jenkins : `http://localhost:8090` ; SonarQube : `http://localhost:9000`. Prometheus : `kubectl port-forward -n smartintern-observability service/smartintern-prometheus-server 9090:80`, puis `http://localhost:9090`. Grafana : `kubectl port-forward -n smartintern-observability service/smartintern-grafana 3000:80`, puis `http://localhost:3000`. L'utilisateur Grafana est `admin` ; récupérer son mot de passe sans le publier :
+Jenkins : `http://localhost:8090` ; SonarQube : `http://localhost:9000`. Prometheus : `kubectl port-forward -n smartintern-observability service/smartintern-prometheus-server 9090:80`, puis `http://localhost:9090`. Grafana : `kubectl port-forward -n smartintern-observability service/smartintern-grafana 3000:80`, puis `http://localhost:3000`. L'utilisateur Grafana est `admin` ; sous PowerShell, copier son mot de passe sans l'afficher, puis effacer le presse-papiers après connexion :
 
-```bash
-kubectl get secret smartintern-grafana-admin -n smartintern-observability -o jsonpath='{.data.admin-password}' | base64 --decode
+```powershell
+$encodedGrafanaPassword = kubectl get secret smartintern-grafana-admin -n smartintern-observability -o jsonpath='{.data.admin-password}'
+Set-Clipboard ([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($encodedGrafanaPassword)))
+Remove-Variable encodedGrafanaPassword
+# Coller dans Grafana, puis :
+Set-Clipboard ''
 ```
 
 ## Diagnostic
@@ -59,6 +63,32 @@ bash devops/release/scripts/verify-restore-postgres.sh --input artifacts/backups
 ```
 
 La restauration de validation crée et supprime une base temporaire ; elle ne touche pas à la base active. Un restore opérationnel complet sur la base active exige une fenêtre de maintenance, une sauvegarde hors machine et une procédure de changement approuvée. Conserver les dumps chiffrés et hors Git.
+
+Pour la base Compose jetable, les deux scripts acceptent aussi
+`--compose-project smartintern-step10-validation --compose-env .env.step10-validation`.
+Ajouter `--expect-test-data` à la restauration après les E2E pour vérifier les
+utilisateurs synthétiques et candidatures dans le dump. Un nom de dump existant
+est refusé pour éviter l'écrasement accidentel d'une sauvegarde.
+
+Pour revalider l'application déployée :
+
+```bash
+bash devops/release/scripts/run-kubernetes-e2e.sh
+bash devops/release/scripts/verify-app-recovery.sh
+bash devops/helm/scripts/smoke-test.sh --image-tag SHA12 --test-persistence
+bash devops/observability/scripts/smoke-test.sh
+```
+
+Les E2E Kubernetes créent un administrateur et des comptes étudiant/entreprise
+synthétiques avec un identifiant unique, puis les suppriment avec leurs documents.
+Les anciens comptes de démonstration ne sont pas sélectionnés par ce nettoyage.
+Les scripts s'arrêtent avec un code non nul sur échec ; conserver les rapports
+JUnit et traces d'échec pour le diagnostic. Ne jamais valider une release sur la
+seule présence de fichiers de tests.
+
+Pour Sonar, ouvrir le projet du SHA testé, vérifier la date d'analyse et le Quality
+Gate `OK`, puis rapprocher ces références du build Jenkins. Un serveur absent ou
+une analyse d'un ancien SHA signifie « non vérifié », pas `SUCCESS`.
 
 ## Redémarrage et rollback
 

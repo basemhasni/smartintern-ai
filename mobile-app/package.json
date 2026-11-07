@@ -13,6 +13,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
+    "test:logic": "node --test scripts/test-logic.cjs",
     "smoke:student": "node scripts/student-flow-smoke.cjs"
   },
   "dependencies": {

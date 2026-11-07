@@ -1,0 +1,15 @@
+FROM docker:29.7.2-cli
+ARG HELM_VERSION=4.1.4
+ARG KUBECTL_VERSION=1.37.0
+RUN apk add --no-cache bash curl jq openssl nodejs \
+    && curl -fsSLo /tmp/helm.tar.gz "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
+    && curl -fsSLo /tmp/helm.sha256 "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz.sha256sum" \
+    && cd /tmp && printf '%s  helm.tar.gz\n' "$(cut -d ' ' -f 1 helm.sha256)" | sha256sum -c - \
+    && tar -xzf helm.tar.gz && mv linux-amd64/helm /usr/local/bin/helm \
+    && curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+    && curl -fsSLo /tmp/kubectl.sha256 "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+    && printf '%s  /usr/local/bin/kubectl\n' "$(cat /tmp/kubectl.sha256)" | sha256sum -c - \
+    && chmod +x /usr/local/bin/kubectl \
+    && rm -rf /tmp/helm* /tmp/linux-amd64 /tmp/kubectl.sha256
+WORKDIR /workspace
+ENTRYPOINT ["bash"]

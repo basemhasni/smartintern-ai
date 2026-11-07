@@ -6,23 +6,23 @@ tag="${1:?Usage: scan-images.sh IMAGE_TAG}"
   printf 'Expected latest for local validation or a 12-character SHA tag for CI.\n' >&2
   exit 2
 }
-
-trivy_image=aquasec/trivy:0.68.2
+umask 077
+mkdir -p artifacts/security
+failed=false
 for name in frontend backend backend-migrate ai postgres; do
   image="smartintern-$name:$tag"
   docker image inspect "$image" >/dev/null
-  printf '\nScanning %s (HIGH and CRITICAL findings, including unfixed):\n' "$image"
+  report="artifacts/security/image-$name.raw.json"
   docker run --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v smartintern-trivy-cache:/root/.cache/trivy \
-    "$trivy_image" image --quiet --scanners vuln --severity HIGH,CRITICAL \
-    --exit-code 0 "$image"
-
-  printf 'Enforcing fixable CRITICAL gate for %s...\n' "$image"
-  docker run --rm \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v smartintern-trivy-cache:/root/.cache/trivy \
-    "$trivy_image" image --quiet --scanners vuln --severity CRITICAL \
-    --ignore-unfixed --exit-code 1 "$image" >/dev/null
+    aquasec/trivy:0.68.2 image --quiet --scanners vuln --severity HIGH,CRITICAL \
+    --format json "$image" > "$report"
+  if node devops/release/scripts/security-policy.mjs "$report"; then
+    printf '%s security gate passed.\n' "$image"
+  else
+    failed=true
+  fi
 done
-printf 'All image security gates passed.\n'
+[[ "$failed" == false ]] || { printf 'At least one image failed the security gate.\n' >&2; exit 1; }
+printf 'All five image security gates passed.\n'

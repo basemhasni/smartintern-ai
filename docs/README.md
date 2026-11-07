@@ -47,4 +47,5 @@ Ce dossier regroupe la documentation principale du projet SmartIntern AI. Elle e
 - [devops/10-final-stabilization-production-readiness.md](devops/10-final-stabilization-production-readiness.md) : tests E2E, sécurité, charge, sauvegarde/restauration et release.
 - [operations/RUNBOOK.md](operations/RUNBOOK.md) : exploitation et dépannage du cluster local.
 - [release/RELEASE_CHECKLIST.md](release/RELEASE_CHECKLIST.md) : critères vérifiables avant v1.0.0.
+- [release/STEP10_AUDIT.md](release/STEP10_AUDIT.md) : audit réel, matrice des fonctionnalités et limites de validation.
 
