@@ -45,6 +45,23 @@ Set-Clipboard ''
 
 ## Diagnostic
 
+### Réinstallation locale de Jenkins après formatage
+
+Sous PowerShell 7, `pwsh -File devops/jenkins/initialize-local.ps1 -Start`
+recrée les services existants Jenkins/DinD et SonarQube/PostgreSQL. Démarrer
+d'abord le profil Minikube `smartintern-ai`. Le script génère des mots de passe
+aléatoires dans `artifacts/ci-private/bootstrap.json`, ignoré par Git et limité
+au compte Windows courant et SYSTEM. Les deux administrateurs utilisent `admin`.
+Jenkins désactive l'accès anonyme et conserve un seul exécuteur pour ce laptop.
+SonarQube doit ensuite remplacer son mot de passe initial par celui du fichier
+privé et rétablir le compte technique, les projets et le webhook décrits en Step 6.
+Les credentials Docker Hub, Sonar et kubeconfig sont stockés dans Jenkins sous
+les IDs du `Jenkinsfile` ; ils ne sont pas reconstruits depuis des secrets Git.
+Le bootstrap conserve les mots de passe et volumes existants à chaque relance.
+
+La version Jenkins locale est `2.580.2-lts-jdk21`, et le plugin Sonar `2.19.0`.
+Ces correctifs remplacent les anciennes versions vulnérables de la Step 6.
+
 ```bash
 kubectl describe pod -n smartintern-dev POD
 kubectl logs -n smartintern-dev deployment/backend --tail=100

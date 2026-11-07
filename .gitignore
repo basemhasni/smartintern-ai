@@ -57,6 +57,7 @@ backups/
 artifacts/backups/
 artifacts/security/
 artifacts/validation/
+artifacts/ci-private/
 artifacts/tools/
 frontend-web/playwright-report/
 frontend-web/test-results/

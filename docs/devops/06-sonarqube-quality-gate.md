@@ -33,7 +33,7 @@ Les volumes persistants sont :
 
 ## 5. Jenkins integration
 
-Le plugin Jenkins `sonar:2.18.3` configure le serveur nommé
+Le plugin Jenkins `sonar:2.19.0` (corrigé pendant la Step 10) configure le serveur nommé
 `SmartIntern SonarQube`. Jenkins utilise l'URL Docker stable
 `http://smartintern-sonarqube:9000`.
 

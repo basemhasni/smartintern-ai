@@ -63,3 +63,17 @@ Les dumps, clés/certificats runtime et kubeconfig de validation sont ignorés.
 Aucune révocation ou rotation de secret n'est annoncée : aucune fuite réelle n'a
 été détectée dans ce contrôle de l'arbre de travail. L'historique Git complet
 n'a pas fait l'objet d'un audit spécialisé des secrets.
+
+## Contrôleur CI réinstallé
+
+La réinstallation remplace Jenkins `2.568.1` par `2.580.2-lts-jdk21`
+et Sonar Scanner plugin `2.18.3` par `2.19.0`. L'installation de l'ancien
+plugin avait effectivement signalé SECURITY-3989 / CVE-2026-84665 ; le
+correctif limite les liens de résultats aux schémas HTTP/HTTPS. Le contrôleur
+LTS reçoit aussi les correctifs de sécurité de septembre et octobre 2026.
+Le bootstrap local interdit l'accès anonyme, génère des mots de passe aléatoires
+et conserve ses entrées privées hors Git. Un seul exécuteur sérialise les builds
+sur les ressources locales et le cluster partagé.
+
+Références éditeur : [Jenkins LTS](https://www.jenkins.io/changelog-stable/),
+[avis SECURITY-3989](https://www.jenkins.io/security/advisory/2026-09-02/#SECURITY-3989).

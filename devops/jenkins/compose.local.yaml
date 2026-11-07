@@ -1,0 +1,20 @@
+# Local recovery after a fresh workstation installation.
+# Compose paths are relative to the first file, devops/jenkins/compose.yaml.
+services:
+  jenkins:
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Xms256m -Xmx768m
+    volumes:
+      - ./bootstrap/00-local-security.groovy:/var/jenkins_home/init.groovy.d/00-local-security.groovy:ro
+      - ../../artifacts/ci-private/bootstrap.json:/run/smartintern-bootstrap/secrets.json:ro
+    networks:
+      jenkins:
+      minikube:
+  docker:
+    networks:
+      jenkins:
+      minikube:
+networks:
+  minikube:
+    external: true
+    name: minikube
