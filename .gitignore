@@ -54,6 +54,14 @@ backups/
 *.dump
 *.backup
 *.sql.gz
+artifacts/backups/
+artifacts/security/
+artifacts/validation/
+artifacts/ci-private/
+artifacts/tools/
+frontend-web/playwright-report/
+frontend-web/test-results/
+frontend-web/test-results-kubernetes/
 
 # OS and editor files
 .DS_Store

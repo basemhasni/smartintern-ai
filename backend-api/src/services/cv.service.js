@@ -57,6 +57,10 @@ const createCV = async (userId, file) => {
       };
     }
   } catch (error) {
+    if (error.code === 'CV_TEXT_EXTRACTION_FAILED') {
+      await fs.unlink(filePath);
+      throw error;
+    }
     analysisFailed = true;
     analysisJson = {
       error: 'Le service IA est temporairement indisponible.',

@@ -47,7 +47,9 @@ const validateEnvironment = () => {
       'replace_with_a_long_random_secret',
     ]);
 
-    if (process.env.JWT_SECRET.length < 32 || weakSecrets.has(process.env.JWT_SECRET)) {
+    const knownPlaceholder = /change.?me|replace_with|not_for_production/i.test(process.env.JWT_SECRET);
+    const repeatedCharacter = /^(.)\1+$/.test(process.env.JWT_SECRET);
+    if (process.env.JWT_SECRET.length < 32 || weakSecrets.has(process.env.JWT_SECRET) || knownPlaceholder || repeatedCharacter) {
       throw new Error('JWT_SECRET must be a non-default secret of at least 32 characters in production.');
     }
   }

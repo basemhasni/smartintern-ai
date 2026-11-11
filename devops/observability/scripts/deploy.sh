@@ -43,7 +43,7 @@ if ! kube get deployment ingress-nginx-controller -n ingress-nginx -o json \
 fi
 kube apply -f "${OBS_ROOT}/ingress-metrics-service.yaml" >/dev/null
 
-postgres_database="$(kube get secret smartintern-secrets -n "${APP_NAMESPACE}" -o jsonpath='{.data.POSTGRES_DB}' | base64 --decode)"
+postgres_database="$(kube get secret smartintern-secrets -n "${APP_NAMESPACE}" -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)"
 helm_cli upgrade --install smartintern-postgres-exporter \
   prometheus-community/prometheus-postgres-exporter \
   --version "${POSTGRES_EXPORTER_CHART_VERSION}" -n "${APP_NAMESPACE}" \

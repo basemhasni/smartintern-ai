@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20.19.4-bookworm-slim AS build
+FROM node:22.23.4-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -20,7 +20,11 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
 
 RUN npm run build
 
-FROM nginx:1.28.0-alpine AS runtime
+FROM alpine:3.23.3 AS runtime
+
+# Use Alpine's patched Nginx build; the vendor image pins an older apk revision.
+RUN apk upgrade --no-cache \
+  && apk add --no-cache nginx=1.28.3-r7
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html

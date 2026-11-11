@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const { appendSetCookie, parseCookies, serializeCookie } = require('../utils/authCookie');
+const { appendSetCookie, getAuthTokenFromCookie, parseCookies, serializeCookie } = require('../utils/authCookie');
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -46,7 +46,9 @@ const csrfProtection = (req, res, next) => {
     return next();
   }
 
-  if (isMobileClient(req)) {
+  // Mobile bearer clients have no ambient session cookie. A caller-supplied
+  // header must never exempt a cookie-authenticated request from CSRF checks.
+  if (isMobileClient(req) && !getAuthTokenFromCookie(req)) {
     return next();
   }
 

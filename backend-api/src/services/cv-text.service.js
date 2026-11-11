@@ -1,47 +1,25 @@
-const path = require('path');
 const fs = require('fs/promises');
 const mammoth = require('mammoth');
 const pdfParse = require('pdf-parse');
 
-const normalizeFileNameAsText = (fileName) => {
-  const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
-
-  return nameWithoutExtension
-    .replace(/^\d+-/, '')
-    .replace(/[-_]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-};
-
 const extractTextFromCV = async (filePath, fileType) => {
-  const fileName = path.basename(filePath);
-  const readableName = normalizeFileNameAsText(fileName);
   let extractedText = '';
-
   try {
     if (fileType === 'application/pdf') {
-      const fileBuffer = await fs.readFile(filePath);
-      const result = await pdfParse(fileBuffer);
-      extractedText = result.text || '';
+      extractedText = (await pdfParse(await fs.readFile(filePath))).text || '';
+    } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      extractedText = (await mammoth.extractRawText({ path: filePath })).value || '';
     }
-
-    if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.extractRawText({ path: filePath });
-      extractedText = result.value || '';
-    }
-  } catch (error) {
-    extractedText = '';
+  } catch {
+    // Invalid documents must not become AI evidence derived from their filename.
   }
-
-  return [
-    extractedText.trim(),
-    readableName ? `Detected file name content: ${readableName}.` : '',
-    `File type: ${fileType}.`,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  if (!extractedText.trim()) {
+    const error = new Error('Le CV ne contient pas de texte lisible. Importez un PDF avec du texte ou un DOCX valide.');
+    error.statusCode = 400;
+    error.code = 'CV_TEXT_EXTRACTION_FAILED';
+    throw error;
+  }
+  return extractedText.trim();
 };
 
-module.exports = {
-  extractTextFromCV,
-};
+module.exports = { extractTextFromCV };

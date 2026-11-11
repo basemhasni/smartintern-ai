@@ -33,7 +33,7 @@ Les volumes persistants sont :
 
 ## 5. Jenkins integration
 
-Le plugin Jenkins `sonar:2.18.3` configure le serveur nommé
+Le plugin Jenkins `sonar:2.19.0` (corrigé pendant la Step 10) configure le serveur nommé
 `SmartIntern SonarQube`. Jenkins utilise l'URL Docker stable
 `http://smartintern-sonarqube:9000`.
 
@@ -91,9 +91,23 @@ cas d'échec.
 ## 12. New Code
 
 La définition de New Code utilise `Previous version`. Une analyse de référence
-du commit `main` précédent initialise chaque projet, puis chaque SHA Jenkins est
-fourni comme `sonar.projectVersion`. Cette stratégie protège les changements
-nouveaux sans masquer la dette historique dans les métriques globales.
+du commit `main` précédent initialise chaque projet. Pour la release Step 10,
+`sonar.projectVersion` reste `1.0.0-rc` sur la branche et `1.0.0` sur main,
+y compris après un échec ou une relance. Le SHA exact reste enregistré dans
+la révision SCM Sonar et le build Jenkins. Une relance ne peut ainsi déplacer
+la référence au-delà des changements Step 10 déjà analysés.
+
+Après le formatage du poste, la référence Step 9 `a5f9c34be650` est rejouée
+avec `sonar.projectDate=2026-09-28`, après le merge main du 27 septembre et
+avant les premiers commits Step 10 d'octobre. Cette date est celle de la
+référence historique ; le journal Jenkins conserve la date réelle du rejeu.
+Une référence créée à la date courante avait produit zéro nouvelle ligne,
+car les corrections applicatives avaient été commitées avant sa création.
+Cette référence incorrecte a été remplacée avant publication. Vérifier les
+métriques `new_lines` et la période du gate, pas seulement son statut `OK`.
+Le pipeline vérifie aussi la révision SCM complète, un nombre de nouvelles
+lignes strictement positif pour Step 10 et le gate `OK` via l'API Sonar.
+Les trois réponses JSON sans credential sont archivées avec le build.
 
 ## 13. Webhook
 

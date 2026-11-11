@@ -25,7 +25,7 @@ services:
   jenkins:
     build:
       context: .
-    image: smartintern-jenkins:2.568.1-lts-jdk21
+    image: smartintern-jenkins:2.580.2-lts-jdk21
     restart: unless-stopped
     depends_on:
       docker:

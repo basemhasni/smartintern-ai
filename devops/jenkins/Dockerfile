@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20.19.4-bookworm-slim AS sonar-node
+FROM node:22.23.4-bookworm-slim AS sonar-node
 
-FROM jenkins/jenkins:2.568.1-lts-jdk21
+FROM jenkins/jenkins:2.580.2-lts-jdk21
 
 ARG DOCKER_CLI_VERSION=5:29.7.2-1~debian.13~trixie
 ARG DOCKER_COMPOSE_VERSION=5.5.0-1~debian.13~trixie
 ARG DOCKER_BUILDX_VERSION=0.36.1-1~debian.13~trixie
-ARG KUBECTL_VERSION=1.32.2
+ARG KUBECTL_VERSION=1.37.0
 ARG TARGETARCH
 
 USER root

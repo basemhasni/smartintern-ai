@@ -41,7 +41,10 @@ query_prometheus() {
 }
 
 check_query() {
-  query_prometheus "$1" | jq -e '.status == "success" and (.data.result | length > 0)' >/dev/null
+  if ! query_prometheus "$1" | jq -e '.status == "success" and (.data.result | length > 0)' >/dev/null; then
+    printf 'Prometheus returned no series for: %s\n' "$1" >&2
+    return 1
+  fi
 }
 
 for deployment in smartintern-prometheus-server smartintern-prometheus-kube-state-metrics smartintern-grafana; do
@@ -75,6 +78,27 @@ curl --fail --silent --show-error "${exporter_url}/metrics" | grep 'pg_up 1' >/d
 forward_service "${OBS_NAMESPACE}" smartintern-prometheus-server 80
 prometheus_url="http://127.0.0.1:${FORWARD_PORT}"
 wait_http "${prometheus_url}/-/ready"
+
+# The deployment may have replaced the ingress controller after earlier E2E
+# traffic. Generate fresh HTTPS requests and wait for the next scrape.
+forward_service ingress-nginx ingress-nginx-controller 443
+ingress_port="${FORWARD_PORT}"
+ingress_traffic_seen=false
+for _ in {1..18}; do
+  if curl --fail --silent --max-time 5 --insecure --noproxy smartintern.local \
+    --connect-to "smartintern.local:443:127.0.0.1:${ingress_port}" \
+    'https://smartintern.local/api/health' >/dev/null &&
+    query_prometheus 'sum(nginx_ingress_controller_requests{namespace="smartintern-dev",host="smartintern.local"}) > 0' \
+      | jq -e '.status == "success" and (.data.result | length > 0)' >/dev/null; then
+    ingress_traffic_seen=true
+    break
+  fi
+  sleep 5
+done
+if [[ "${ingress_traffic_seen}" != true ]]; then
+  printf 'Prometheus did not record HTTPS traffic from the ingress controller.\n' >&2
+  exit 1
+fi
 
 targets_ready=false
 for _ in {1..18}; do
@@ -110,13 +134,18 @@ for metric in \
   'container_memory_working_set_bytes{job="kubernetes-nodes-resource",namespace="smartintern-dev",pod="postgres-0",container="postgres"}'; do
   check_query "${metric}"
 done
-check_query 'nginx_ingress_controller_requests'
+for traffic_query in \
+  'sum(smartintern_backend_http_requests_total) > 0' \
+  'sum(smartintern_ai_http_requests_total) > 0' \
+  'sum(smartintern_backend_http_request_duration_seconds_count) > 0'; do
+  check_query "${traffic_query}"
+done
 query_prometheus 'pg_up{namespace="smartintern-dev"}' | jq -e '[.data.result[] | select(.value[1] == "1")] | length > 0' >/dev/null
 
 forward_service "${OBS_NAMESPACE}" smartintern-grafana 80
 grafana_url="http://127.0.0.1:${FORWARD_PORT}"
 wait_http "${grafana_url}/api/health"
-grafana_password="$(kube get secret smartintern-grafana-admin -n "${OBS_NAMESPACE}" -o jsonpath='{.data.admin-password}' | base64 --decode)"
+grafana_password="$(kube get secret smartintern-grafana-admin -n "${OBS_NAMESPACE}" -o jsonpath='{.data.admin-password}' | base64 -d)"
 curl --fail --silent --show-error --user "admin:${grafana_password}" \
   "${grafana_url}/api/datasources/uid/prometheus/health" | jq -e '.status == "OK"' >/dev/null
 dashboards="$(curl --fail --silent --show-error --user "admin:${grafana_password}" \
