@@ -675,18 +675,25 @@ pipeline {
       when { anyOf { branch 'main'; branch 'release/step-10-final-stabilization' } }
       steps {
         script {
-          [
-            QUALITY_GATE_STATUS: 'OK', SECURITY_STATUS: 'SUCCESS',
-            COMPOSE_E2E_STATUS: 'SUCCESS', PERFORMANCE_STATUS: 'SUCCESS',
-            KUBERNETES_E2E_STATUS: 'SUCCESS',
-            KUBERNETES_PERFORMANCE_STATUS: 'SUCCESS',
-            RESTORE_STATUS: 'SUCCESS', RECOVERY_STATUS: 'SUCCESS',
-            HELM_DEPLOY_STATUS: 'SUCCESS', KUBERNETES_SMOKE_STATUS: 'SUCCESS',
-            OBSERVABILITY_SMOKE_STATUS: 'SUCCESS'
-          ].each { name, expected ->
-            if (env[name] != expected) { error "Release validation missing or failed: ${name}" }
-          }
           sh '''
+            set -eu
+            require_status() {
+              if [ "$2" != "$3" ]; then
+                printf 'Release validation missing or failed: %s (got %s, expected %s)\n' "$1" "$2" "$3" >&2
+                exit 1
+              fi
+            }
+            require_status QUALITY_GATE_STATUS "${QUALITY_GATE_STATUS:-}" OK
+            require_status SECURITY_STATUS "${SECURITY_STATUS:-}" SUCCESS
+            require_status COMPOSE_E2E_STATUS "${COMPOSE_E2E_STATUS:-}" SUCCESS
+            require_status PERFORMANCE_STATUS "${PERFORMANCE_STATUS:-}" SUCCESS
+            require_status KUBERNETES_E2E_STATUS "${KUBERNETES_E2E_STATUS:-}" SUCCESS
+            require_status KUBERNETES_PERFORMANCE_STATUS "${KUBERNETES_PERFORMANCE_STATUS:-}" SUCCESS
+            require_status RESTORE_STATUS "${RESTORE_STATUS:-}" SUCCESS
+            require_status RECOVERY_STATUS "${RECOVERY_STATUS:-}" SUCCESS
+            require_status HELM_DEPLOY_STATUS "${HELM_DEPLOY_STATUS:-}" SUCCESS
+            require_status KUBERNETES_SMOKE_STATUS "${KUBERNETES_SMOKE_STATUS:-}" SUCCESS
+            require_status OBSERVABILITY_SMOKE_STATUS "${OBSERVABILITY_SMOKE_STATUS:-}" SUCCESS
             git diff --exit-code
             test -z "$(git ls-files '*.dump' '*.backup' '*.key' '*.pem' '*kubeconfig*')"
           '''
